@@ -3,10 +3,12 @@ import styles from './Header.module.css'
 import { APP_NAME } from '../brand'
 import { useStore } from '../state/store'
 import { loadLocalProject } from '../state/loadProject'
+import { ToolsSheet } from './ToolsSheet'
 
 export function Header() {
   const project = useStore((s) => s.project)
   const connected = useStore((s) => s.mcpConnected)
+  const [showTools, setShowTools] = useState(false)
 
   const videoInput = useRef<HTMLInputElement | null>(null)
   const transcriptInput = useRef<HTMLInputElement | null>(null)
@@ -37,17 +39,16 @@ export function Header() {
 
       <span className={styles.spacer} />
 
-      <span
+      <button
         className={`${styles.pill} ${connected ? styles.pillLive : ''}`}
-        title={
-          connected
-            ? 'This page has registered its editing tools with the browser agent.'
-            : 'This browser does not expose document.modelContext. Every control here still works by hand.'
-        }
+        onClick={() => setShowTools(true)}
+        title="See the seven tools this page offers an agent"
       >
         <span className={`${styles.statusDot} ${connected ? styles.statusDotLive : ''}`} />
         {connected ? 'Agent tools live' : 'Agent tools unavailable'}
-      </span>
+      </button>
+
+      {showTools && <ToolsSheet onClose={() => setShowTools(false)} />}
 
       <button className={styles.btn} onClick={() => videoInput.current?.click()}>
         Open your own video
