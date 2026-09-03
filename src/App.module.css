@@ -21,6 +21,9 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
+  /* A pane that cannot fit its content should clip, never paint over its
+     neighbour. */
+  overflow: hidden;
 }
 
 .notice {

@@ -12,8 +12,13 @@
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--line);
+  /* 16/9 when there is room, squeezed when there is not: it may shrink but
+     never grows. `flex: none` made it rigid, so in a short window it overflowed
+     its grid row and painted over the panes below; letting it grow instead left
+     the video letterboxed in a tall black box on a normal screen. */
+  flex: 0 1 auto;
+  min-height: 96px;
   aspect-ratio: 16 / 9;
-  flex: none;
 }
 
 .video {
