@@ -21,7 +21,14 @@ export interface EditorState {
   error: string | null
   clips: Clip[]
   activeClipId: string | null
+  /** The human's anchor: the sentence they said has to survive. Theirs alone. */
   selection: Selection | null
+  /**
+   * A range the agent is auditioning. Deliberately separate from `selection` —
+   * an agent trying out a range must not be able to overwrite the mark the
+   * human made, because that mark is the brief.
+   */
+  audition: Selection | null
   /** Bumped on every mutation. Lets an agent detect that the world moved. */
   revision: number
   toolEvents: ToolEvent[]
@@ -36,6 +43,7 @@ const initial: EditorState = {
   clips: [],
   activeClipId: null,
   selection: null,
+  audition: null,
   revision: 0,
   toolEvents: [],
   mcpConnected: false,
@@ -235,7 +243,13 @@ export function setActiveClip(clipId: string | null) {
 }
 
 export function setSelection(selection: Selection | null) {
-  set({ selection })
+  // A human setting an anchor clears whatever the agent was auditioning; the
+  // two are alternative answers to "what are we looking at".
+  set({ selection, audition: null })
+}
+
+export function setAudition(audition: Selection | null) {
+  set({ audition })
 }
 
 function defaultTitle(text: string): string {

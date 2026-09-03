@@ -7,11 +7,33 @@ import type { Sentence } from '../types'
 
 const NO_SENTENCES: Sentence[] = []
 
+/**
+ * Scrolls a row into view, honouring the reduced-motion preference by jumping
+ * rather than by not moving at all.
+ *
+ * `behavior: 'smooth'` is silently ignored both when the user prefers reduced
+ * motion and while the tab is hidden, so asking for it unconditionally means
+ * the transcript quietly stops following the playhead and stops jumping to the
+ * agent's range. Here the scrolling is function, not decoration — only the
+ * animation is negotiable.
+ */
+function revealRow(node: HTMLElement | null | undefined) {
+  if (!node) return
+  const reduced =
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  // Smooth scrolling is driven by animation frames, which a hidden tab does not
+  // get. An agent can call preview_clip while the user is looking at something
+  // else; without this they come back to the old scroll position.
+  const instant = reduced || document.visibilityState === 'hidden'
+  node.scrollIntoView({ block: 'center', behavior: instant ? 'auto' : 'smooth' })
+}
+
 export function Transcript() {
   const project = useStore((s) => s.project)
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
   const selection = useStore((s) => s.selection)
+  const audition = useStore((s) => s.audition)
 
   const [query, setQuery] = useState('')
   const [time, setTime] = useState(0)
@@ -52,6 +74,14 @@ export function Transcript() {
     return { inClip, inActive, activeEditedBy }
   }, [clips, activeClipId, sentences])
 
+  const auditionRange = useMemo(() => {
+    if (!audition) return null
+    const a = sentences.findIndex((s) => s.id === audition.startSentenceId)
+    const b = sentences.findIndex((s) => s.id === audition.endSentenceId)
+    if (a < 0 || b < 0) return null
+    return { a: Math.min(a, b), b: Math.max(a, b) }
+  }, [audition, sentences])
+
   const selectedRange = useMemo(() => {
     if (!selection) return null
     const a = sentences.findIndex((s) => s.id === selection.startSentenceId)
@@ -80,19 +110,20 @@ export function Transcript() {
   // Follow the playhead, but yield the moment the user scrolls by hand.
   useEffect(() => {
     if (!followRef.current || playingIndex < 0 || matches) return
-    const node = listRef.current?.querySelector<HTMLElement>(`[data-index="${playingIndex}"]`)
-    node?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    revealRow(listRef.current?.querySelector<HTMLElement>(`[data-index="${playingIndex}"]`))
   }, [playingIndex, matches])
 
-  // Keep the agent's chosen range on screen — this is how you see it act.
-  const selectionStart = selection?.startSentenceId
-  const selectionEnd = selection?.endSentenceId
+  // Keep whatever is being pointed at on screen — an anchor the user set, or a
+  // range the agent is auditioning. Watching the list jump to the agent's range
+  // is how you see it act.
+  const focusStart = audition?.startSentenceId ?? selection?.startSentenceId
+  const focusEnd = audition?.endSentenceId ?? selection?.endSentenceId
   useEffect(() => {
-    if (!selectionStart) return
-    void selectionEnd
-    const node = listRef.current?.querySelector<HTMLElement>(`[data-id="${selectionStart}"]`)
-    node?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-  }, [selectionStart, selectionEnd])
+    if (!focusStart) return
+    void focusEnd
+    followRef.current = false
+    revealRow(listRef.current?.querySelector<HTMLElement>(`[data-id="${focusStart}"]`))
+  }, [focusStart, focusEnd])
 
   const onRowClick = (s: Sentence, e: React.MouseEvent) => {
     followRef.current = false
@@ -142,6 +173,7 @@ export function Transcript() {
         {visible.map((s) => {
           const i = s.index
           const selected = selectedRange && i >= selectedRange.a && i <= selectedRange.b
+          const auditioning = auditionRange && i >= auditionRange.a && i <= auditionRange.b
           const cls = [
             styles.row,
             inClip.has(i) && styles.inClip,
@@ -149,6 +181,7 @@ export function Transcript() {
               (activeEditedBy === 'human'
                 ? styles.inActiveClipHuman
                 : styles.inActiveClipAgent),
+            auditioning && styles.audition,
             selected && styles.selected,
             i === playingIndex && styles.playing,
           ]

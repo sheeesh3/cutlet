@@ -168,6 +168,15 @@
   border-right: 1px solid var(--accent);
 }
 
+.auditionBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(127, 179, 200, 0.12);
+  border-left: 1px dashed var(--agent);
+  border-right: 1px dashed var(--agent);
+}
+
 .playhead {
   position: absolute;
   top: 0;

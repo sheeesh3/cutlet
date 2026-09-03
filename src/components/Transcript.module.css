@@ -119,6 +119,18 @@
   color: var(--text);
 }
 
+/* A range the agent is auditioning but has not committed to a clip. Dashed,
+   because it is a proposal rather than a thing that exists. */
+.audition {
+  background: rgba(127, 179, 200, 0.09);
+  border-left-color: var(--agent);
+  border-left-style: dashed;
+}
+
+.audition .text {
+  color: var(--text);
+}
+
 /* The human's anchor. The strongest mark on the page. */
 .selected {
   background: var(--accent-wash);

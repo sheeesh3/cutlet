@@ -10,7 +10,7 @@ import {
   clipText,
   createClip,
   updateClip,
-  setSelection,
+  setAudition,
   setActiveClip,
   logTool,
 } from '../state/store'
@@ -96,6 +96,7 @@ const getEditorState: ToolDescriptor = {
             })(),
           }
         : null,
+      audition: s.audition,
       activeClipId: s.activeClipId,
       clips: s.clips.map(clipView),
       playback: {
@@ -106,8 +107,9 @@ const getEditorState: ToolDescriptor = {
     const summary = s.project
       ? `${s.project.name}: ${list.length} sentences, ${s.clips.length} clip(s), revision ${s.revision}.` +
         (s.selection
-          ? ` User has selected ${s.selection.startSentenceId}–${s.selection.endSentenceId}.`
-          : ' Nothing is selected.')
+          ? ` The user has anchored ${s.selection.startSentenceId}–${s.selection.endSentenceId}` +
+            ' — that sentence has to survive whatever you propose.'
+          : ' The user has not anchored anything.')
       : 'No project loaded.'
     logTool('get_editor_state', summary)
     return ok(summary + '\n' + JSON.stringify(payload, null, 2), payload)
@@ -485,14 +487,17 @@ const previewClip: ToolDescriptor = {
     const r = resolveRange(startId, endId)
     if ('error' in r) return fail(r.error)
 
-    setSelection({ startSentenceId: r.start.id, endSentenceId: r.end.id })
+    // An audition, not a selection. The human's anchor is theirs; an agent
+    // trying a range out must not overwrite the brief it was given.
+    setAudition({ startSentenceId: r.start.id, endSentenceId: r.end.id })
     if (mode === 'seek') seek(r.start.start)
     else playSentenceRange(r.start.id, r.end.id)
 
     const dur = r.end.end - r.start.start
     const summary =
       `${mode === 'seek' ? 'Moved the playhead to' : 'Playing'} ${r.start.id}–${r.end.id} ` +
-      `(${formatDuration(dur)}), and highlighted it in the transcript.`
+      `(${formatDuration(dur)}), and marked it in the transcript as an audition. ` +
+      `The user's own anchor is untouched.`
     logTool('preview_clip', summary)
     return ok(summary, {
       startSentenceId: r.start.id,

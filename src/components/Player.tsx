@@ -9,6 +9,7 @@ export function Player() {
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
   const selection = useStore((s) => s.selection)
+  const audition = useStore((s) => s.audition)
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [time, setTime] = useState(0)
@@ -25,13 +26,15 @@ export function Player() {
   const pct = (t: number) => (duration > 0 ? (t / duration) * 100 : 0)
 
   const activeClip = clips.find((c) => c.id === activeClipId) ?? null
-  const selectionBounds = (() => {
-    if (!selection) return null
-    const a = sentenceById(selection.startSentenceId)
-    const b = sentenceById(selection.endSentenceId)
+  const boundsOf = (range: { startSentenceId: string; endSentenceId: string } | null) => {
+    if (!range) return null
+    const a = sentenceById(range.startSentenceId)
+    const b = sentenceById(range.endSentenceId)
     if (!a || !b) return null
     return { start: a.start, end: b.end }
-  })()
+  }
+  const selectionBounds = boundsOf(selection)
+  const auditionBounds = boundsOf(audition)
 
   const scrubTo = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!duration) return
@@ -122,6 +125,16 @@ export function Player() {
             />
           )
         })}
+
+        {auditionBounds && (
+          <div
+            className={styles.auditionBand}
+            style={{
+              left: `${pct(auditionBounds.start)}%`,
+              width: `${Math.max(0.3, pct(auditionBounds.end - auditionBounds.start))}%`,
+            }}
+          />
+        )}
 
         {selectionBounds && (
           <div
