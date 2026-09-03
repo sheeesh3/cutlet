@@ -239,6 +239,23 @@
 .activityCard {
   flex: none;
   max-height: 34%;
+  min-height: 92px;
+}
+
+/* Side by side once the rail is a wide strip under the other two panes — but
+   only while it is actually wide; below the single-column breakpoint it goes
+   back to stacking. */
+@media (max-width: 1180px) and (min-width: 801px) {
+  .pane {
+    flex-direction: row;
+  }
+  .clipsCard {
+    flex: 1.3;
+  }
+  .activityCard {
+    flex: 1;
+    max-height: none;
+  }
 }
 
 .event {

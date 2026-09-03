@@ -40,28 +40,42 @@
   font-weight: 600;
 }
 
+/* Two columns with the clips rail beneath. `auto` on the first row would size
+   it to the transcript's full natural height and push the rail off the bottom
+   of a page that does not scroll at this width. */
 @media (max-width: 1180px) {
   .main {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(170px, 32vh);
   }
   .right {
     grid-column: 1 / -1;
-    max-height: 40vh;
+    min-height: 0;
   }
 }
 
 @media (max-width: 800px) {
+  /* One column, and the page itself scrolls. The row template from the wider
+     breakpoint has to be cleared explicitly, or three sections try to occupy
+     two rows and overlap. */
   .main {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-rows: min-content;
     overflow-y: auto;
   }
+
   .left,
   .centre,
   .right {
-    max-height: none;
+    grid-column: 1;
   }
+
   .centre {
-    min-height: 50vh;
+    min-height: 68vh;
+  }
+
+  .right {
+    min-height: 58vh;
   }
 }
