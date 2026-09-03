@@ -28,6 +28,11 @@ It is not an "AI clip finder". The interesting part is the handoff.
 That last step is the whole point. A clip is shared state, and the human's edit
 is the brief.
 
+**The anchor is yours.** When the agent auditions a range it has not committed
+to, that range is drawn separately — dashed, in the agent's blue — beside your
+anchor rather than on top of it. An agent trying something out cannot overwrite
+the sentence you said has to survive.
+
 ```
 create_clip  s0009–s0013                       → revision 1
 update_clip  s0009–s0011  expectedRevision 1   → revision 2
@@ -52,7 +57,7 @@ not discovered.
 | `get_guidelines` | read | The editorial rules this editor works by. |
 | `create_clip` | write | A clip from a contiguous range of sentence ids. |
 | `update_clip` | write | Move an edge or retitle — takes `expectedRevision`. |
-| `preview_clip` | write | Play a range, or park the playhead on it. |
+| `preview_clip` | write | Play a range, or park the playhead on it. Marks it as an audition; never touches your anchor. |
 
 Read tools carry `annotations.readOnlyHint`.
 
@@ -60,6 +65,13 @@ Read tools carry `annotations.readOnlyHint`.
 to both parties; a timestamp is a number the agent would have to compute and
 would get subtly wrong at boundaries. Ids also make a bad cut legible — you can
 see that `s0014` was left out.
+
+## Keyboard
+
+The transcript is a listbox with one tab stop. Arrows move the anchor a sentence
+at a time, shift-arrow extends it, Home and End jump to the ends, Enter plays
+what is anchored. Space plays and pauses, left and right scrub (hold shift for
+ten seconds), Escape drops the anchor.
 
 ## Scope, honestly
 
