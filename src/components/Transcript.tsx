@@ -135,6 +135,40 @@ export function Transcript() {
     seek(s.start)
   }
 
+  /**
+   * The list is one tab stop and the arrows move within it, rather than every
+   * sentence being its own tab stop — a two-hour recording would otherwise put
+   * eight hundred of them between the search box and the clips rail.
+   */
+  const onListKeyDown = (e: React.KeyboardEvent) => {
+    if (!visible.length) return
+    const anchored = selection ? visible.findIndex((s) => s.id === selection.endSentenceId) : -1
+    const cursor = anchored >= 0 ? anchored : Math.max(0, visible.findIndex((s) => s.index === playingIndex))
+
+    const move = (delta: number) => {
+      e.preventDefault()
+      followRef.current = false
+      const next = visible[Math.min(visible.length - 1, Math.max(0, cursor + delta))]
+      if (!next) return
+      if (e.shiftKey && selection) {
+        setSelection({ startSentenceId: selection.startSentenceId, endSentenceId: next.id })
+      } else {
+        setSelection({ startSentenceId: next.id, endSentenceId: next.id })
+        seek(next.start)
+      }
+      revealRow(listRef.current?.querySelector<HTMLElement>(`[data-id="${next.id}"]`))
+    }
+
+    if (e.key === 'ArrowDown') return move(1)
+    if (e.key === 'ArrowUp') return move(-1)
+    if (e.key === 'Home') return move(-visible.length)
+    if (e.key === 'End') return move(visible.length)
+    if (e.key === 'Enter' && selection) {
+      e.preventDefault()
+      playSentenceRange(selection.startSentenceId, selection.endSentenceId)
+    }
+  }
+
   const makeClipFromSelection = () => {
     const sel = getState().selection
     if (!sel) return
@@ -164,6 +198,11 @@ export function Transcript() {
       <div
         className={styles.list}
         ref={listRef}
+        tabIndex={0}
+        role="listbox"
+        aria-label="Transcript sentences"
+        aria-activedescendant={selection ? `row-${selection.endSentenceId}` : undefined}
+        onKeyDown={onListKeyDown}
         onWheel={() => {
           followRef.current = false
         }}
@@ -191,6 +230,9 @@ export function Transcript() {
           return (
             <div
               key={s.id}
+              id={`row-${s.id}`}
+              role="option"
+              aria-selected={!!selected}
               data-index={i}
               data-id={s.id}
               className={cls}
