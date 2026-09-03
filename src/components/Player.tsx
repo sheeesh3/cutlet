@@ -93,14 +93,30 @@ export function Player() {
       </div>
 
       <div className={styles.strip} onClick={scrubTo} role="presentation">
-        <div className={styles.speech} style={{ left: '0%', right: '0%' }} />
+        {/* One block per sentence, so the strip shows where the talking is
+            rather than a flat rule that says nothing. */}
+        {(project?.sentences ?? []).map((s) => (
+          <div
+            key={s.id}
+            className={styles.speech}
+            style={{ left: `${pct(s.start)}%`, width: `${Math.max(0.15, pct(s.end - s.start))}%` }}
+          />
+        ))}
 
         {clips.map((clip) => {
           const b = clipBounds(clip)
           return (
             <div
               key={clip.id}
-              className={`${styles.clipBand} ${clip.id === activeClipId ? styles.clipBandActive : ''}`}
+              className={[
+                styles.clipBand,
+                clip.id === activeClipId &&
+                  (clip.lastEditedBy === 'human'
+                    ? styles.clipBandActiveHuman
+                    : styles.clipBandActiveAgent),
+              ]
+                .filter(Boolean)
+                .join(' ')}
               style={{ left: `${pct(b.start)}%`, width: `${Math.max(0.4, pct(b.end - b.start))}%` }}
               title={`${clip.id} · ${clip.title}`}
             />

@@ -31,9 +31,10 @@ export function Transcript() {
   }, [sentences, time])
 
   /** Membership lookups, computed once per render rather than per row. */
-  const { inClip, inActive } = useMemo(() => {
+  const { inClip, inActive, activeEditedBy } = useMemo(() => {
     const inClip = new Set<number>()
     const inActive = new Set<number>()
+    let activeEditedBy: 'agent' | 'human' = 'agent'
     for (const clip of clips) {
       const a = sentences.findIndex((s) => s.id === clip.startSentenceId)
       const b = sentences.findIndex((s) => s.id === clip.endSentenceId)
@@ -42,8 +43,9 @@ export function Transcript() {
         inClip.add(i)
         if (clip.id === activeClipId) inActive.add(i)
       }
+      if (clip.id === activeClipId) activeEditedBy = clip.lastEditedBy
     }
-    return { inClip, inActive }
+    return { inClip, inActive, activeEditedBy }
   }, [clips, activeClipId, sentences])
 
   const selectedRange = useMemo(() => {
@@ -132,7 +134,10 @@ export function Transcript() {
           const cls = [
             styles.row,
             inClip.has(i) && styles.inClip,
-            inActive.has(i) && styles.inActiveClip,
+            inActive.has(i) &&
+              (activeEditedBy === 'human'
+                ? styles.inActiveClipHuman
+                : styles.inActiveClipAgent),
             selected && styles.selected,
             i === playingIndex && styles.playing,
           ]

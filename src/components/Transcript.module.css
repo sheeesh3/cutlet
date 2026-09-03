@@ -102,13 +102,20 @@
   color: var(--text);
 }
 
-/* The active clip gets the accent, because it is the one on screen. */
-.inActiveClip {
+/* The clip on screen is drawn in the colour of whoever last touched it.
+   Watching a range change hands is the clearest statement this UI makes. */
+.inActiveClipAgent {
+  background: rgba(127, 179, 200, 0.2);
+  border-left-color: var(--agent);
+}
+
+.inActiveClipHuman {
   background: var(--accent-wash);
   border-left-color: var(--accent);
 }
 
-.inActiveClip .text {
+.inActiveClipAgent .text,
+.inActiveClipHuman .text {
   color: var(--text);
 }
 
@@ -116,6 +123,8 @@
 .selected {
   background: var(--accent-wash);
   border-left-color: var(--accent);
+  border-left-width: 3px;
+  padding-left: 11px;
 }
 
 .selected .text {

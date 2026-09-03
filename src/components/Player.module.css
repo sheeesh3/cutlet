@@ -135,6 +135,8 @@
   transform: translateY(-50%);
   background: var(--line-strong);
   border-radius: 2px;
+  /* Sentences butt up against each other; a hairline gap keeps them countable. */
+  box-shadow: inset -1px 0 0 var(--bg-sunken);
 }
 
 .clipBand {
@@ -146,7 +148,13 @@
   border-radius: 3px;
 }
 
-.clipBandActive {
+/* The band on screen carries the colour of whoever last touched that clip. */
+.clipBandActiveAgent {
+  background: rgba(127, 179, 200, 0.3);
+  border-color: var(--agent);
+}
+
+.clipBandActiveHuman {
   background: var(--accent-wash);
   border-color: var(--accent);
 }
