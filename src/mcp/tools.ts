@@ -221,7 +221,13 @@ const searchTranscript: ToolDescriptor = {
     if (!query) return fail('Give me something to search for.')
 
     const limit = Math.max(1, Math.min(25, Number(args.limit) || 8))
-    const ctx = Math.max(0, Math.min(4, Number(args.contextSentences) ?? 1))
+    // `??` would not help here: Number(undefined) is NaN, not nullish, so the
+    // default has to be chosen before the conversion. An explicit 0 must still
+    // mean "no context".
+    const ctx =
+      args.contextSentences === undefined
+        ? 1
+        : Math.max(0, Math.min(4, Number(args.contextSentences) || 0))
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean)
     const list = sentences()
 

@@ -9,8 +9,10 @@
     "dev": "vite",
     "prebuild": "npm run sync:ffmpeg",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "node --test src/**/*.test.ts",
+    "check": "npm run lint && npm run build && npm test"
   },
   "dependencies": {
     "@ffmpeg/core": "^0.12.10",

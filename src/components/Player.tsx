@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './Player.module.css'
-import { useStore, clipBounds, sentenceById, getState, setSelection } from '../state/store'
+import { useStore, clipBounds, sentenceById } from '../state/store'
 import { attachVideo, onTimeUpdate, toggle, seek, getVideo } from '../state/player'
 import { formatTimecode } from '../transcript/sentences'
 
@@ -137,29 +137,4 @@ export function Player() {
       </div>
     </div>
   )
-}
-
-/** Space toggles playback unless the user is typing. */
-export function usePlaybackShortcuts() {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null
-      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return
-      if (target?.isContentEditable) return
-      if (e.code === 'Space') {
-        e.preventDefault()
-        toggle()
-      }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        const v = getVideo()
-        if (!v) return
-        e.preventDefault()
-        const step = e.shiftKey ? 10 : 3
-        seek(v.currentTime + (e.key === 'ArrowRight' ? step : -step))
-      }
-      if (e.key === 'Escape' && getState().selection) setSelection(null)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
 }

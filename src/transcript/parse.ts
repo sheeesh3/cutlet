@@ -53,7 +53,10 @@ function toNumber(v: unknown): number | null {
 }
 
 function asWord(o: Record<string, unknown>): Word | null {
-  const text = o.word ?? o.text ?? o.punctuated_word ?? o.value
+  // Deepgram ships both `word` ("this") and `punctuated_word` ("This."). The
+  // punctuated form is the one a reader should see, and the one sentence
+  // splitting depends on.
+  const text = o.punctuated_word ?? o.word ?? o.text ?? o.value
   const start = toNumber(o.start ?? o.startTime ?? o.from ?? o.s)
   const end = toNumber(o.end ?? o.endTime ?? o.to ?? o.e)
   if (typeof text !== 'string' || start === null || end === null) return null
@@ -70,9 +73,15 @@ function collectWords(data: unknown): Word[] {
       const parsed = node
         .map((x) => (x && typeof x === 'object' ? asWord(x as Record<string, unknown>) : null))
         .filter((x): x is Word => x !== null)
-      // A `words` key is authoritative. Any other array only counts if every
-      // entry parsed — otherwise we are looking at segments, not words.
-      if (parsed.length && (key === 'words' || parsed.length === node.length)) {
+      // A `words` key is authoritative. Any other array has to earn it: every
+      // entry must parse, and the entries must actually look like words. A
+      // segments array parses perfectly well as "words" whose text happens to
+      // be a whole sentence, and silently treating those as word-level timing
+      // produces sentence boundaries that are quietly wrong.
+      const looksWordLevel =
+        parsed.length === node.length &&
+        parsed.filter((w) => /\s/.test(w.text)).length <= parsed.length / 4
+      if (parsed.length && (key === 'words' || looksWordLevel)) {
         out.push(...parsed)
         return
       }

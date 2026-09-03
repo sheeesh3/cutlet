@@ -5,6 +5,8 @@ import { onTimeUpdate, seek, playSentenceRange } from '../state/player'
 import { formatTimecode } from '../transcript/sentences'
 import type { Sentence } from '../types'
 
+const NO_SENTENCES: Sentence[] = []
+
 export function Transcript() {
   const project = useStore((s) => s.project)
   const clips = useStore((s) => s.clips)
@@ -18,7 +20,9 @@ export function Transcript() {
 
   useEffect(() => onTimeUpdate(setTime), [])
 
-  const sentences = project?.sentences ?? []
+  // A shared empty array rather than a fresh `[]`, so the memos below keep a
+  // stable dependency while no project is loaded.
+  const sentences = project?.sentences ?? NO_SENTENCES
 
   const playingIndex = useMemo(() => {
     if (!sentences.length) return -1
@@ -56,7 +60,11 @@ export function Transcript() {
     return { a: Math.min(a, b), b: Math.max(a, b) }
   }, [selection, sentences])
 
-  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  const normalisedQuery = query.trim().toLowerCase()
+  const terms = useMemo(
+    () => normalisedQuery.split(/\s+/).filter(Boolean),
+    [normalisedQuery]
+  )
   const matches = useMemo(() => {
     if (!terms.length) return null
     const set = new Set<number>()
@@ -65,7 +73,7 @@ export function Transcript() {
       if (terms.every((t) => hay.includes(t))) set.add(i)
     })
     return set
-  }, [terms.join(' '), sentences])
+  }, [terms, sentences])
 
   const visible = matches ? sentences.filter((_, i) => matches.has(i)) : sentences
 
@@ -77,11 +85,14 @@ export function Transcript() {
   }, [playingIndex, matches])
 
   // Keep the agent's chosen range on screen — this is how you see it act.
+  const selectionStart = selection?.startSentenceId
+  const selectionEnd = selection?.endSentenceId
   useEffect(() => {
-    if (!selection) return
-    const node = listRef.current?.querySelector<HTMLElement>(`[data-id="${selection.startSentenceId}"]`)
+    if (!selectionStart) return
+    void selectionEnd
+    const node = listRef.current?.querySelector<HTMLElement>(`[data-id="${selectionStart}"]`)
     node?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-  }, [selection?.startSentenceId, selection?.endSentenceId])
+  }, [selectionStart, selectionEnd])
 
   const onRowClick = (s: Sentence, e: React.MouseEvent) => {
     followRef.current = false

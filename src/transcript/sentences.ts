@@ -28,7 +28,11 @@ export interface SentenceOptions {
    * decide every boundary, and the ceiling should never fire.
    */
   maxWords?: number
-  /** Never split below this, so "Yes." does not become its own row. */
+  /**
+   * Floor on a sentence, to stop a stray token becoming its own row. Kept low:
+   * merging two real sentences because one is short is a worse failure than a
+   * short row, and short sentences are often the best clip anchors.
+   */
   minWords?: number
 }
 
@@ -37,7 +41,7 @@ export function buildSentences(words: Word[], options: SentenceOptions = {}): Se
     pauseSeconds = 1.4,
     pauseMinWords = 14,
     maxWords = 70,
-    minWords = 4,
+    minWords = 2,
   } = options
   const sentences: Sentence[] = []
   let current: Word[] = []
