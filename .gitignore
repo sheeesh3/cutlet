@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vercel
+.netlify
+
+# Copied out of node_modules at build time by scripts/sync-ffmpeg.mjs.
+# The wasm core is 31MB; it does not belong in the repository.
+public/ffmpeg/
+
+# Local editor/launch config, not part of the project.
+.claude/
