@@ -54,6 +54,38 @@ get_editor_state                                → sees the real cut
 to, that range is drawn separately — dashed, in the agent's blue — beside your
 anchor rather than on top of it.
 
+## The interface of actions
+
+The page and the conversation are one interface, split by what each is good at.
+
+| You do it — a click, immediate | You ask for it — judgement |
+|---|---|
+| Open a video and transcript | **Find clips** — how many, where, and why each works |
+| Play, pause, scrub, seek | **Cut a clip to length** — which lines survive |
+| Click a sentence to anchor it | Retitle it, or rewrite the reason |
+| **Click a clip to select it** | Revise it after you have edited it |
+| Drop or restore a line, `−` / `+` | |
+| Nudge the in and out edges | |
+| Set the gap, delete, export | |
+
+The left column is mechanical and instantly reversible. The right column is
+judgement, and there is no button for it — the agent has to be asked.
+
+**Selecting is how the two halves meet.** Click a clip and it becomes what "this"
+refers to; `get_editor_state` reports it as `SELECTED` and says outright that it
+is what the user means by "this clip" or "it". So the flow reads:
+
+```
+say    "find the best clips in this"     → four clips appear, with reasons
+click  the one you like                  → it plays, and it is now "this"
+say    "cut this to forty seconds"       → it becomes three pieces, 37s
+click  the − beside a line it kept       → that line goes; revision bumps
+say    "tighten this"                    → it works from your edit, not its own
+```
+
+The selected card shows the phrases that act on it, so you never have to invent
+the wording.
+
 ## Asking is the interface
 
 There is no "find clips" button, because there cannot be one. WebMCP is
