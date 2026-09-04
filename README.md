@@ -133,14 +133,14 @@ The page and the conversation are one interface, split by what each is good at.
 
 | You do it — a click, immediate | You ask for it — judgement |
 |---|---|
-| Open a video and transcript | **Find clips** — how many, where, and why each works |
+| Pick a recording from the library | **Find clips** — how many, where, and why each works |
 | Play, pause, scrub, seek | **Cut a clip to length** — which lines survive |
 | Click a sentence to anchor it | Retitle it, or rewrite the reason |
 | **⌘-click to mark another range** | Revise it after you have edited it |
 | **Make a clip** from what you marked | Check its own joins and fix them |
 | **Click a clip to select it** | |
 | Drop or restore a line, `−` / `+` | |
-| Nudge the in and out edges | |
+| Move a piece, or split a line | |
 | Set the gap, delete, export | |
 
 The left column is mechanical and instantly reversible. The right column is
@@ -173,26 +173,19 @@ websites initiating actions."*
 So the trigger is you asking, and the page's job before any clip exists is to
 tell you what to ask for. That is what the empty rail does.
 
-### The fallback, for browsers with no agent
+### There is no fallback, on purpose
 
-Open the deployed page in ordinary Chrome and there is nothing to ask, so a
-**Rough pass** button appears in place of the prompts. It runs a lexical pass:
+Open the page in ordinary Chrome and the rail says so and stops. There used to be
+a **Rough pass** button here — a lexical pass that split where vocabulary turned
+over and scored sentences on how distinctive their words were within a topic. It
+knew which words were unusual and where the speaker paused. It did not know what
+any of it meant.
 
-- **Finding topics** splits where the vocabulary turns over, in the manner of
-  TextTiling — compare the words either side of each sentence boundary, cut where
-  the overlap dips. A long pause corroborates a weak seam; it never decides one
-  alone, because oratory pauses mid-thought.
-- **Cutting** scores sentences on how distinctive their vocabulary is within the
-  topic, then grows a selection from the strongest, favouring sentences adjacent
-  to something already kept and marking down any that open on "but", "so" or
-  "they" when the thing they refer to is being dropped.
-
-It knows which words are unusual and where the speaker paused. It does not know
-what any of it means, and it is not what this project is for — it exists so the
-page is not inert for someone without a compatible browser. Its clips are badged
-`auto`, drawn the quietest of the three, and the button disappears entirely once
-an agent is present. `get_guidelines` tells the agent to replace those clips
-rather than tidy them.
+It is gone, and the page is better for it. Every mechanical thing is still
+yours — mark ranges, drop lines, split a sentence, move a piece, export. The one
+thing the page will not do is decide which moments are worth a clip, because
+that is judgement, and a heuristic dressed as judgement is worse than an empty
+rail that tells you what to ask.
 
 ## The ten tools
 
@@ -314,9 +307,31 @@ Source: [Internet Archive](https://archive.org/details/president-john-f.-kennedy
 credited to Rice University, **CC Public Domain Mark 1.0**. Transcript generated
 locally with Whisper (medium.en, word timestamps).
 
-**Open your own video** takes any video plus a transcript — word-level JSON
-(Whisper/Deepgram shape), SRT, or VTT. Word-level timings give the best sentence
-boundaries; subtitle cues work but are coarser.
+## The library
+
+`public/demo/library.json` lists what ships. Adding a recording is an entry plus
+an mp4 on the `demo-assets` release — no code change, and the picker appears on
+its own once there is more than one thing to pick.
+
+```bash
+export ELEVENLABS_API_KEY="…"
+npm run transcribe -- some-video.mp4 some-id
+```
+
+That writes `public/demo/<id>.words.json` with ElevenLabs Scribe, reading the key
+from the environment as it runs. It is a script and not a button in the page: the
+app ships with no backend and no keys, and an in-page transcribe button would
+make the line in the footer a lie.
+
+**Everything shipped has to be redistributable.** The demo is served to
+strangers, so a recording nobody licensed us to hand out has no business in it.
+Both entries are public domain and credited. Be careful with Internet Archive's
+`publicdomain` tag — a good deal of what carries it is a YouTube rip somebody
+mislabelled.
+
+**Bring word-level timings.** The parser also reads SRT and VTT, but a subtitle
+cue arrives as one indivisible unit: its boundaries are wherever a subtitler
+broke a line, and a sentence built from one cannot be split at all.
 
 ## Stack
 

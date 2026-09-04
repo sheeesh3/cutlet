@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './Header.module.css'
 import { APP_NAME } from '../brand'
 import { useStore } from '../state/store'
-import { loadLocalProject, loadLibrary, loadLibraryEntry } from '../state/loadProject'
+import { loadLibrary, loadLibraryEntry } from '../state/loadProject'
 import type { LibraryEntry } from '../state/loadProject'
 import { ToolsSheet } from './ToolsSheet'
 import { ActivitySheet } from './ActivitySheet'
@@ -19,22 +19,6 @@ export function Header() {
   useEffect(() => {
     void loadLibrary().then(setLibrary)
   }, [])
-
-  const videoInput = useRef<HTMLInputElement | null>(null)
-  const transcriptInput = useRef<HTMLInputElement | null>(null)
-  const [pendingVideo, setPendingVideo] = useState<File | null>(null)
-
-  const onVideo = (file: File | undefined) => {
-    if (!file) return
-    setPendingVideo(file)
-    transcriptInput.current?.click()
-  }
-
-  const onTranscript = (file: File | undefined) => {
-    if (!file || !pendingVideo) return
-    void loadLocalProject(pendingVideo, file)
-    setPendingVideo(null)
-  }
 
   return (
     <header className={styles.bar}>
@@ -93,24 +77,6 @@ export function Header() {
       {showTools && <ToolsSheet onClose={() => setShowTools(false)} />}
       {showActivity && <ActivitySheet onClose={() => setShowActivity(false)} />}
 
-      <button className={styles.btn} onClick={() => videoInput.current?.click()}>
-        Open your own video
-      </button>
-
-      <input
-        ref={videoInput}
-        type="file"
-        accept="video/*"
-        className={styles.hidden}
-        onChange={(e) => onVideo(e.target.files?.[0])}
-      />
-      <input
-        ref={transcriptInput}
-        type="file"
-        accept=".json,.srt,.vtt,text/plain,application/json"
-        className={styles.hidden}
-        onChange={(e) => onTranscript(e.target.files?.[0])}
-      />
     </header>
   )
 }

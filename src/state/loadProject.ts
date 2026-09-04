@@ -51,7 +51,10 @@ async function videoDuration(src: string): Promise<number> {
 export async function loadDemoProject(): Promise<void> {
   const library = await loadLibrary()
   if (!library.length) {
-    setError('No demo library is present. Open your own video and transcript.')
+    setError(
+      'No recordings are listed in public/demo/library.json, so there is nothing ' +
+        'to open.'
+    )
     return
   }
   await loadLibraryEntry(library[0])
@@ -78,8 +81,7 @@ export async function loadLibraryEntry(entry: LibraryEntry): Promise<void> {
       throw new Error(
         'The transcript for "' + entry.title + '" loaded, but its video is not ' +
           'here. Videos are fetched rather than committed — run ' +
-          '"npm run fetch:demo" to get them. You can also just open your own ' +
-          'video and transcript.'
+          '"npm run fetch:demo" to get them.'
       )
     }
 
@@ -93,34 +95,6 @@ export async function loadLibraryEntry(entry: LibraryEntry): Promise<void> {
       duration: meta.durationSeconds ?? (await videoDuration(videoUrl)),
     }
     setProject(project)
-  } catch (err) {
-    setError(err instanceof Error ? err.message : String(err))
-  }
-}
-
-/**
- * Opens a video and transcript the user picked from their own disk. The file
- * never leaves the tab — it is handed to the <video> as an object URL and to
- * ffmpeg.wasm as bytes, and nothing uploads it anywhere.
- */
-export async function loadLocalProject(video: File, transcript: File): Promise<void> {
-  setLoading(true)
-  try {
-    const raw = await transcript.text()
-    const { words, coarse } = parseTranscript(raw, transcript.name)
-    if (!words.length) throw new Error('That transcript had no usable timings in it.')
-
-    const sentences = buildSentences(words, coarse ? { pauseSeconds: 999, minWords: 1 } : {})
-    const videoUrl = URL.createObjectURL(video)
-
-    setProject({
-      name: video.name.replace(/\.[^.]+$/, ''),
-      videoUrl,
-      videoLabel: video.name,
-      sentences,
-      words,
-      duration: await videoDuration(videoUrl),
-    })
   } catch (err) {
     setError(err instanceof Error ? err.message : String(err))
   }

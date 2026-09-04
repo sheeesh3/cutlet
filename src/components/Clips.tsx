@@ -4,7 +4,6 @@ import {
   setActiveClip,
   updateClip,
   deleteClip,
-  createClip,
   clipRanges,
   clipSpan,
   clipDuration,
@@ -13,101 +12,11 @@ import {
   clipSentenceIndices,
   segmentsFromIndices,
   sentences,
-  setWorking,
-  getState,
-  logTool,
 } from '../state/store'
 import { playClip } from '../state/player'
 import { formatTimecode, formatDuration } from '../transcript/sentences'
-import { findTopics, cutToDuration } from '../edit/autoEdit'
 import { exportClip } from '../export/exportClip'
 import type { Clip } from '../types'
-
-/**
- * The fallback for a browser with no agent in it.
- *
- * Finding clips is a judgement call and belongs to the agent — it reads the
- * transcript and decides, which is the whole point of this page. But WebMCP is
- * one-directional, so nothing here can summon an agent that is not already being
- * spoken to, and a page that does nothing at all in an ordinary browser is a
- * page nobody can evaluate. Hence a lexical pass, shown only when there is no
- * agent, and labelled as the rough thing it is.
- */
-function findTopicsNow() {
-  const list = sentences()
-  if (!list.length) return
-  setWorking('Finding clips')
-
-  // A timeout, not requestAnimationFrame: rAF does not fire in a hidden tab, so
-  // deferring that way leaves the button stuck on "Finding..." forever for
-  // anyone who clicks and switches away. This still yields long enough for the
-  // pressed state to paint when the tab is visible.
-  setTimeout(() => {
-    try {
-      const existing = new Set(getState().clips.map((c) => c.segments[0]?.startSentenceId))
-      const topics = findTopics(list)
-      let added = 0
-      for (const topic of topics) {
-        const startId = list[topic.startIndex].id
-        if (existing.has(startId)) continue
-        createClip({
-          segments: [{ startSentenceId: startId, endSentenceId: list[topic.endIndex].id }],
-          kind: 'topic',
-          title: topic.title,
-          note: topic.note,
-          by: 'auto',
-        })
-        added++
-      }
-      logTool(
-        'find',
-        added
-          ? 'Lexical pass found ' + added + ' topic(s). The agent can judge them better.'
-          : 'Lexical pass found nothing new.',
-        added > 0
-      )
-    } finally {
-      setWorking(null)
-    }
-  }, 0)
-}
-
-function cutClipNow(clip: Clip) {
-  const list = sentences()
-  setWorking('Cutting')
-  setTimeout(() => {
-    try {
-      const pool = clipSentenceIndices(clip)
-      const result = cutToDuration(list, pool)
-      if (result.keptIndices.length === pool.length) {
-        logTool('cut', clip.id + ' is already inside the target length.', false)
-        return
-      }
-      const updated = updateClip({
-        clipId: clip.id,
-        segments: segmentsFromIndices(result.keptIndices),
-        kind: 'cut',
-        note:
-          'Lexical cut to ' + formatDuration(result.seconds) + ', keeping ' +
-          result.keptIndices.length + ' of ' + pool.length +
-          ' sentences. Worth a second opinion.',
-        by: 'auto',
-      })
-      if ('error' in updated) {
-        logTool('cut', updated.error, false)
-        return
-      }
-      logTool(
-        'cut',
-        'Cut ' + clip.id + ' to ' + formatDuration(clipDuration(updated)) + ' across ' +
-          updated.segments.length + ' piece(s).'
-      )
-      playClip(clip.id)
-    } finally {
-      setWorking(null)
-    }
-  }, 0)
-}
 
 /**
  * The empty state is the instruction. There is no button that starts the agent
@@ -159,8 +68,8 @@ function NoAgentPanel() {
       </p>
       <p className={styles.askFoot}>
         Open the page in ChatGPT’s desktop browser and say “find the best clips in
-        this”. Or press <strong>Rough pass</strong> for a lexical first cut — it
-        matches vocabulary and pauses, it does not understand a word of it.
+        this”. Deciding which moments are worth a clip is the judgement this page
+        does not make on its own — everything else here, you can do by hand.
       </p>
     </div>
   )
@@ -170,8 +79,6 @@ export function ClipsRail() {
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
   const exporting = useStore((s) => s.exporting)
-  const working = useStore((s) => s.working)
-  const hasProject = useStore((s) => !!s.project)
   const connected = useStore((s) => s.mcpConnected)
 
   return (
@@ -181,19 +88,6 @@ export function ClipsRail() {
           <span className={styles.title}>Clips</span>
           <span className={styles.count}>{clips.length}</span>
           <span className={styles.spacer} />
-          {/* Only offered when there is no agent to ask. With one present, the
-              ask is the interaction, and a mechanical button beside it would
-              just be the worse of two options sitting in the better one's way. */}
-          {!connected && (
-            <button
-              className={styles.findBtn}
-              onClick={findTopicsNow}
-              disabled={!hasProject || working !== null}
-              title="A lexical pass over the transcript. No AI — it matches vocabulary, it does not understand anything."
-            >
-              {working === 'Finding clips' ? 'Finding…' : 'Rough pass'}
-            </button>
-          )}
         </div>
         <div className={styles.body}>
           {!clips.length && (connected ? <AskPanel /> : <NoAgentPanel />)}
@@ -202,7 +96,6 @@ export function ClipsRail() {
               key={clip.id}
               clip={clip}
               active={clip.id === activeClipId}
-              busy={working !== null}
               connected={connected}
               exporting={exporting?.clipId === clip.id ? exporting : null}
             />
@@ -217,13 +110,11 @@ export function ClipsRail() {
 function ClipCard({
   clip,
   active,
-  busy,
   connected,
   exporting,
 }: {
   clip: Clip
   active: boolean
-  busy: boolean
   connected: boolean
   exporting: { stage: string; progress: number } | null
 }) {
@@ -403,16 +294,6 @@ function ClipCard({
         <button className={styles.action} onClick={() => playClip(clip.id)}>
           Play
         </button>
-        {!connected && duration > 65 && (
-          <button
-            className={styles.action}
-            onClick={() => cutClipNow(clip)}
-            disabled={busy}
-            title="Lexical cut to 30-60s. No AI — ask an agent for a cut that makes sense."
-          >
-            Rough cut
-          </button>
-        )}
         <span className={styles.spacer} />
         <button className={styles.action} disabled={!!exporting} onClick={() => void exportClip(clip.id)}>
           {exporting ? 'Exporting' : 'Export'}
