@@ -11,6 +11,8 @@ import {
   createClip,
   clipSentenceIndices,
   clipDuration,
+  moveSegment,
+  removeSegment,
   removeSentence,
   addSentence,
   logTool,
@@ -262,6 +264,18 @@ export function Transcript() {
     if ('error' in result) logTool('edit', result.error, false)
   }
 
+  const movePiece = (from: number, to: number) => {
+    if (!activeClipId) return
+    const result = moveSegment(activeClipId, from, to, 'human')
+    if ('error' in result) logTool('move', result.error, false)
+  }
+
+  const dropPiece = (at: number) => {
+    if (!activeClipId) return
+    const result = removeSegment(activeClipId, at, 'human')
+    if ('error' in result) logTool('remove', result.error, false)
+  }
+
   /**
    * The clip as it plays: kept sentences in play order, with each gap shown as
    * the thing it is — a cut, with what was dropped named and restorable. This is
@@ -269,7 +283,12 @@ export function Transcript() {
    */
   const clipRows = useMemo(() => {
     if (!activeClip) return []
-    const rows: ({ kind: 'line'; index: number } | { kind: 'gap'; dropped: number[] })[] = []
+    type Row =
+      | { kind: 'line'; index: number }
+      | { kind: 'gap'; dropped: number[] }
+      | { kind: 'piece'; at: number; ids: string; seconds: number }
+    const rows: Row[] = []
+    const total = activeClip.segments.length
     activeClip.segments.forEach((seg, n) => {
       const a = sentences.findIndex((s) => s.id === seg.startSentenceId)
       const b = sentences.findIndex((s) => s.id === seg.endSentenceId)
@@ -283,6 +302,17 @@ export function Transcript() {
         // between them — the join is the edit.
         if (pb >= 0 && a > pb) for (let j = pb + 1; j < a; j++) dropped.push(j)
         rows.push({ kind: 'gap', dropped })
+      }
+      // A header per piece, but only once there is more than one — a single
+      // unbroken run has no arrangement to speak of, and labelling it "piece 1"
+      // would invent a structure that is not there.
+      if (total > 1) {
+        rows.push({
+          kind: 'piece',
+          at: n,
+          ids: a === b ? sentences[a].id : `${sentences[a].id}–${sentences[b].id}`,
+          seconds: sentences[b].end - sentences[a].start,
+        })
       }
       for (let j = a; j <= b; j++) rows.push({ kind: 'line', index: j })
     })
@@ -338,6 +368,29 @@ export function Transcript() {
         )}
       </div>
 
+      {/* The manual path, said out loud. Every control below is on screen, but
+          a control you have not been told the meaning of is still a puzzle —
+          and "can I edit this without asking the agent" was the question. */}
+      {activeClip && (
+        <div className={styles.editBar}>
+          <span className={styles.editingWhat}>
+            Editing <strong>{activeClip.title}</strong>
+          </span>
+          <span className={styles.spacer} />
+          <span className={styles.editHow}>
+            {clipView ? (
+              <>
+                <code>−</code> drops a line · <code>↑↓</code> moves a whole piece
+              </>
+            ) : (
+              <>
+                <code>−</code> drops a line · <code>+</code> adds one
+              </>
+            )}
+          </span>
+        </div>
+      )}
+
       <div
         className={styles.list}
         ref={listRef}
@@ -355,7 +408,43 @@ export function Transcript() {
         {clipView &&
           activeClip &&
           clipRows.map((row, n) =>
-            row.kind === 'gap' ? (
+            row.kind === 'piece' ? (
+              /* Reordering lives here as well as on the timeline, because this
+                 is where you are reading the cut when you decide a piece is in
+                 the wrong place. */
+              <div key={`piece-${row.at}`} className={styles.pieceRow}>
+                <span className={styles.pieceNo}>Piece {row.at + 1}</span>
+                <span className={styles.pieceIds}>{row.ids}</span>
+                <span className={styles.pieceDur}>{formatDuration(row.seconds)}</span>
+                <span className={styles.spacer} />
+                <button
+                  className={styles.pieceBtn}
+                  onClick={() => movePiece(row.at, row.at - 1)}
+                  disabled={row.at === 0}
+                  title="Play this piece earlier in the clip"
+                  aria-label={`Move piece ${row.at + 1} earlier`}
+                >
+                  ↑
+                </button>
+                <button
+                  className={styles.pieceBtn}
+                  onClick={() => movePiece(row.at, row.at + 1)}
+                  disabled={row.at === (activeClip?.segments.length ?? 1) - 1}
+                  title="Play this piece later in the clip"
+                  aria-label={`Move piece ${row.at + 1} later`}
+                >
+                  ↓
+                </button>
+                <button
+                  className={`${styles.pieceBtn} ${styles.pieceBtnDrop}`}
+                  onClick={() => dropPiece(row.at)}
+                  title="Drop this whole piece from the clip"
+                  aria-label={`Drop piece ${row.at + 1}`}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : row.kind === 'gap' ? (
               <div key={`gap-${n}`} className={styles.gapRow}>
                 <span className={styles.gapRule} />
                 <span className={styles.gapLabel}>

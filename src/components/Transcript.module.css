@@ -278,13 +278,14 @@
   line-height: 1;
   display: grid;
   place-items: center;
-  opacity: 0;
-  transition: opacity 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+  /* Visible, not hover-only. This is the whole manual editing path — a control
+     you have to discover by sweeping the mouse over a transcript is a control
+     most people never find. */
+  transition: color 120ms ease, border-color 120ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.row:hover .keepToggle,
-.keepToggle:focus-visible {
-  opacity: 1;
+.keepToggle:active {
+  transform: scale(0.92);
 }
 
 .keepToggle:hover {
@@ -366,10 +367,115 @@
    holds now — the control stays out of the way until the row is under the
    pointer. */
 .addToggle {
-  opacity: 0;
+  /* Adding a line the clip does not hold is the quieter of the two acts, so it
+     is dimmer — but still on screen, because it is the only way to grow a cut
+     past its edges. */
+  opacity: 0.45;
+  border-style: dashed;
 }
 
 .row:hover .addToggle,
 .addToggle:focus-visible {
   opacity: 1;
+}
+
+/* Says what the controls below it do. Only present while a clip is selected,
+   because that is the only time any of them are. */
+.editBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--accent-wash);
+  flex: none;
+  font-size: 11.5px;
+}
+
+.editingWhat {
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editingWhat strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.editHow {
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.editHow code {
+  font-family: var(--mono);
+  color: var(--accent);
+  padding: 0 2px;
+}
+
+@media (max-width: 820px) {
+  .editHow {
+    display: none;
+  }
+}
+
+/* One per piece of a cut, in the clip view. Reordering belongs here as much as
+   on the timeline — this is where you are reading when you decide a piece is
+   in the wrong place. */
+.pieceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 4px;
+}
+
+.pieceNo {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  flex: none;
+}
+
+.pieceIds,
+.pieceDur {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  flex: none;
+}
+
+.pieceBtn {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 7px;
+  flex: none;
+  transition: color 120ms ease, border-color 120ms ease,
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pieceBtn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.pieceBtn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.pieceBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pieceBtnDrop:hover:not(:disabled) {
+  color: var(--danger, #d08a7a);
+  border-color: var(--danger, #d08a7a);
 }

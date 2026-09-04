@@ -235,8 +235,11 @@ function ClipCard({
   const kept = clipSentenceIndices(clip)
   const spanLength = Math.max(0.001, span.end - span.start)
 
-  const firstIndex = kept[0] ?? 0
-  const lastIndex = kept[kept.length - 1] ?? 0
+  // The earliest and latest sentence, not the first and last played — after a
+  // reorder those are different, and nudging "the start" has to mean the start
+  // of the material, not whichever piece happens to play first.
+  const firstIndex = kept.length ? Math.min(...kept) : 0
+  const lastIndex = kept.length ? Math.max(...kept) : 0
 
   /**
    * Moving an edge is a human edit, so it bumps the revision — which is exactly
@@ -303,44 +306,51 @@ function ClipCard({
       {clip.note && <div className={styles.note}>{clip.note}</div>}
       <div className={styles.excerpt}>{clipText(clip)}</div>
 
+      {/* Arrows, not plus and minus. With ± the same glyph meant "grow" on one
+          edge and "shrink" on the other, which is a coin toss every time. An
+          arrow means one thing on both: move this edge earlier, or later. */}
       <div className={styles.edges} onClick={(e) => e.stopPropagation()}>
         <div className={styles.edgeGroup}>
-          <span className={styles.edgeLabel}>In</span>
+          <span className={styles.edgeLabel}>Starts</span>
           <button
             className={styles.nudge}
             onClick={() => nudge('start', -1)}
             disabled={firstIndex === 0}
-            title="Start one sentence earlier"
+            title="Start one sentence earlier — the clip grows"
+            aria-label="Start one sentence earlier"
           >
-            −
+            ←
           </button>
           <button
             className={styles.nudge}
             onClick={() => nudge('start', 1)}
             disabled={firstIndex >= lastIndex}
-            title="Start one sentence later"
+            title="Start one sentence later — the clip loses its first line"
+            aria-label="Start one sentence later"
           >
-            +
+            →
           </button>
         </div>
 
         <div className={styles.edgeGroup}>
-          <span className={styles.edgeLabel}>Out</span>
+          <span className={styles.edgeLabel}>Ends</span>
           <button
             className={styles.nudge}
             onClick={() => nudge('end', -1)}
             disabled={lastIndex <= firstIndex}
-            title="End one sentence earlier"
+            title="End one sentence earlier — the clip loses its last line"
+            aria-label="End one sentence earlier"
           >
-            −
+            ←
           </button>
           <button
             className={styles.nudge}
             onClick={() => nudge('end', 1)}
             disabled={lastIndex >= list.length - 1}
-            title="End one sentence later"
+            aria-label="End one sentence later"
+            title="End one sentence later — the clip grows"
           >
-            +
+            →
           </button>
         </div>
 
