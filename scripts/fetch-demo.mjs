@@ -9,7 +9,7 @@
  * attribution — is small, and stays in the repository where it can be diffed.
  *
  * Failing here is not fatal. A checkout with no demo video still runs; it opens
- * on "bring your own video", which is a legitimate way to use ClipClub and the
+ * on "bring your own video", which is a legitimate way to use Cutlet and the
  * only way anyone uses it on their own footage.
  */
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'

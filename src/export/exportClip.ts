@@ -200,7 +200,7 @@ export async function exportClip(clipId: string): Promise<void> {
     )
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error('[ClipClub] export failed', err)
+    console.error('[Cutlet] export failed', err)
     logTool('export', 'Export failed: ' + message, false)
     alert(
       'Could not export that clip.\n\n' + message +

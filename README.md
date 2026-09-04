@@ -1,4 +1,4 @@
-# ClipClub
+# Cutlet
 
 **Find the moments. Cut them down together. Then fix the cut by pointing at
 words.**

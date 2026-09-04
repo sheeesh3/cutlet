@@ -6,7 +6,7 @@ export interface Word {
 }
 
 /**
- * A sentence is the atomic unit of editing in ClipClub. Its `id` is stable for
+ * A sentence is the atomic unit of editing in Cutlet. Its `id` is stable for
  * the lifetime of a transcript, which is what lets the agent name a cut without
  * ever handling a floating timestamp.
  */

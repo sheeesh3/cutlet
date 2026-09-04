@@ -1,7 +1,7 @@
 import type { Word } from '../types'
 
 /**
- * ClipClub accepts three transcript shapes. Word-level JSON is the primary
+ * Cutlet accepts three transcript shapes. Word-level JSON is the primary
  * target — it is what gives sentence boundaries their accuracy. SRT and VTT are
  * accepted so an existing subtitle file is never a reason you cannot open a
  * video, but their timings are cue-level, so a "sentence" from them is really a

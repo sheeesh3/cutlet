@@ -48,7 +48,7 @@ export function ToolsSheet({ onClose }: { onClose: () => void }) {
               </>
             ) : (
               <>
-                <strong>This browser does not expose WebMCP.</strong> ClipClub looks for{' '}
+                <strong>This browser does not expose WebMCP.</strong> Cutlet looks for{' '}
                 <code>document.modelContext</code> and registers these tools when it finds it.
                 Nothing here is disabled by its absence — every action an agent can take, you
                 can take by hand.

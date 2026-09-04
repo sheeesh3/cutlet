@@ -60,12 +60,12 @@ export function registerTools(): () => void {
       const result = mc.registerTool(withLogging(tool), { signal }) as unknown
       if (result && typeof (result as Promise<unknown>).catch === 'function') {
         ;(result as Promise<unknown>).catch((err: unknown) => {
-          console.warn(`[ClipClub] registerTool("${tool.name}") rejected`, err)
+          console.warn(`[Cutlet] registerTool("${tool.name}") rejected`, err)
         })
       }
       registered++
     } catch (err) {
-      console.warn(`[ClipClub] could not register tool "${tool.name}"`, err)
+      console.warn(`[Cutlet] could not register tool "${tool.name}"`, err)
     }
   }
 

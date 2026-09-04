@@ -116,7 +116,7 @@ function readSegments(args: Record<string, unknown>): Segment[] | null {
 const getEditorState: ToolDescriptor = {
   name: 'get_editor_state',
   description:
-    'Read the current state of the ClipClub editor: the loaded video, how many ' +
+    'Read the current state of the Cutlet editor: the loaded video, how many ' +
     'sentences the transcript has, what the user has anchored, and every clip ' +
     'with its segments, duration and revision. Call this before editing a clip, ' +
     'and again after the user says they changed something — revisions change when ' +

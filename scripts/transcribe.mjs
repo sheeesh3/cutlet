@@ -2,7 +2,7 @@
  * Transcribes a video into the word-level JSON the library expects, using
  * ElevenLabs Scribe.
  *
- * Deliberately a script you run rather than anything the page does. ClipClub
+ * Deliberately a script you run rather than anything the page does. Cutlet
  * ships with no backend and no keys — the page's whole privacy claim is that
  * your video never leaves the tab, and an in-page transcription button would be
  * a lie in the footer. Preparing library material is a different job from using
