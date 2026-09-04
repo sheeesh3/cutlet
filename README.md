@@ -3,24 +3,26 @@
 **Find the moments. Cut them down together. Then fix the cut by pointing at
 words.**
 
-A rough-cut video editor that an agent can drive, built on
-[WebMCP](https://github.com/webmachinelearning/webmcp). The page registers ten
-tools with the browser's agent; the agent reads and structures the transcript,
-you judge pacing in the footage, and you both edit the same visible cut.
+A rough-cut video editor an agent drives, built on
+[WebMCP](https://github.com/webmachinelearning/webmcp). You say what you want;
+the agent reads the transcript, decides which moments are worth a clip, and cuts
+them down. Its clips appear in the page, where you play them, argue with them,
+and fix them line by line.
 
-It is not an "AI clip finder". The interesting part is the handoff.
+The agent does the judging. The page does the editing, the playing and the
+exporting, and keeps both of you honest about who changed what.
 
 ---
 
 ## The flow
 
-**Find** → a pass over the transcript proposes topics: stretches that hang
-together, often two or three minutes each. These are candidates, not
-deliverables.
+**Find** → "find the best clips in this". The agent skims the whole transcript in
+one call, picks the stretches that stand on their own, reads those in full, and
+creates a clip for each with a title and a reason.
 
-**Cut** → a topic gets reduced to 30–60 seconds by dropping sentences out of its
-middle. That is the edit: a clip becomes several pieces with gaps between them,
-and playback jumps the gaps.
+**Cut** → "cut the moon one to forty seconds". The agent names the sentences that
+survive; everything between them is dropped. That is the edit: a clip becomes
+several pieces with gaps, and playback jumps the gaps.
 
 **Fix** → every dropped sentence stays visible in the transcript, struck
 through, with a control to put it back. Every kept one has a control to drop it.
@@ -52,14 +54,22 @@ get_editor_state                                → sees the real cut
 to, that range is drawn separately — dashed, in the agent's blue — beside your
 anchor rather than on top of it.
 
-## Why the buttons do not call the agent
+## Asking is the interface
 
-WebMCP is one-directional. An agent can call into a page; a page has no way to
-call out to an agent. There is no `requestAgent`, no sampling, no elicitation —
-the explainer lists it as an open question, not a feature.
+There is no "find clips" button, because there cannot be one. WebMCP is
+one-directional: an agent calls into a page, and a page has no way to call out to
+an agent — no `requestAgent`, no sampling, no elicitation. ChatGPT's
+implementation says why, and it is a decision rather than a gap: *"the design
+prioritizes user agency — the agent responds to user requests rather than
+websites initiating actions."*
 
-So **Find clips** and **Cut to 30–60s** cannot summon one. They run the page's
-own lexical pass instead:
+So the trigger is you asking, and the page's job before any clip exists is to
+tell you what to ask for. That is what the empty rail does.
+
+### The fallback, for browsers with no agent
+
+Open the deployed page in ordinary Chrome and there is nothing to ask, so a
+**Rough pass** button appears in place of the prompts. It runs a lexical pass:
 
 - **Finding topics** splits where the vocabulary turns over, in the manner of
   TextTiling — compare the words either side of each sentence boundary, cut where
@@ -70,17 +80,14 @@ own lexical pass instead:
   to something already kept and marking down any that open on "but", "so" or
   "they" when the thing they refer to is being dropped.
 
-This is lexical, not semantic. It knows which words are unusual and where the
-speaker paused; it does not know what any of it means. That is the gap the agent
-fills, and the page says so — its own clips are badged `auto`, drawn the
-quietest of the three, and `get_guidelines` tells the agent they are the ones
-most worth its judgement.
+It knows which words are unusual and where the speaker paused. It does not know
+what any of it means, and it is not what this project is for — it exists so the
+page is not inert for someone without a compatible browser. Its clips are badged
+`auto`, drawn the quietest of the three, and the button disappears entirely once
+an agent is present. `get_guidelines` tells the agent to replace those clips
+rather than tidy them.
 
-The upshot: the whole flow works in a browser with no agent at all, and the
-agent's contribution is visible as an improvement on something concrete rather
-than as the only thing that ever happens.
-
-## The ten tools
+## The nine tools
 
 Registered on the **top-level document** — tools declared inside an iframe are
 not discovered.
@@ -88,13 +95,12 @@ not discovered.
 | Tool | | What it is for |
 |---|---|---|
 | `get_editor_state` | read | Video, anchor, audition, every clip with its segments and revision. |
-| `read_transcript` | read | A bounded window of sentences. Not the whole transcript. |
+| `read_transcript` | read | Sentences in full, or `detail: "skim"` for the whole recording at once. |
 | `search_transcript` | read | Find a moment in a long recording, with context around each hit. |
 | `get_guidelines` | read | The editorial rules: topics vs cuts, what makes a cut land. |
-| `suggest_topics` | read | Run the lexical pass and return candidates to judge. |
 | `create_clip` | write | One range for a topic, or a segment list for a cut. |
 | `update_clip` | write | Replace segments, retitle, set the gap padding. Takes `expectedRevision`. |
-| `cut_clip` | write | Reduce to a target length. Pass `keepSentenceIds` to decide it yourself. |
+| `cut_clip` | write | Keep the sentences you name, drop the rest. No automatic mode. |
 | `edit_clip_sentence` | write | Drop or restore one sentence. Splits a segment if it is interior. |
 | `preview_clip` | write | Play a clip including its gaps, or audition a range. |
 
@@ -167,10 +173,15 @@ Open the page in a browser that exposes `document.modelContext`. The header pill
 reads **Agent tools live** when registration succeeded, and **Agent tools
 unavailable** otherwise — click it either way to see the tools the page offers.
 
-Press **Find clips**, then ask for something like:
+Then just ask:
 
-> The moon-speech topic is too long. Cut it to about forty seconds, keep the
-> "why does Rice play Texas" line, and end on "we intend to win".
+> Find the best clips in this.
+
+It skims the transcript, reads the promising stretches in full, and creates a
+clip for each with a title and a reason. Then:
+
+> Cut the moon one to about forty seconds, keep the "why does Rice play Texas"
+> line, and end on "we intend to win".
 
 Watch the **Agent activity** panel: every tool call is logged there.
 
