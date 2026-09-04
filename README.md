@@ -34,6 +34,44 @@ adjacent merge into one. It is the same collection-of-ranges shape the agent
 produces, built by hand — and `get_editor_state` reports it, so the agent can
 work from what you marked.
 
+## When the sentence is bounded wrong
+
+Sentences come from whatever punctuation the speech recogniser guessed, and it
+guesses badly. A missed full stop leaves a sixty-word run you can only take
+whole, and the line you actually want is buried inside it.
+
+**Select those words with the mouse and press "Make it its own line."** The
+sentence is cut at both ends of your selection and the middle becomes a sentence
+in its own right, with its own id.
+
+That is the point of splitting rather than word-level selection. A clip edge
+placed at some arbitrary time is a boundary neither party can name — you cannot
+point at it, the agent cannot revise it, and `read_transcript` cannot show it.
+Splitting turns the boundary you want into vocabulary you both have:
+
+```
+s0003  "…whether this new ocean will be a sea of peace or a new terrifying theater of war."
+       ↓ select "a sea of peace", make it its own line
+s0003  "…whether this new ocean will be"
+s0030  "a sea of peace"
+s0031  "or a new terrifying theater of war."
+```
+
+Splitting **never changes an edit**. A clip that contained the whole sentence
+still contains every word of it; only the names change. And the agent can split
+too — `split_sentence` — because the moment it can name the boundary it can also
+propose one.
+
+**Ids stop being positional the moment you split.** `s0013` used to mean "the
+thirteenth sentence"; now it means one particular sentence, looked up. That is
+deliberate: renumbering on a split would silently repoint every id after it at
+its neighbour, and a stale id that resolves to the *wrong* sentence is far worse
+than one that fails to resolve. This is also why the new half gets a fresh number
+rather than `s0003b` — nothing after it moves.
+
+Splitting needs word-level timings. With an SRT or VTT the page says so plainly
+rather than interpolating a boundary it cannot actually find.
+
 **Export** → each piece is encoded separately then joined, plus an `.srt` rebased
 across the whole cut.
 
@@ -156,7 +194,7 @@ page is not inert for someone without a compatible browser. Its clips are badged
 an agent is present. `get_guidelines` tells the agent to replace those clips
 rather than tidy them.
 
-## The nine tools
+## The ten tools
 
 Registered on the **top-level document** — tools declared inside an iframe are
 not discovered.
@@ -171,6 +209,7 @@ not discovered.
 | `update_clip` | write | Replace segments, retitle, set the gap padding. Takes `expectedRevision`. |
 | `cut_clip` | write | Keep the sentences you name, drop the rest. No automatic mode. |
 | `edit_clip_sentence` | write | Drop or restore one sentence. Splits a segment if it is interior. |
+| `split_sentence` | write | Cut a sentence in two at a word, when the boundary you need does not exist yet. |
 | `preview_clip` | write | Play a clip including its gaps, or audition a range. |
 
 Read tools carry `annotations.readOnlyHint`.

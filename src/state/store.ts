@@ -1,6 +1,11 @@
 import { useSyncExternalStore } from 'react'
 import type { Actor, Clip, ClipKind, Project, Range, Segment, Sentence } from '../types.ts'
-import { indexOfSentenceId } from '../transcript/sentences.ts'
+import {
+  indexOfSentenceId,
+  registerSentences,
+  nextSentenceId,
+  renderWords,
+} from '../transcript/sentences.ts'
 
 export interface ToolEvent {
   id: number
@@ -103,6 +108,7 @@ export function useStore<T>(selector: (s: EditorState) => T): T {
 // ---------------------------------------------------------------- project
 
 export function setProject(project: Project) {
+  registerSentences(project.sentences)
   set({ project, loading: false, error: null })
 }
 
@@ -159,6 +165,103 @@ function unknownId(id: string): string {
   const range = list.length ? ' Ids run ' + list[0].id + '-' + list[list.length - 1].id + '.' : ''
   return 'Unknown sentence id "' + id + '".' + range
 }
+
+/**
+ * Cuts one sentence in two at a word boundary, so a clip can start or end
+ * somewhere the speech recogniser did not put a full stop.
+ *
+ * This is the answer to "the punctuation is wrong and I want half of this
+ * line". Rather than letting a clip carry a boundary with no name — a time
+ * nobody can refer to — the boundary becomes a sentence in its own right, with
+ * its own id. The agent can then read it, name it, and cut on it like any
+ * other.
+ *
+ * `atWord` is an offset within the sentence: the index of the first word of the
+ * second half. Every clip is rewritten so it still contains exactly the words it
+ * contained before — splitting is a change to the vocabulary, never to the edit.
+ */
+export function splitSentence(
+  sentenceId: string,
+  atWord: number,
+  by: Actor
+): { first: Sentence; second: Sentence } | { error: string } {
+  const project = state.project
+  if (!project) return { error: 'No transcript is loaded.' }
+  const list = project.sentences
+  const at = indexOfSentenceId(sentenceId)
+  if (at < 0 || at >= list.length) return { error: unknownId(sentenceId) }
+
+  const target = list[at]
+  const words = project.words
+  if (!words || target.wordStart === undefined || target.wordEnd === undefined) {
+    return {
+      error:
+        'That transcript has no word timings behind it, so ' + sentenceId +
+        ' cannot be split. Load a word-level transcript (Whisper or Deepgram JSON) to split lines.',
+    }
+  }
+
+  const count = target.wordEnd - target.wordStart + 1
+  if (!Number.isInteger(atWord) || atWord < 1 || atWord >= count) {
+    return {
+      error:
+        'Split point must be between 1 and ' + (count - 1) + ' for ' + sentenceId +
+        ', which is ' + count + ' words long.',
+    }
+  }
+
+  const head = words.slice(target.wordStart, target.wordStart + atWord)
+  const tail = words.slice(target.wordStart + atWord, target.wordEnd + 1)
+  const newId = nextSentenceId(list)
+
+  const first: Sentence = {
+    ...target,
+    text: renderWords(head).text,
+    start: head[0].start,
+    end: head[head.length - 1].end,
+    wordStart: target.wordStart,
+    wordEnd: target.wordStart + atWord - 1,
+  }
+  const second: Sentence = {
+    id: newId,
+    index: at + 1,
+    text: renderWords(tail).text,
+    start: tail[0].start,
+    end: tail[tail.length - 1].end,
+    wordStart: target.wordStart + atWord,
+    wordEnd: target.wordEnd,
+    speaker: target.speaker,
+  }
+
+  const next = [...list.slice(0, at), first, second, ...list.slice(at + 1)]
+  next.forEach((s, i) => {
+    s.index = i
+  })
+  registerSentences(next)
+
+  // A clip that ended on the sentence we just split still means to include all
+  // of it, so its end moves to the new half. A clip that started there already
+  // starts at the first half and needs nothing.
+  const clips = state.clips.map((clip) => {
+    const segments = clip.segments.map((seg) =>
+      seg.endSentenceId === sentenceId ? { ...seg, endSentenceId: newId } : seg
+    )
+    return segments.some((s, i) => s !== clip.segments[i]) ? { ...clip, segments } : clip
+  })
+
+  mutate({ project: { ...project, sentences: next }, clips })
+  logTool(
+    'split_sentence',
+    'Split ' + sentenceId + ' after word ' + atWord + ' — ' + sentenceId + ' now ends "…' +
+      tailWords(first.text) + '" and ' + newId + ' begins "' + headWords(second.text) + '…".',
+    true
+  )
+  void by
+  return { first, second }
+}
+
+const headWords = (text: string) => text.split(/\s+/).slice(0, 5).join(' ')
+const tailWords = (text: string) => text.split(/\s+/).slice(-5).join(' ')
 
 // ------------------------------------------------------------------ clips
 

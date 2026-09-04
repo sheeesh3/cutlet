@@ -11,6 +11,9 @@ import {
   createClip,
   clipSentenceIndices,
   clipDuration,
+  splitSentence,
+  sentenceById,
+  getState,
   moveSegment,
   removeSegment,
   removeSentence,
@@ -18,7 +21,7 @@ import {
   logTool,
 } from '../state/store'
 import { onTimeUpdate, seek, playSentenceRange, playRanges } from '../state/player'
-import { formatTimecode, formatDuration } from '../transcript/sentences'
+import { formatTimecode, formatDuration, renderWords } from '../transcript/sentences'
 import type { Actor, Sentence } from '../types'
 
 const NO_SENTENCES: Sentence[] = []
@@ -58,6 +61,9 @@ export function Transcript() {
 
   const [query, setQuery] = useState('')
   const [view, setView] = useState<'source' | 'clip'>('source')
+  const [split, setSplit] = useState<
+    { id: string; startChar: number; endChar: number; text: string } | null
+  >(null)
   const [time, setTime] = useState(0)
   const listRef = useRef<HTMLDivElement | null>(null)
   const followRef = useRef(true)
@@ -264,6 +270,86 @@ export function Transcript() {
     if ('error' in result) logTool('edit', result.error, false)
   }
 
+  /**
+   * Reads a mouse selection inside one sentence and offers to split there.
+   *
+   * The unit of editing is a sentence, and sentences come from whatever
+   * punctuation the recogniser guessed — so the boundary you want is often not
+   * one that exists. Selecting the words you actually mean and cutting the
+   * sentence at both ends of that selection makes it exist.
+   */
+  const readTextSelection = () => {
+    const sel = window.getSelection()
+    if (!sel || sel.isCollapsed || !listRef.current) return setSplit(null)
+    const node = sel.anchorNode
+    const row = (node?.nodeType === 3 ? node.parentElement : (node as HTMLElement))?.closest?.(
+      '[data-id]'
+    )
+    const focusRow = (
+      sel.focusNode?.nodeType === 3
+        ? sel.focusNode.parentElement
+        : (sel.focusNode as HTMLElement)
+    )?.closest?.('[data-id]')
+    // Only within a single sentence: a selection spanning rows is a range, and
+    // ranges are already what clicking and shift-clicking make.
+    if (!row || row !== focusRow) return setSplit(null)
+
+    const id = row.getAttribute('data-id')
+    const textEl = row.querySelector('[data-text]')
+    if (!id || !textEl) return setSplit(null)
+
+    const before = document.createRange()
+    before.selectNodeContents(textEl)
+    try {
+      before.setEnd(sel.anchorNode!, sel.anchorOffset)
+    } catch {
+      return setSplit(null)
+    }
+    const startChar = before.toString().length
+    const length = sel.toString().length
+    setSplit({ id, startChar, endChar: startChar + length, text: sel.toString() })
+  }
+
+  /** Splits at a character offset, returning the id of the new second half. */
+  const splitAtChar = (id: string, char: number): string | null => {
+    const s = sentenceById(id)
+    const project = getState().project
+    if (!s || !project?.words || s.wordStart === undefined || s.wordEnd === undefined) return null
+    const words = project.words.slice(s.wordStart, s.wordEnd + 1)
+    const { charToWord } = renderWords(words)
+    const at = charToWord[Math.min(Math.max(0, char), charToWord.length - 1)]
+    if (at === undefined || at < 1) return null
+    const result = splitSentence(id, at, 'human')
+    if ('error' in result) {
+      logTool('split_sentence', result.error, false)
+      return null
+    }
+    return result.second.id
+  }
+
+  const finishSplit = () => {
+    window.getSelection()?.removeAllRanges()
+    setSplit(null)
+  }
+
+  /**
+   * Lifts the selected words out as a sentence of their own.
+   *
+   * Split at the near end first, then split what falls out of that at the far
+   * end — the far offset re-measured against the new sentence. Doing the far end
+   * first works too, but hands out ids in descending order, and a transcript
+   * that reads s0031 then s0030 looks broken even when it is not.
+   */
+  const splitOut = (id: string, startChar: number, endChar: number) => {
+    if (startChar > 0) {
+      const tail = splitAtChar(id, startChar)
+      if (tail) splitAtChar(tail, endChar - startChar)
+    } else {
+      splitAtChar(id, endChar)
+    }
+    finishSplit()
+  }
+
   const movePiece = (from: number, to: number) => {
     if (!activeClipId) return
     const result = moveSegment(activeClipId, from, to, 'human')
@@ -402,6 +488,7 @@ export function Transcript() {
         onWheel={() => {
           followRef.current = false
         }}
+        onMouseUp={readTextSelection}
       >
         {!sentences.length && <div className={styles.empty}>No transcript loaded.</div>}
 
@@ -477,7 +564,7 @@ export function Transcript() {
                 }
               >
                 <span className={styles.tc}>{formatTimecode(sentences[row.index].start)}</span>
-                <span className={styles.text}>
+                <span className={styles.text} data-text>
                   {row.index === playingIndex && <span className={styles.playingDot} />}
                   {sentences[row.index].text}
                 </span>
@@ -539,7 +626,7 @@ export function Transcript() {
               title={`${s.id} · ${formatTimecode(s.start)}`}
             >
               <span className={styles.tc}>{formatTimecode(s.start)}</span>
-              <span className={styles.text}>
+              <span className={styles.text} data-text>
                 {i === playingIndex && <span className={styles.playingDot} />}
                 {terms.length ? highlight(s.text, terms) : s.text}
               </span>
@@ -561,7 +648,39 @@ export function Transcript() {
         })}
       </div>
 
-      {selection && (
+      {/* Offered the moment a selection sits inside one sentence, because that
+          is exactly the gesture someone makes when the line is bounded wrong. */}
+      {split && (
+        <div className={`${styles.anchorBar} ${styles.splitBar}`}>
+          <span className={styles.anchorLabel}>Selected inside {split.id}</span>
+          <span className={styles.splitQuote}>“{trimTo(split.text, 44)}”</span>
+          <span className={styles.spacer} />
+          <button
+            className={styles.btn}
+            onClick={() => {
+              splitAtChar(split.id, split.startChar)
+              finishSplit()
+            }}
+            disabled={split.startChar === 0}
+            title="Cut the sentence in two where the selection starts"
+          >
+            Split here
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={() => splitOut(split.id, split.startChar, split.endChar)}
+            disabled={
+              split.startChar === 0 &&
+              split.endChar >= (sentenceById(split.id)?.text.length ?? 0)
+            }
+            title="Make the selected words a sentence of their own, with its own id"
+          >
+            Make it its own line
+          </button>
+        </div>
+      )}
+
+      {selection && !split && (
         <div className={styles.anchorBar}>
           <span className={styles.anchorLabel}>
             {marked.segments.length > 1 ? 'Marked' : 'Anchored on'}
@@ -614,4 +733,10 @@ function highlight(text: string, terms: string[]) {
 
 function escapeRegExp(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** Keeps the quoted selection short enough that the bar's buttons stay put. */
+function trimTo(text: string, max: number): string {
+  const clean = text.trim().replace(/\s+/g, ' ')
+  return clean.length > max ? clean.slice(0, max - 1) + '…' : clean
 }

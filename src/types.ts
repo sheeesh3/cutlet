@@ -17,6 +17,14 @@ export interface Sentence {
   start: number
   end: number
   speaker?: string
+  /**
+   * Which words this sentence was built from, so it can be split again at a
+   * real word boundary. Absent for a transcript that arrived without timings
+   * fine enough to split — a sentence with no words behind it can only be taken
+   * whole.
+   */
+  wordStart?: number
+  wordEnd?: number
 }
 
 /** `auto` is the page's own heuristic pass — no agent involved. */
@@ -59,6 +67,12 @@ export interface Project {
   videoLabel: string
   attribution?: string
   sentences: Sentence[]
+  /**
+   * Kept rather than discarded after buildSentences, because splitting a
+   * sentence needs the words underneath it. STT punctuation is the thing that
+   * decides sentence boundaries, and STT punctuation is often wrong.
+   */
+  words?: Word[]
   duration: number
 }
 

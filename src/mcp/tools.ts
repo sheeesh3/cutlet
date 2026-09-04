@@ -18,6 +18,7 @@ import {
   updateClip,
   removeSentence,
   addSentence,
+  splitSentence,
   setAudition,
   setActiveClip,
   logTool,
@@ -992,6 +993,54 @@ const previewClip: ToolDescriptor = {
   },
 }
 
+// ----------------------------------------------------------- 10. split
+
+const splitSentenceTool: ToolDescriptor = {
+  name: 'split_sentence',
+  description:
+    'Cut one sentence into two at a word boundary, when the boundary you need is ' +
+    'not one the transcript has.\n\n' +
+    'Sentences come from whatever punctuation the speech recogniser guessed, and ' +
+    'it guesses badly: a missed full stop leaves a sixty-word run you can only ' +
+    'take whole. Splitting makes the boundary you want into a real sentence with ' +
+    'its own id, so you can then cut on it like any other.\n\n' +
+    'The first half keeps the original id; the second half gets a new one, ' +
+    'reported back. Clips are rewritten so they still contain exactly what they ' +
+    'contained before — splitting changes the vocabulary, never the edit. Read ' +
+    'the sentence first so you can count the words.',
+  annotations: { title: 'Split a sentence' },
+  inputSchema: {
+    type: 'object',
+    properties: {
+      sentenceId: { type: 'string', description: 'The sentence to split, e.g. "s0013".' },
+      afterWord: {
+        type: 'number',
+        description:
+          'How many words stay in the first half. 5 means the split falls after the ' +
+          'fifth word, so the sixth begins the new sentence. Must be at least 1 and ' +
+          'less than the number of words in the sentence.',
+      },
+    },
+    required: ['sentenceId', 'afterWord'],
+    additionalProperties: false,
+  },
+  execute(args) {
+    const missing = requireProject()
+    if (missing) return fail(missing)
+    const id = String(args.sentenceId ?? '')
+    const result = splitSentence(id, Number(args.afterWord), 'agent')
+    if ('error' in result) return fail(result.error)
+    const summary =
+      'Split ' + id + '. ' + result.first.id + ' is now "' + result.first.text + '" and ' +
+      result.second.id + ' is "' + result.second.text + '". Every clip still holds ' +
+      'what it held before.'
+    return ok(summary, {
+      first: { id: result.first.id, text: result.first.text },
+      second: { id: result.second.id, text: result.second.text },
+    })
+  },
+}
+
 export const TOOLS: ToolDescriptor[] = [
   getEditorState,
   readTranscript,
@@ -1001,5 +1050,6 @@ export const TOOLS: ToolDescriptor[] = [
   updateClipTool,
   cutClip,
   editClipSentence,
+  splitSentenceTool,
   previewClip,
 ]

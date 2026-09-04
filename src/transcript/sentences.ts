@@ -36,6 +36,31 @@ export interface SentenceOptions {
   minWords?: number
 }
 
+/**
+ * Renders a run of words the way a person would write it, and records which
+ * word each character came from.
+ *
+ * The mapping is the point: splitting a sentence from a mouse selection means
+ * turning a character offset back into a word, and interpolating across the
+ * sentence's duration would put the cut in the middle of a word. This is built
+ * a word at a time rather than by regex over the joined string precisely so
+ * that offsets stay exact — ASR emits "C -1" and "48 -story" as two tokens, and
+ * closing those gaps shifts every character after them.
+ */
+export function renderWords(words: Word[]): { text: string; charToWord: number[] } {
+  let text = ''
+  const charToWord: number[] = []
+  words.forEach((word, i) => {
+    if (i > 0 && !/^[,.!?;:]/.test(word.text) && !/^-\w/.test(word.text)) {
+      charToWord.push(i)
+      text += ' '
+    }
+    for (let c = 0; c < word.text.length; c++) charToWord.push(i)
+    text += word.text
+  })
+  return { text, charToWord }
+}
+
 export function buildSentences(words: Word[], options: SentenceOptions = {}): Sentence[] {
   const {
     pauseSeconds = 1.4,
@@ -46,22 +71,20 @@ export function buildSentences(words: Word[], options: SentenceOptions = {}): Se
   const sentences: Sentence[] = []
   let current: Word[] = []
 
+  let consumed = 0
   const flush = () => {
     if (!current.length) return
     const index = sentences.length
     sentences.push({
       id: sentenceId(index),
       index,
-      text: current
-        .map((w) => w.text)
-        .join(' ')
-        .replace(/\s+([,.!?;:])/g, '$1')
-        // ASR emits "C -1" and "48 -story" as separate tokens; rejoin them so a
-        // clip's text reads like something a person wrote.
-        .replace(/\s+-(?=\w)/g, '-'),
+      text: renderWords(current).text,
       start: current[0].start,
       end: current[current.length - 1].end,
+      wordStart: consumed,
+      wordEnd: consumed + current.length - 1,
     })
+    consumed += current.length
     current = []
   }
 
@@ -105,6 +128,9 @@ export function buildSentences(words: Word[], options: SentenceOptions = {}): Se
   }
   flush()
 
+  // Registering here keeps the id lookup correct for anything that builds a
+  // transcript without going through the store — the tests, mainly.
+  registerSentences(sentences)
   return sentences
 }
 
@@ -117,15 +143,45 @@ function endsSentence(text: string): boolean {
 }
 
 /**
- * Ids are positional and zero-padded so they sort lexicographically and read
- * cleanly in an agent transcript: s0001, s0002, ... They are stable for a given
- * transcript, which is the whole contract behind range-based editing.
+ * Ids are zero-padded so they read cleanly in an agent transcript: s0001,
+ * s0002, ... At build time they are positional, but they stop being positional
+ * the moment a sentence is split — the new half is appended to the id space and
+ * inserted into the middle of the list.
+ *
+ * That is deliberate. An id has to keep meaning the same thing for as long as
+ * the agent might be holding it, and renumbering on a split would silently
+ * repoint every id after the split at its neighbour. A stale id that resolves
+ * to the wrong sentence is far worse than one that fails to resolve.
  */
 export function sentenceId(index: number): string {
   return `s${String(index + 1).padStart(4, '0')}`
 }
 
+/** An id not already taken, for the second half of a split. */
+export function nextSentenceId(list: Sentence[]): string {
+  let highest = 0
+  for (const s of list) {
+    const n = Number(s.id.replace(/^s/, ''))
+    if (Number.isFinite(n) && n > highest) highest = n
+  }
+  return `s${String(highest + 1).padStart(4, '0')}`
+}
+
+/**
+ * id -> position, maintained rather than computed. Positional arithmetic cannot
+ * survive an insertion, and splitting a sentence is an insertion.
+ */
+let positions = new Map<string, number>()
+
+export function registerSentences(list: Sentence[]): void {
+  positions = new Map(list.map((s, i) => [s.id, i]))
+}
+
 export function indexOfSentenceId(id: string): number {
+  const at = positions.get(id)
+  if (at !== undefined) return at
+  // Nothing registered yet — fall back to reading the id positionally, which is
+  // how they are handed out before anything has been split.
   const n = Number(id.replace(/^s/, ''))
   return Number.isFinite(n) ? n - 1 : -1
 }

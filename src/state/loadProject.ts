@@ -50,6 +50,7 @@ export async function loadDemoProject(): Promise<void> {
       videoLabel: `${meta.title ?? 'Demo'}${meta.speaker ? ` — ${meta.speaker}` : ''}`,
       attribution: meta.attribution,
       sentences,
+      words,
       duration: meta.durationSeconds ?? (await videoDuration(videoUrl)),
     }
     setProject(project)
@@ -78,6 +79,7 @@ export async function loadLocalProject(video: File, transcript: File): Promise<v
       videoUrl,
       videoLabel: video.name,
       sentences,
+      words,
       duration: await videoDuration(videoUrl),
     })
   } catch (err) {
