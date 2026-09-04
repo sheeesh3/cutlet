@@ -407,3 +407,63 @@
   color: var(--accent);
   border-color: var(--accent);
 }
+
+/* ---- the empty state, which is the instruction ---- */
+
+.ask {
+  padding: 14px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.askLead {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.askList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.askList li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  padding: 8px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+}
+
+.askFoot {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-faint);
+}
+
+.askFoot strong {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* The fallback button is deliberately quiet: it is the lesser path. */
+.findBtn {
+  background: transparent;
+  color: var(--text-dim);
+  border-color: var(--line-strong);
+  font-weight: 400;
+}
+
+.findBtn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text);
+}

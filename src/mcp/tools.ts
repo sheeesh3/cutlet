@@ -22,12 +22,20 @@ import {
 } from '../state/store'
 import { playClip, playRanges, seek, getVideo } from '../state/player'
 import { formatTimecode, formatDuration, indexOfSentenceId } from '../transcript/sentences'
-import { findTopics, cutToDuration } from '../edit/autoEdit'
 import type { Clip, Segment } from '../types'
 
 /** A window this size keeps a tool result readable without a second call. */
 const DEFAULT_WINDOW = 40
 const MAX_WINDOW = 120
+
+/**
+ * Skimming trades detail for reach: enough of each sentence to recognise what it
+ * is about, so a whole recording fits in one result. Finding clips means seeing
+ * the shape of the thing, and paging through a two-hour transcript forty
+ * sentences at a time is not seeing it.
+ */
+const SKIM_WORDS = 11
+const MAX_SKIM = 900
 
 const round = (n: number) => Math.round(n * 100) / 100
 
@@ -60,6 +68,18 @@ function sentenceView(index: number) {
     startSeconds: round(s.start),
     endSeconds: round(s.end),
     text: s.text,
+  }
+}
+
+/** Enough of a sentence to recognise it, short enough that all of them fit. */
+function skimView(index: number) {
+  const s = sentences()[index]
+  const words = s.text.split(/\s+/)
+  return {
+    id: s.id,
+    startSeconds: round(s.start),
+    seconds: Math.round(s.end - s.start),
+    text: words.length > SKIM_WORDS ? words.slice(0, SKIM_WORDS).join(' ') + '…' : s.text,
   }
 }
 
@@ -153,23 +173,37 @@ const getEditorState: ToolDescriptor = {
 const readTranscript: ToolDescriptor = {
   name: 'read_transcript',
   description:
-    'Read a bounded window of the transcript as sentences, each with a stable id ' +
-    'like s0042 and its start and end time. Use the ids — never raw timestamps — ' +
-    "when you propose a clip. Start from the user's anchor or from a search hit " +
-    'and expand outward; do not try to read the whole transcript at once.',
-  annotations: { readOnlyHint: true, title: 'Read transcript window' },
+    'Read the transcript as sentences, each with a stable id like s0042 and its ' +
+    'start and end time. Use the ids — never raw timestamps — when you propose a ' +
+    'clip.\n\n' +
+    'To find clips in a recording you have not seen, call this once with ' +
+    'detail "skim": it returns every sentence shortened to a few words, so a whole ' +
+    'recording arrives in one result and you can see its shape. Then read the ' +
+    'stretches that look promising with detail "full" before you commit to any ' +
+    'boundary.',
+  annotations: { readOnlyHint: true, title: 'Read transcript' },
   inputSchema: {
     type: 'object',
     properties: {
+      detail: {
+        type: 'string',
+        enum: ['full', 'skim'],
+        description:
+          'full (default) returns complete sentences, up to ' + MAX_WINDOW + '. ' +
+          'skim returns every sentence shortened to about ' + SKIM_WORDS + ' words, up to ' +
+          MAX_SKIM + ' — use it to survey a whole recording before choosing where to look.',
+      },
       startSentenceId: {
         type: 'string',
         description:
           'First sentence to return, e.g. "s0042". Defaults to the start of the transcript, ' +
-          'or to the user\'s anchor when there is one.',
+          "or to the user's anchor when there is one.",
       },
       count: {
         type: 'number',
-        description: 'How many sentences to return. Default ' + DEFAULT_WINDOW + ', maximum ' + MAX_WINDOW + '.',
+        description:
+          'How many sentences to return. Default ' + DEFAULT_WINDOW + ' when reading in full, ' +
+          'the whole transcript when skimming.',
       },
       before: {
         type: 'number',
@@ -184,6 +218,7 @@ const readTranscript: ToolDescriptor = {
     const missing = requireProject()
     if (missing) return fail(missing)
     const list = sentences()
+    const skim = args.detail === 'skim'
 
     const requested = typeof args.startSentenceId === 'string' ? args.startSentenceId : null
     let from = 0
@@ -204,12 +239,18 @@ const readTranscript: ToolDescriptor = {
     const before = Math.max(0, Math.min(20, Number(args.before) || 0))
     from = Math.max(0, from - before)
 
-    const count = Math.max(1, Math.min(MAX_WINDOW, Number(args.count) || DEFAULT_WINDOW))
+    // Skimming defaults to the whole transcript; that is the point of it.
+    const requestedCount = Number(args.count)
+    const cap = skim ? MAX_SKIM : MAX_WINDOW
+    const fallback = skim ? MAX_SKIM : DEFAULT_WINDOW
+    const count = Math.max(1, Math.min(cap, requestedCount || fallback))
+
     const to = Math.min(list.length, from + count)
     const window = []
-    for (let i = from; i < to; i++) window.push(sentenceView(i))
+    for (let i = from; i < to; i++) window.push(skim ? skimView(i) : sentenceView(i))
 
     const payload = {
+      detail: skim ? 'skim' : 'full',
       sentences: window,
       returned: window.length,
       totalSentences: list.length,
@@ -218,9 +259,14 @@ const readTranscript: ToolDescriptor = {
       nextSentenceId: to < list.length ? list[to].id : null,
       previousSentenceId: from > 0 ? list[Math.max(0, from - count)].id : null,
     }
-    const summary =
-      'Sentences ' + window[0]?.id + '-' + window[window.length - 1]?.id +
-      ' (' + window.length + ' of ' + list.length + ').'
+
+    const covered = window.length === list.length
+    const summary = skim
+      ? 'Skim of ' + window.length + (covered ? ' sentences — the whole recording' : ' of ' + list.length + ' sentences') +
+        ', shortened. Read a stretch in full before you commit to a boundary.'
+      : 'Sentences ' + window[0]?.id + '-' + window[window.length - 1]?.id +
+        ' (' + window.length + ' of ' + list.length + ').'
+
     logTool('read_transcript', summary)
     return ok(
       summary + '\n' +
@@ -306,6 +352,26 @@ const searchTranscript: ToolDescriptor = {
 // -------------------------------------------------------- 4. guidelines
 
 const GUIDELINES = `
+Finding clips
+
+This is the main thing you are here for. When someone asks you to find clips:
+
+1. Call read_transcript with detail "skim" once. That returns every sentence
+   shortened, so you can see the whole recording at once rather than paging
+   through it blind.
+2. Pick the stretches that could stand on their own — a question and its answer,
+   a story, an argument that arrives somewhere. Ignore admin, greetings, and
+   anything that only makes sense with what came before.
+3. Read each candidate in full before you commit to its edges. The skim is for
+   noticing; it is not accurate enough to cut on.
+4. Create each one with create_clip and a title someone would actually click,
+   plus a one-line note saying why it works. Three or four strong candidates beat
+   ten weak ones.
+
+A clip is worth making when it has a reason to exist without the rest of the
+recording: a claim someone would argue with, a story with a turn, a number that
+lands, a line worth quoting. "He talks about the budget" is a subject, not a clip.
+
 The two shapes of clip
 
 - A topic is a whole subject as spoken, usually one to four minutes, always one
@@ -343,10 +409,10 @@ Working with the human
 - update_clip takes expectedRevision. Send the revision you last saw. If it comes
   back rejected, the human changed something — read the state and work from what
   is actually there, not from what you proposed.
-- The page has its own lexical pass behind the Find clips and Cut buttons. It
-  knows which words are unusual and where the speaker paused; it does not know
-  what any of it means. Clips marked "auto" came from that pass and are the ones
-  most worth your judgement.
+- The page has a lexical fallback for browsers with no agent in them. It knows
+  which words are unusual and where the speaker paused; it does not know what any
+  of it means, and it is not a second opinion worth deferring to. Clips marked
+  "auto" came from it. Replace them rather than tidying them.
 `
 
 const getGuidelines: ToolDescriptor = {
@@ -361,61 +427,6 @@ const getGuidelines: ToolDescriptor = {
     const text = GUIDELINES.trim()
     logTool('get_guidelines', 'Read the editing guidelines.')
     return ok(text, { guidelines: text })
-  },
-}
-
-// ------------------------------------------------------- 5. suggest topics
-
-const suggestTopics: ToolDescriptor = {
-  name: 'suggest_topics',
-  description:
-    "Run the page's own lexical pass over the transcript and return candidate " +
-    'topics — stretches that hang together by vocabulary, each with a sentence ' +
-    'range and a rough title. This is what the Find clips button runs. It is a ' +
-    'starting point, not an answer: it can see that the words changed, not that ' +
-    'the subject did. Use it to orient yourself in a long recording, then judge ' +
-    'the boundaries yourself and create the clips you actually want.',
-  annotations: { readOnlyHint: true, title: 'Suggest topics' },
-  inputSchema: {
-    type: 'object',
-    properties: {
-      minSeconds: { type: 'number', description: 'Shortest topic worth returning. Default 60.' },
-      maxSeconds: { type: 'number', description: 'Longest, before it is split again. Default 240.' },
-    },
-    additionalProperties: false,
-  },
-  execute(args) {
-    const missing = requireProject()
-    if (missing) return fail(missing)
-    const list = sentences()
-    const topics = findTopics(list, {
-      minSeconds: Number(args.minSeconds) || undefined,
-      maxSeconds: Number(args.maxSeconds) || undefined,
-    })
-
-    const payload = {
-      topics: topics.map((t) => ({
-        startSentenceId: list[t.startIndex].id,
-        endSentenceId: list[t.endIndex].id,
-        title: t.title,
-        note: t.note,
-        keywords: t.keywords,
-        durationSeconds: round(list[t.endIndex].end - list[t.startIndex].start),
-      })),
-    }
-    const summary = topics.length + ' candidate topic(s) from the lexical pass.'
-    logTool('suggest_topics', summary)
-    return ok(
-      summary + '\n' +
-        payload.topics
-          .map(
-            (t) =>
-              t.startSentenceId + '-' + t.endSentenceId + ' (' +
-              formatDuration(t.durationSeconds) + ') ' + t.title
-          )
-          .join('\n'),
-      payload
-    )
   },
 }
 
@@ -583,11 +594,12 @@ const updateClipTool: ToolDescriptor = {
 const cutClip: ToolDescriptor = {
   name: 'cut_clip',
   description:
-    'Reduce a clip to a target duration by dropping sentences out of its middle, ' +
-    'and write the result back to the same clip. Give it sentence ids to keep and ' +
-    'it uses exactly those. Omit them and it falls back to the page\'s lexical ' +
-    'pass, which is the Cut button — usable, but it cannot tell a throwaway aside ' +
-    'from the payoff, so prefer choosing the sentences yourself.',
+    'Reduce a clip to a postable length by keeping the sentences you name and ' +
+    'dropping the rest, then write the result back to the same clip. Runs of ' +
+    'consecutive ids become one piece; every break between them becomes a cut.\n\n' +
+    'Read the clip in full first and choose the lines yourself. Deciding what ' +
+    'survives is the judgement this tool exists to carry — there is no automatic ' +
+    'mode, because nothing mechanical can tell a throwaway aside from the payoff.',
   annotations: { title: 'Cut clip to length' },
   inputSchema: {
     type: 'object',
@@ -597,16 +609,16 @@ const cutClip: ToolDescriptor = {
       keepSentenceIds: {
         type: 'array',
         description:
-          'The sentences to keep, in any order. Runs of consecutive ids become one segment; ' +
-          'every break between them becomes a cut. This is the good path — decide yourself.',
+          'The sentences to keep, in any order. Aim for 30 to 60 seconds of speech unless ' +
+          'the user asked for something else. Keeping two sentences in a row reads better ' +
+          'than keeping two good ones with a hole between them.',
         items: { type: 'string' },
+        minItems: 1,
       },
-      minSeconds: { type: 'number', description: 'Target floor. Default 30.' },
-      maxSeconds: { type: 'number', description: 'Target ceiling. Default 60.' },
       note: { type: 'string', description: 'One line on what you kept and why.' },
       preview: { type: 'boolean', description: 'Play the cut. Default true.' },
     },
-    required: ['clipId'],
+    required: ['clipId', 'keepSentenceIds'],
     additionalProperties: false,
   },
   execute(args) {
@@ -617,29 +629,21 @@ const cutClip: ToolDescriptor = {
     if (!clip) return fail('No clip with id "' + args.clipId + '".')
 
     const list = sentences()
-    let keptIndices: number[]
-    let how: string
-
-    if (Array.isArray(args.keepSentenceIds) && args.keepSentenceIds.length) {
-      const indices: number[] = []
-      for (const raw of args.keepSentenceIds) {
-        if (typeof raw !== 'string') continue
-        const i = indexOfSentenceId(raw)
-        if (i < 0 || i >= list.length) return fail('Unknown sentence id "' + raw + '".')
-        indices.push(i)
-      }
-      if (!indices.length) return fail('keepSentenceIds had nothing usable in it.')
-      keptIndices = indices
-      how = 'your selection'
-    } else {
-      const pool = clipSentenceIndices(clip)
-      const result = cutToDuration(list, pool, {
-        minSeconds: Number(args.minSeconds) || undefined,
-        maxSeconds: Number(args.maxSeconds) || undefined,
-      })
-      keptIndices = result.keptIndices
-      how = 'the lexical pass'
+    if (!Array.isArray(args.keepSentenceIds) || !args.keepSentenceIds.length) {
+      return fail(
+        'cut_clip needs keepSentenceIds — the lines that survive. Read the clip with ' +
+          'read_transcript and choose them. There is no automatic mode.'
+      )
     }
+
+    const keptIndices: number[] = []
+    for (const raw of args.keepSentenceIds) {
+      if (typeof raw !== 'string') continue
+      const i = indexOfSentenceId(raw)
+      if (i < 0 || i >= list.length) return fail('Unknown sentence id "' + raw + '".')
+      keptIndices.push(i)
+    }
+    if (!keptIndices.length) return fail('keepSentenceIds had nothing usable in it.')
 
     const updated = updateClip({
       clipId: clip.id,
@@ -658,7 +662,7 @@ const cutClip: ToolDescriptor = {
     if (args.preview !== false) playClip(updated.id)
     const view = clipView(updated)
     const summary =
-      'Cut ' + updated.id + ' to ' + formatDuration(view.durationSeconds) + ' using ' + how +
+      'Cut ' + updated.id + ' to ' + formatDuration(view.durationSeconds) +
       ' — ' + view.segmentCount + ' segment(s), ' + view.droppedSentences +
       ' sentence(s) dropped (revision ' + updated.revision + ').'
     logTool('cut_clip', summary)
@@ -808,7 +812,6 @@ export const TOOLS: ToolDescriptor[] = [
   readTranscript,
   searchTranscript,
   getGuidelines,
-  suggestTopics,
   createClipTool,
   updateClipTool,
   cutClip,

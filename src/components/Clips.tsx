@@ -24,10 +24,14 @@ import { exportClip } from '../export/exportClip'
 import type { Clip } from '../types'
 
 /**
- * WebMCP is one-directional: an agent can call into this page, but the page
- * cannot call out to an agent. So these buttons cannot summon one. They run the
- * page's own lexical pass instead — which means they work in any browser, and
- * they leave the agent something concrete to improve rather than a blank rail.
+ * The fallback for a browser with no agent in it.
+ *
+ * Finding clips is a judgement call and belongs to the agent — it reads the
+ * transcript and decides, which is the whole point of this page. But WebMCP is
+ * one-directional, so nothing here can summon an agent that is not already being
+ * spoken to, and a page that does nothing at all in an ordinary browser is a
+ * page nobody can evaluate. Hence a lexical pass, shown only when there is no
+ * agent, and labelled as the rough thing it is.
  */
 function findTopicsNow() {
   const list = sentences()
@@ -105,6 +109,43 @@ function cutClipNow(clip: Clip) {
   }, 0)
 }
 
+/**
+ * The empty state is the instruction. There is no button that starts the agent
+ * working — asking it is what starts it — so the rail's job before any clip
+ * exists is to say what to ask for.
+ */
+function AskPanel() {
+  return (
+    <div className={styles.ask}>
+      <p className={styles.askLead}>Ask for what you want. For example:</p>
+      <ul className={styles.askList}>
+        <li>“Find the best clips in this.”</li>
+        <li>“Cut the moon one to forty seconds, ending on ‘we intend to win’.”</li>
+        <li>“Drop the sentence about satellites and show me it again.”</li>
+      </ul>
+      <p className={styles.askFoot}>
+        It reads the transcript, decides, and its clips land here. Every call it makes
+        shows below.
+      </p>
+    </div>
+  )
+}
+
+function NoAgentPanel() {
+  return (
+    <div className={styles.ask}>
+      <p className={styles.askLead}>
+        This browser has no agent in it, so there is nothing to ask.
+      </p>
+      <p className={styles.askFoot}>
+        Open the page in ChatGPT’s desktop browser and say “find the best clips in
+        this”. Or press <strong>Rough pass</strong> for a lexical first cut — it
+        matches vocabulary and pauses, it does not understand a word of it.
+      </p>
+    </div>
+  )
+}
+
 export function ClipsRail() {
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
@@ -112,6 +153,7 @@ export function ClipsRail() {
   const exporting = useStore((s) => s.exporting)
   const working = useStore((s) => s.working)
   const hasProject = useStore((s) => !!s.project)
+  const connected = useStore((s) => s.mcpConnected)
 
   return (
     <div className={styles.pane}>
@@ -120,27 +162,29 @@ export function ClipsRail() {
           <span className={styles.title}>Clips</span>
           <span className={styles.count}>{clips.length}</span>
           <span className={styles.spacer} />
-          <button
-            className={styles.findBtn}
-            onClick={findTopicsNow}
-            disabled={!hasProject || working !== null}
-          >
-            {working === 'Finding clips' ? 'Finding…' : 'Find clips'}
-          </button>
+          {/* Only offered when there is no agent to ask. With one present, the
+              ask is the interaction, and a mechanical button beside it would
+              just be the worse of two options sitting in the better one's way. */}
+          {!connected && (
+            <button
+              className={styles.findBtn}
+              onClick={findTopicsNow}
+              disabled={!hasProject || working !== null}
+              title="A lexical pass over the transcript. No AI — it matches vocabulary, it does not understand anything."
+            >
+              {working === 'Finding clips' ? 'Finding…' : 'Rough pass'}
+            </button>
+          )}
         </div>
         <div className={styles.body}>
-          {!clips.length && (
-            <p className={styles.empty}>
-              Press <strong>Find clips</strong> for a first pass over the transcript, or
-              anchor a sentence and ask the agent to build one around it.
-            </p>
-          )}
+          {!clips.length && (connected ? <AskPanel /> : <NoAgentPanel />)}
           {clips.map((clip) => (
             <ClipCard
               key={clip.id}
               clip={clip}
               active={clip.id === activeClipId}
               busy={working !== null}
+              connected={connected}
               exporting={exporting?.clipId === clip.id ? exporting : null}
             />
           ))}
@@ -176,11 +220,13 @@ function ClipCard({
   clip,
   active,
   busy,
+  connected,
   exporting,
 }: {
   clip: Clip
   active: boolean
   busy: boolean
+  connected: boolean
   exporting: { stage: string; progress: number } | null
 }) {
   const list = sentences()
@@ -319,14 +365,14 @@ function ClipCard({
         <button className={styles.action} onClick={() => playClip(clip.id)}>
           Play
         </button>
-        {duration > 65 && (
+        {!connected && duration > 65 && (
           <button
-            className={`${styles.action} ${styles.actionPrimary}`}
+            className={styles.action}
             onClick={() => cutClipNow(clip)}
             disabled={busy}
-            title="Drop the weakest sentences until this fits 30–60s"
+            title="Lexical cut to 30-60s. No AI — ask an agent for a cut that makes sense."
           >
-            Cut to 30–60s
+            Rough cut
           </button>
         )}
         <span className={styles.spacer} />
