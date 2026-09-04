@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styles from './Header.module.css'
 import { APP_NAME } from '../brand'
 import { useStore } from '../state/store'
-import { loadLocalProject } from '../state/loadProject'
+import { loadLocalProject, loadLibrary, loadLibraryEntry } from '../state/loadProject'
+import type { LibraryEntry } from '../state/loadProject'
 import { ToolsSheet } from './ToolsSheet'
 import { ActivitySheet } from './ActivitySheet'
 import { TOOLS } from '../mcp/register'
@@ -13,6 +14,11 @@ export function Header() {
   const events = useStore((s) => s.toolEvents.length)
   const [showTools, setShowTools] = useState(false)
   const [showActivity, setShowActivity] = useState(false)
+  const [library, setLibrary] = useState<LibraryEntry[]>([])
+
+  useEffect(() => {
+    void loadLibrary().then(setLibrary)
+  }, [])
 
   const videoInput = useRef<HTMLInputElement | null>(null)
   const transcriptInput = useRef<HTMLInputElement | null>(null)
@@ -39,7 +45,28 @@ export function Header() {
         </span>
       </div>
 
-      {project && <span className={styles.project}>{project.videoLabel}</span>}
+      {/* A picker only once there is a choice to make — with one entry it would
+          be a dropdown that does nothing. */}
+      {library.length > 1 ? (
+        <select
+          className={styles.library}
+          value={library.find((e) => project?.name === e.title)?.id ?? ''}
+          onChange={(e) => {
+            const entry = library.find((x) => x.id === e.target.value)
+            if (entry) void loadLibraryEntry(entry)
+          }}
+          aria-label="Which recording"
+        >
+          {library.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.title}
+              {entry.speaker ? ` — ${entry.speaker}` : ''}
+            </option>
+          ))}
+        </select>
+      ) : (
+        project && <span className={styles.project}>{project.videoLabel}</span>
+      )}
 
       <span className={styles.spacer} />
 

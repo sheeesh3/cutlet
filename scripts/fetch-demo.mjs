@@ -12,13 +12,31 @@
  * on "bring your own video", which is a legitimate way to use ClipClub and the
  * only way anyone uses it on their own footage.
  */
-import { mkdir, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const target = join(root, 'public/demo/jfk-rice-moon.mp4')
+const demoDir = join(root, 'public/demo')
+
+/**
+ * The library manifest is the list of what has to be here. Adding a recording
+ * means adding an entry and uploading its mp4 to the release — no change to
+ * this script.
+ */
+async function wanted() {
+  try {
+    const raw = await readFile(join(demoDir, 'library.json'), 'utf8')
+    const entries = JSON.parse(raw).projects ?? []
+    return entries.map((e) => e.video).filter(Boolean)
+  } catch {
+    return ['jfk-rice-moon.mp4']
+  }
+}
+
+const videos = await wanted()
+const target = join(demoDir, videos[0] ?? 'jfk-rice-moon.mp4')
 
 /** Overridable so a fork can point at its own copy without editing this file. */
 const url =
@@ -29,13 +47,21 @@ const url =
 // not to pin an exact byte count.
 const MIN_BYTES = 5_000_000
 
-async function alreadyHere() {
-  try {
-    const info = await stat(target)
-    return info.size > MIN_BYTES
-  } catch {
-    return false
+async function missing() {
+  const out = []
+  for (const name of videos) {
+    try {
+      const info = await stat(join(demoDir, name))
+      if (info.size <= MIN_BYTES) out.push(name)
+    } catch {
+      out.push(name)
+    }
   }
+  return out
+}
+
+async function alreadyHere() {
+  return (await missing()).length === 0
 }
 
 function giveUp(reason) {
@@ -49,7 +75,7 @@ function giveUp(reason) {
 }
 
 if (await alreadyHere()) {
-  console.log('[fetch-demo] public/demo/jfk-rice-moon.mp4 is already here')
+  console.log('[fetch-demo] every video in the library is already here')
   process.exit(0)
 }
 
@@ -63,7 +89,7 @@ try {
   execFileSync('gh', ['release', 'download', 'demo-assets', '--pattern', '*.mp4',
     '--dir', dirname(target), '--clobber'], { stdio: 'ignore' })
   if (await alreadyHere()) {
-    console.log('[fetch-demo] downloaded public/demo/jfk-rice-moon.mp4 with gh')
+    console.log('[fetch-demo] downloaded ' + videos.length + ' video(s) with gh')
     process.exit(0)
   }
 } catch {
