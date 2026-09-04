@@ -1,0 +1,51 @@
+name: Deploy to Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A demo URL should reflect the last push; a queued run that is already stale
+# is not worth waiting for. In-flight runs finish so a deploy is never halved.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      # Project sites live under /<repo>/, and the app resolves its own assets
+      # from this at runtime.
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+          # prebuild pulls the demo video from this repo's release assets,
+          # which need credentials while the repository is private.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

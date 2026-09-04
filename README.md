@@ -220,11 +220,22 @@ another port). `npm run check` runs lint, build and tests.
 
 `npm run build` produces a static `dist/`. There is no server side.
 
-### The ffmpeg core
+### The two binaries that are not in the repository
 
-`scripts/sync-ffmpeg.mjs` copies the single-thread `@ffmpeg/core` out of
-`node_modules` into `public/ffmpeg/` before dev and build. It is not committed —
-the wasm is 31MB.
+`npm run setup` runs before dev and build and puts both in `public/`:
+
+- **`scripts/sync-ffmpeg.mjs`** copies the single-thread `@ffmpeg/core` out of
+  `node_modules` into `public/ffmpeg/`. The wasm is 31MB.
+- **`scripts/fetch-demo.mjs`** downloads the demo video into `public/demo/`.
+  It is 18MB, and it comes from a release asset rather than git history — set
+  `DEMO_VIDEO_URL` to point a fork at its own copy.
+
+Neither is committed, for the same reason: a checked-in binary that large is a
+repository nobody wants to clone. The demo *transcript* is committed — it is
+52KB, and it is the part worth reading a diff of.
+
+If the fetch fails the app still runs; it opens on "bring your own video", says
+so plainly, and tells you the one command that fixes it.
 
 Two details that cost real time to find:
 

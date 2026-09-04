@@ -6,9 +6,11 @@ dist-ssr
 .vercel
 .netlify
 
-# Copied out of node_modules at build time by scripts/sync-ffmpeg.mjs.
-# The wasm core is 31MB; it does not belong in the repository.
+# Fetched at setup time rather than committed. The wasm core is 31MB and the
+# demo video 18MB; a checked-in binary that large is a repository nobody wants
+# to clone. scripts/sync-ffmpeg.mjs and scripts/fetch-demo.mjs put them here.
 public/ffmpeg/
+public/demo/*.mp4
 
 # Local editor/launch config, not part of the project.
 .claude/

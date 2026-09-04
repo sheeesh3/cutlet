@@ -32,6 +32,18 @@ export async function loadDemoProject(): Promise<void> {
     const sentences = buildSentences(words)
     const videoUrl = url(DEMO_VIDEO)
 
+    // The video is fetched at setup rather than committed, so a fresh checkout
+    // that skipped it would otherwise load a transcript against a silent black
+    // rectangle. Say what happened and what fixes it.
+    const probe = await fetch(videoUrl, { method: 'HEAD' }).catch(() => null)
+    if (!probe || !probe.ok) {
+      throw new Error(
+        'The demo transcript loaded, but the demo video is not here. It is ' +
+          'fetched rather than committed — run "npm run fetch:demo" to get it. ' +
+          'You can also just open your own video and transcript.'
+      )
+    }
+
     const project: Project = {
       name: meta.title ?? 'Demo project',
       videoUrl,
