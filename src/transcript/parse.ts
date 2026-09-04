@@ -53,6 +53,13 @@ function toNumber(v: unknown): number | null {
 }
 
 function asWord(o: Record<string, unknown>): Word | null {
+  // ElevenLabs Scribe interleaves the words with `type: "spacing"` entries and
+  // `type: "audio_event"` ones like "(laughter)". Spacing falls out on its own
+  // because `clean` trims it to nothing, but an audio event is real text and
+  // would otherwise become a word — and a clip boundary landing on "(laughter)"
+  // is not a boundary anyone wants.
+  if (typeof o.type === 'string' && o.type !== 'word') return null
+
   // Deepgram ships both `word` ("this") and `punctuated_word` ("This."). The
   // punctuated form is the one a reader should see, and the one sentence
   // splitting depends on.

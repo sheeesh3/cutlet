@@ -146,3 +146,25 @@ test('sentence bounds follow the words they contain', () => {
   assert.ok(s[1].start > s[0].end)
   for (const x of s) assert.ok(x.end > x.start)
 })
+
+test('reads ElevenLabs Scribe, dropping spacing and audio events', () => {
+  const raw = JSON.stringify({
+    language_code: 'eng',
+    text: 'We choose to go.',
+    words: [
+      { text: 'We', type: 'word', start: 0, end: 0.3, speaker_id: 'speaker_0' },
+      { text: ' ', type: 'spacing', start: 0.3, end: 0.31 },
+      { text: 'choose', type: 'word', start: 0.31, end: 0.7 },
+      { text: ' ', type: 'spacing', start: 0.7, end: 0.71 },
+      { text: '(applause)', type: 'audio_event', start: 0.71, end: 1.4 },
+      { text: 'to', type: 'word', start: 1.4, end: 1.5 },
+      { text: 'go.', type: 'word', start: 1.5, end: 1.9 },
+    ],
+  })
+  const { words } = parseTranscript(raw, 'scribe.json')
+  // Spacing trims to nothing; the audio event is dropped on purpose, because a
+  // clip edge landing on "(applause)" is not an edge anyone means.
+  assert.deepEqual(words.map((w) => w.text), ['We', 'choose', 'to', 'go.'])
+  assert.equal(words[0].start, 0)
+  assert.equal(words[3].end, 1.9)
+})

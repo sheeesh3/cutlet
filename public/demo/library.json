@@ -9,6 +9,15 @@
       "transcript": "jfk-rice-moon.words.json",
       "attribution": "Rice University via Internet Archive — CC Public Domain Mark 1.0",
       "durationSeconds": 381
+    },
+    {
+      "id": "apollo-11-crew",
+      "title": "Apollo 11 crew interview",
+      "speaker": "Armstrong, Aldrin and Collins",
+      "video": "apollo-11-crew.mp4",
+      "transcript": "apollo-11-crew.words.json",
+      "attribution": "NASA via Internet Archive — public domain (US Government work)",
+      "durationSeconds": 360
     }
   ]
 }

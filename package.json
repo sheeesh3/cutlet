@@ -6,6 +6,7 @@
   "scripts": {
     "sync:ffmpeg": "node scripts/sync-ffmpeg.mjs",
     "fetch:demo": "node scripts/fetch-demo.mjs",
+    "transcribe": "node scripts/transcribe.mjs",
     "setup": "npm run sync:ffmpeg && npm run fetch:demo",
     "predev": "npm run setup",
     "dev": "vite",
