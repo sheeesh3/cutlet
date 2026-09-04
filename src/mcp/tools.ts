@@ -155,13 +155,23 @@ const getEditorState: ToolDescriptor = {
         paused: video?.paused ?? true,
       },
     }
+    // The selected clip is stated first and in words, because it is what the
+    // user means by "this" — and resolving that without asking them to repeat
+    // themselves is most of what makes the page and the conversation feel like
+    // one interface.
+    const active = s.clips.find((c) => c.id === s.activeClipId)
     const summary = s.project
       ? s.project.name + ': ' + list.length + ' sentences, ' + s.clips.length +
         ' clip(s), revision ' + s.revision + '.' +
+        (active
+          ? ' SELECTED: ' + active.id + ' "' + active.title + '" (' + active.kind + ', ' +
+            formatDuration(clipDuration(active)) + ', revision ' + active.revision +
+            ') — this is what the user means by "this clip" or "it".'
+          : ' No clip is selected.') +
         (s.selection
           ? ' The user has anchored ' + s.selection.startSentenceId + '-' +
             s.selection.endSentenceId + ' — that sentence has to survive whatever you propose.'
-          : ' The user has not anchored anything.')
+          : '')
       : 'No project loaded.'
     logTool('get_editor_state', summary)
     return ok(summary + '\n' + JSON.stringify(payload, null, 2), payload)
@@ -352,6 +362,22 @@ const searchTranscript: ToolDescriptor = {
 // -------------------------------------------------------- 4. guidelines
 
 const GUIDELINES = `
+What the user is pointing at
+
+The page and the conversation are one interface. The user points with the page
+and speaks the verb, so resolve their words against the state before asking them
+to repeat themselves:
+
+- "this clip", "it", "that one", "make it shorter" — they mean activeClipId, the
+  clip they have selected. get_editor_state returns it.
+- "this line", "this bit", "start here" — they mean the anchored sentence in
+  selection.
+- A clip they name by title, or by position in the rail, is the one whose title
+  matches. Clip ids are also fair game; they are on every card.
+
+If nothing is selected and nothing was named, ask which one — but check the state
+first. Being told "cut this" when exactly one clip is selected is not ambiguous.
+
 Finding clips
 
 This is the main thing you are here for. When someone asks you to find clips:

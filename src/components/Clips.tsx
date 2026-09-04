@@ -117,16 +117,36 @@ function cutClipNow(clip: Clip) {
 function AskPanel() {
   return (
     <div className={styles.ask}>
-      <p className={styles.askLead}>Ask for what you want. For example:</p>
-      <ul className={styles.askList}>
-        <li>“Find the best clips in this.”</li>
-        <li>“Cut the moon one to forty seconds, ending on ‘we intend to win’.”</li>
-        <li>“Drop the sentence about satellites and show me it again.”</li>
-      </ul>
-      <p className={styles.askFoot}>
-        It reads the transcript, decides, and its clips land here. Every call it makes
-        shows below.
-      </p>
+      <ol className={styles.askSteps}>
+        <li>
+          <span className={styles.askSay}>“Find the best clips in this.”</span>
+          <span className={styles.askThen}>
+            It reads the whole transcript and decides how many are worth making. They
+            land here, each with a title and why it works.
+          </span>
+        </li>
+        <li>
+          <span className={styles.askDo}>Click one to play it.</span>
+          <span className={styles.askThen}>
+            Clicking also selects it — that is how the agent knows what you mean by
+            “this”.
+          </span>
+        </li>
+        <li>
+          <span className={styles.askSay}>“Cut this to forty seconds.”</span>
+          <span className={styles.askThen}>
+            It picks which lines survive. The rest are dropped, and you can see exactly
+            which in the transcript.
+          </span>
+        </li>
+        <li>
+          <span className={styles.askDo}>Fix it yourself.</span>
+          <span className={styles.askThen}>
+            Drop or restore any line with the controls beside it, then say “tighten
+            this” to hand it back.
+          </span>
+        </li>
+      </ol>
     </div>
   )
 }
@@ -360,6 +380,29 @@ function ClipCard({
           <span className={styles.padValue}>{clip.pad.toFixed(2)}s</span>
         </label>
       </div>
+
+      {/* The selected clip is what "this" refers to, so the card says what to
+          say. A button here would be a lie — nothing in the page can start the
+          agent — but the referent is real, and naming the phrase turns a
+          selection into an instruction the user does not have to invent. */}
+      {active && connected && (
+        <div className={styles.sayRow}>
+          <span className={styles.sayLabel}>Say</span>
+          <span className={styles.sayPhrases}>
+            {clip.kind === 'topic' && duration > 65 ? (
+              <>
+                <code>“cut this to 40 seconds”</code>
+                <code>“cut this, keep the part about …”</code>
+              </>
+            ) : (
+              <>
+                <code>“tighten this”</code>
+                <code>“put the last line back”</code>
+              </>
+            )}
+          </span>
+        </div>
+      )}
 
       <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
         <button className={styles.action} onClick={() => playClip(clip.id)}>
