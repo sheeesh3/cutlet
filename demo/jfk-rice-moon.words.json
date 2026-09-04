@@ -1,0 +1,4046 @@
+{
+ "source": "mlx-whisper medium.en, word timestamps",
+ "media": "jfk-rice-moon.mp4",
+ "title": "We choose to go to the Moon",
+ "speaker": "John F. Kennedy",
+ "recorded": "1962-09-12",
+ "venue": "Rice University, Houston",
+ "excerptOfSeconds": [
+  468.6,
+  849.3
+ ],
+ "attribution": "Rice University via Internet Archive \u2014 CC Public Domain Mark 1.0",
+ "durationSeconds": 380.7,
+ "words": [
+  {
+   "word": "We",
+   "start": 0.31,
+   "end": 0.99
+  },
+  {
+   "word": "set",
+   "start": 0.99,
+   "end": 1.33
+  },
+  {
+   "word": "sail",
+   "start": 1.33,
+   "end": 1.77
+  },
+  {
+   "word": "on",
+   "start": 1.77,
+   "end": 2.09
+  },
+  {
+   "word": "this",
+   "start": 2.09,
+   "end": 2.29
+  },
+  {
+   "word": "new",
+   "start": 2.29,
+   "end": 2.55
+  },
+  {
+   "word": "sea",
+   "start": 2.55,
+   "end": 2.95
+  },
+  {
+   "word": "because",
+   "start": 2.95,
+   "end": 4.25
+  },
+  {
+   "word": "there",
+   "start": 4.25,
+   "end": 4.67
+  },
+  {
+   "word": "is",
+   "start": 4.67,
+   "end": 4.89
+  },
+  {
+   "word": "new",
+   "start": 4.89,
+   "end": 5.09
+  },
+  {
+   "word": "knowledge",
+   "start": 5.09,
+   "end": 5.49
+  },
+  {
+   "word": "to",
+   "start": 5.49,
+   "end": 5.95
+  },
+  {
+   "word": "be",
+   "start": 5.95,
+   "end": 6.13
+  },
+  {
+   "word": "gained",
+   "start": 6.13,
+   "end": 6.45
+  },
+  {
+   "word": "and",
+   "start": 6.45,
+   "end": 7.27
+  },
+  {
+   "word": "new",
+   "start": 7.27,
+   "end": 7.47
+  },
+  {
+   "word": "rights",
+   "start": 7.47,
+   "end": 7.79
+  },
+  {
+   "word": "to",
+   "start": 7.79,
+   "end": 8.19
+  },
+  {
+   "word": "be",
+   "start": 8.19,
+   "end": 8.37
+  },
+  {
+   "word": "won",
+   "start": 8.37,
+   "end": 8.65
+  },
+  {
+   "word": "and",
+   "start": 8.65,
+   "end": 9.69
+  },
+  {
+   "word": "they",
+   "start": 9.69,
+   "end": 9.89
+  },
+  {
+   "word": "must",
+   "start": 9.89,
+   "end": 10.15
+  },
+  {
+   "word": "be",
+   "start": 10.15,
+   "end": 10.39
+  },
+  {
+   "word": "won",
+   "start": 10.39,
+   "end": 10.77
+  },
+  {
+   "word": "and",
+   "start": 10.77,
+   "end": 11.17
+  },
+  {
+   "word": "used",
+   "start": 11.17,
+   "end": 11.61
+  },
+  {
+   "word": "for",
+   "start": 11.61,
+   "end": 12.45
+  },
+  {
+   "word": "the",
+   "start": 12.45,
+   "end": 12.61
+  },
+  {
+   "word": "progress",
+   "start": 12.61,
+   "end": 12.97
+  },
+  {
+   "word": "of",
+   "start": 12.97,
+   "end": 13.31
+  },
+  {
+   "word": "all",
+   "start": 13.31,
+   "end": 13.53
+  },
+  {
+   "word": "people.",
+   "start": 13.53,
+   "end": 13.87
+  },
+  {
+   "word": "For",
+   "start": 14.93,
+   "end": 15.11
+  },
+  {
+   "word": "space",
+   "start": 15.11,
+   "end": 15.47
+  },
+  {
+   "word": "science",
+   "start": 15.47,
+   "end": 15.97
+  },
+  {
+   "word": "like",
+   "start": 15.97,
+   "end": 17.01
+  },
+  {
+   "word": "nuclear",
+   "start": 17.01,
+   "end": 17.45
+  },
+  {
+   "word": "science",
+   "start": 17.45,
+   "end": 17.97
+  },
+  {
+   "word": "and",
+   "start": 17.97,
+   "end": 18.15
+  },
+  {
+   "word": "all",
+   "start": 18.15,
+   "end": 18.35
+  },
+  {
+   "word": "technology",
+   "start": 18.35,
+   "end": 18.95
+  },
+  {
+   "word": "has",
+   "start": 18.95,
+   "end": 19.93
+  },
+  {
+   "word": "no",
+   "start": 19.93,
+   "end": 20.21
+  },
+  {
+   "word": "conscience",
+   "start": 20.21,
+   "end": 20.69
+  },
+  {
+   "word": "of",
+   "start": 20.69,
+   "end": 20.91
+  },
+  {
+   "word": "its",
+   "start": 20.91,
+   "end": 21.05
+  },
+  {
+   "word": "own.",
+   "start": 21.05,
+   "end": 21.39
+  },
+  {
+   "word": "Whether",
+   "start": 22.61,
+   "end": 22.73
+  },
+  {
+   "word": "it",
+   "start": 22.73,
+   "end": 23.01
+  },
+  {
+   "word": "will",
+   "start": 23.01,
+   "end": 23.29
+  },
+  {
+   "word": "become",
+   "start": 23.29,
+   "end": 23.73
+  },
+  {
+   "word": "a",
+   "start": 23.73,
+   "end": 23.97
+  },
+  {
+   "word": "force",
+   "start": 23.97,
+   "end": 24.35
+  },
+  {
+   "word": "for",
+   "start": 24.35,
+   "end": 24.65
+  },
+  {
+   "word": "good",
+   "start": 24.65,
+   "end": 24.99
+  },
+  {
+   "word": "or",
+   "start": 24.99,
+   "end": 25.29
+  },
+  {
+   "word": "ill",
+   "start": 25.29,
+   "end": 25.57
+  },
+  {
+   "word": "depends",
+   "start": 25.57,
+   "end": 26.03
+  },
+  {
+   "word": "on",
+   "start": 26.03,
+   "end": 26.31
+  },
+  {
+   "word": "man",
+   "start": 26.31,
+   "end": 26.65
+  },
+  {
+   "word": "and",
+   "start": 26.65,
+   "end": 27.85
+  },
+  {
+   "word": "only",
+   "start": 27.85,
+   "end": 28.23
+  },
+  {
+   "word": "if",
+   "start": 28.23,
+   "end": 28.49
+  },
+  {
+   "word": "the",
+   "start": 28.49,
+   "end": 28.63
+  },
+  {
+   "word": "United",
+   "start": 28.63,
+   "end": 28.87
+  },
+  {
+   "word": "States",
+   "start": 28.87,
+   "end": 29.67
+  },
+  {
+   "word": "occupies",
+   "start": 29.67,
+   "end": 31.01
+  },
+  {
+   "word": "a",
+   "start": 31.01,
+   "end": 31.45
+  },
+  {
+   "word": "position",
+   "start": 31.45,
+   "end": 32.03
+  },
+  {
+   "word": "of",
+   "start": 32.03,
+   "end": 32.33
+  },
+  {
+   "word": "preeminence",
+   "start": 32.33,
+   "end": 33.01
+  },
+  {
+   "word": "can",
+   "start": 33.01,
+   "end": 34.45
+  },
+  {
+   "word": "we",
+   "start": 34.45,
+   "end": 34.75
+  },
+  {
+   "word": "help",
+   "start": 34.75,
+   "end": 35.05
+  },
+  {
+   "word": "decide",
+   "start": 35.05,
+   "end": 35.67
+  },
+  {
+   "word": "whether",
+   "start": 35.67,
+   "end": 37.03
+  },
+  {
+   "word": "this",
+   "start": 37.03,
+   "end": 37.31
+  },
+  {
+   "word": "new",
+   "start": 37.31,
+   "end": 37.55
+  },
+  {
+   "word": "ocean",
+   "start": 37.55,
+   "end": 37.93
+  },
+  {
+   "word": "will",
+   "start": 37.93,
+   "end": 39.09
+  },
+  {
+   "word": "be",
+   "start": 39.09,
+   "end": 39.27
+  },
+  {
+   "word": "a",
+   "start": 39.27,
+   "end": 39.49
+  },
+  {
+   "word": "sea",
+   "start": 39.49,
+   "end": 39.65
+  },
+  {
+   "word": "of",
+   "start": 39.65,
+   "end": 39.91
+  },
+  {
+   "word": "peace",
+   "start": 39.91,
+   "end": 40.21
+  },
+  {
+   "word": "or",
+   "start": 40.21,
+   "end": 41.25
+  },
+  {
+   "word": "a",
+   "start": 41.25,
+   "end": 41.49
+  },
+  {
+   "word": "new",
+   "start": 41.49,
+   "end": 41.77
+  },
+  {
+   "word": "terrifying",
+   "start": 41.77,
+   "end": 42.65
+  },
+  {
+   "word": "theater",
+   "start": 42.65,
+   "end": 43.09
+  },
+  {
+   "word": "of",
+   "start": 43.09,
+   "end": 43.37
+  },
+  {
+   "word": "war.",
+   "start": 43.37,
+   "end": 43.71
+  },
+  {
+   "word": "I",
+   "start": 44.41,
+   "end": 45.13
+  },
+  {
+   "word": "do",
+   "start": 45.13,
+   "end": 45.31
+  },
+  {
+   "word": "not",
+   "start": 45.31,
+   "end": 45.55
+  },
+  {
+   "word": "say",
+   "start": 45.55,
+   "end": 45.85
+  },
+  {
+   "word": "that",
+   "start": 45.85,
+   "end": 46.05
+  },
+  {
+   "word": "we",
+   "start": 46.05,
+   "end": 46.25
+  },
+  {
+   "word": "should",
+   "start": 46.25,
+   "end": 46.61
+  },
+  {
+   "word": "or",
+   "start": 46.61,
+   "end": 47.03
+  },
+  {
+   "word": "will",
+   "start": 47.03,
+   "end": 47.19
+  },
+  {
+   "word": "go",
+   "start": 47.19,
+   "end": 47.75
+  },
+  {
+   "word": "unprotected",
+   "start": 47.75,
+   "end": 49.05
+  },
+  {
+   "word": "against",
+   "start": 49.05,
+   "end": 50.29
+  },
+  {
+   "word": "the",
+   "start": 50.29,
+   "end": 50.53
+  },
+  {
+   "word": "hostile",
+   "start": 50.53,
+   "end": 50.93
+  },
+  {
+   "word": "misuse",
+   "start": 50.93,
+   "end": 51.31
+  },
+  {
+   "word": "of",
+   "start": 51.31,
+   "end": 51.63
+  },
+  {
+   "word": "space",
+   "start": 51.63,
+   "end": 52.03
+  },
+  {
+   "word": "any",
+   "start": 52.03,
+   "end": 53.13
+  },
+  {
+   "word": "more",
+   "start": 53.13,
+   "end": 53.53
+  },
+  {
+   "word": "than",
+   "start": 53.53,
+   "end": 53.75
+  },
+  {
+   "word": "we",
+   "start": 53.75,
+   "end": 53.95
+  },
+  {
+   "word": "go",
+   "start": 53.95,
+   "end": 54.17
+  },
+  {
+   "word": "unprotected",
+   "start": 54.17,
+   "end": 54.73
+  },
+  {
+   "word": "against",
+   "start": 54.73,
+   "end": 56.01
+  },
+  {
+   "word": "the",
+   "start": 56.01,
+   "end": 56.21
+  },
+  {
+   "word": "hostile",
+   "start": 56.21,
+   "end": 56.57
+  },
+  {
+   "word": "use",
+   "start": 56.57,
+   "end": 56.89
+  },
+  {
+   "word": "of",
+   "start": 56.89,
+   "end": 57.13
+  },
+  {
+   "word": "land",
+   "start": 57.13,
+   "end": 57.47
+  },
+  {
+   "word": "or",
+   "start": 57.47,
+   "end": 58.19
+  },
+  {
+   "word": "sea",
+   "start": 58.19,
+   "end": 58.59
+  },
+  {
+   "word": "but",
+   "start": 58.59,
+   "end": 59.61
+  },
+  {
+   "word": "I",
+   "start": 59.61,
+   "end": 59.83
+  },
+  {
+   "word": "do",
+   "start": 59.83,
+   "end": 60.03
+  },
+  {
+   "word": "say",
+   "start": 60.03,
+   "end": 60.43
+  },
+  {
+   "word": "that",
+   "start": 60.43,
+   "end": 60.67
+  },
+  {
+   "word": "space",
+   "start": 60.67,
+   "end": 61.11
+  },
+  {
+   "word": "can",
+   "start": 61.11,
+   "end": 61.45
+  },
+  {
+   "word": "be",
+   "start": 61.45,
+   "end": 61.67
+  },
+  {
+   "word": "explored",
+   "start": 61.67,
+   "end": 62.31
+  },
+  {
+   "word": "and",
+   "start": 62.31,
+   "end": 62.73
+  },
+  {
+   "word": "mastered",
+   "start": 62.73,
+   "end": 63.19
+  },
+  {
+   "word": "without",
+   "start": 63.19,
+   "end": 64.43
+  },
+  {
+   "word": "feeding",
+   "start": 64.43,
+   "end": 64.81
+  },
+  {
+   "word": "the",
+   "start": 64.81,
+   "end": 65.03
+  },
+  {
+   "word": "fires",
+   "start": 65.03,
+   "end": 65.37
+  },
+  {
+   "word": "of",
+   "start": 65.37,
+   "end": 65.61
+  },
+  {
+   "word": "war,",
+   "start": 65.61,
+   "end": 65.99
+  },
+  {
+   "word": "without",
+   "start": 66.03,
+   "end": 67.19
+  },
+  {
+   "word": "repeating",
+   "start": 67.19,
+   "end": 67.73
+  },
+  {
+   "word": "the",
+   "start": 67.73,
+   "end": 67.97
+  },
+  {
+   "word": "mistakes",
+   "start": 67.97,
+   "end": 68.45
+  },
+  {
+   "word": "that",
+   "start": 68.45,
+   "end": 68.67
+  },
+  {
+   "word": "man",
+   "start": 68.67,
+   "end": 69.03
+  },
+  {
+   "word": "has",
+   "start": 69.03,
+   "end": 69.23
+  },
+  {
+   "word": "made",
+   "start": 69.23,
+   "end": 69.59
+  },
+  {
+   "word": "in",
+   "start": 69.59,
+   "end": 69.75
+  },
+  {
+   "word": "extending",
+   "start": 69.75,
+   "end": 70.23
+  },
+  {
+   "word": "his",
+   "start": 70.23,
+   "end": 70.51
+  },
+  {
+   "word": "writ",
+   "start": 70.51,
+   "end": 70.81
+  },
+  {
+   "word": "around",
+   "start": 70.81,
+   "end": 71.73
+  },
+  {
+   "word": "this",
+   "start": 71.73,
+   "end": 71.97
+  },
+  {
+   "word": "globe",
+   "start": 71.97,
+   "end": 72.29
+  },
+  {
+   "word": "of",
+   "start": 72.29,
+   "end": 72.45
+  },
+  {
+   "word": "ours.",
+   "start": 72.45,
+   "end": 72.77
+  },
+  {
+   "word": "There",
+   "start": 73.35,
+   "end": 74.05
+  },
+  {
+   "word": "is",
+   "start": 74.05,
+   "end": 74.43
+  },
+  {
+   "word": "no",
+   "start": 74.43,
+   "end": 74.67
+  },
+  {
+   "word": "strife,",
+   "start": 74.67,
+   "end": 75.13
+  },
+  {
+   "word": "no",
+   "start": 75.99,
+   "end": 76.11
+  },
+  {
+   "word": "prejudice,",
+   "start": 76.11,
+   "end": 76.51
+  },
+  {
+   "word": "no",
+   "start": 77.41,
+   "end": 77.57
+  },
+  {
+   "word": "national",
+   "start": 77.57,
+   "end": 78.11
+  },
+  {
+   "word": "conflict",
+   "start": 78.11,
+   "end": 78.61
+  },
+  {
+   "word": "in",
+   "start": 78.61,
+   "end": 78.95
+  },
+  {
+   "word": "outer",
+   "start": 78.95,
+   "end": 79.13
+  },
+  {
+   "word": "space",
+   "start": 79.13,
+   "end": 79.51
+  },
+  {
+   "word": "as",
+   "start": 79.51,
+   "end": 79.85
+  },
+  {
+   "word": "yet.",
+   "start": 79.85,
+   "end": 80.19
+  },
+  {
+   "word": "Its",
+   "start": 80.89,
+   "end": 81.55
+  },
+  {
+   "word": "hazards",
+   "start": 81.55,
+   "end": 81.97
+  },
+  {
+   "word": "are",
+   "start": 81.97,
+   "end": 82.23
+  },
+  {
+   "word": "hostile",
+   "start": 82.23,
+   "end": 82.61
+  },
+  {
+   "word": "to",
+   "start": 82.61,
+   "end": 82.89
+  },
+  {
+   "word": "us",
+   "start": 82.89,
+   "end": 83.05
+  },
+  {
+   "word": "all.",
+   "start": 83.05,
+   "end": 83.53
+  },
+  {
+   "word": "Its",
+   "start": 84.29,
+   "end": 84.49
+  },
+  {
+   "word": "conquest",
+   "start": 84.49,
+   "end": 85.01
+  },
+  {
+   "word": "deserves",
+   "start": 85.01,
+   "end": 85.63
+  },
+  {
+   "word": "the",
+   "start": 85.63,
+   "end": 85.91
+  },
+  {
+   "word": "best",
+   "start": 85.91,
+   "end": 86.25
+  },
+  {
+   "word": "of",
+   "start": 86.25,
+   "end": 86.63
+  },
+  {
+   "word": "all",
+   "start": 86.63,
+   "end": 86.95
+  },
+  {
+   "word": "mankind",
+   "start": 86.95,
+   "end": 87.49
+  },
+  {
+   "word": "and",
+   "start": 87.49,
+   "end": 88.63
+  },
+  {
+   "word": "its",
+   "start": 88.63,
+   "end": 88.83
+  },
+  {
+   "word": "opportunity",
+   "start": 88.83,
+   "end": 89.39
+  },
+  {
+   "word": "for",
+   "start": 89.39,
+   "end": 90.31
+  },
+  {
+   "word": "peaceful",
+   "start": 90.31,
+   "end": 90.75
+  },
+  {
+   "word": "cooperation",
+   "start": 90.75,
+   "end": 91.55
+  },
+  {
+   "word": "may",
+   "start": 91.55,
+   "end": 91.89
+  },
+  {
+   "word": "never",
+   "start": 91.89,
+   "end": 92.17
+  },
+  {
+   "word": "come",
+   "start": 92.17,
+   "end": 92.39
+  },
+  {
+   "word": "again.",
+   "start": 92.39,
+   "end": 92.87
+  },
+  {
+   "word": "But",
+   "start": 96.17,
+   "end": 96.93
+  },
+  {
+   "word": "I",
+   "start": 96.93,
+   "end": 96.93
+  },
+  {
+   "word": "choose",
+   "start": 96.93,
+   "end": 97.33
+  },
+  {
+   "word": "this",
+   "start": 97.33,
+   "end": 97.67
+  },
+  {
+   "word": "as",
+   "start": 97.67,
+   "end": 97.99
+  },
+  {
+   "word": "our",
+   "start": 97.99,
+   "end": 98.23
+  },
+  {
+   "word": "goal",
+   "start": 98.23,
+   "end": 98.55
+  },
+  {
+   "word": "and",
+   "start": 98.55,
+   "end": 99.81
+  },
+  {
+   "word": "they",
+   "start": 99.81,
+   "end": 99.99
+  },
+  {
+   "word": "may",
+   "start": 99.99,
+   "end": 100.21
+  },
+  {
+   "word": "well",
+   "start": 100.21,
+   "end": 100.39
+  },
+  {
+   "word": "ask",
+   "start": 100.39,
+   "end": 100.85
+  },
+  {
+   "word": "why",
+   "start": 100.85,
+   "end": 101.89
+  },
+  {
+   "word": "climb",
+   "start": 101.89,
+   "end": 102.33
+  },
+  {
+   "word": "the",
+   "start": 102.33,
+   "end": 102.51
+  },
+  {
+   "word": "highest",
+   "start": 102.51,
+   "end": 102.79
+  },
+  {
+   "word": "mountain?",
+   "start": 102.79,
+   "end": 103.19
+  },
+  {
+   "word": "Why",
+   "start": 104.25,
+   "end": 104.45
+  },
+  {
+   "word": "35",
+   "start": 104.45,
+   "end": 104.99
+  },
+  {
+   "word": "years",
+   "start": 104.99,
+   "end": 105.37
+  },
+  {
+   "word": "ago",
+   "start": 105.37,
+   "end": 105.73
+  },
+  {
+   "word": "fly",
+   "start": 105.73,
+   "end": 106.67
+  },
+  {
+   "word": "the",
+   "start": 106.67,
+   "end": 106.85
+  },
+  {
+   "word": "Atlantic?",
+   "start": 106.85,
+   "end": 107.25
+  },
+  {
+   "word": "Why",
+   "start": 108.17,
+   "end": 108.33
+  },
+  {
+   "word": "does",
+   "start": 108.33,
+   "end": 108.53
+  },
+  {
+   "word": "Rice",
+   "start": 108.53,
+   "end": 108.81
+  },
+  {
+   "word": "play",
+   "start": 108.81,
+   "end": 109.17
+  },
+  {
+   "word": "Texas?",
+   "start": 109.17,
+   "end": 109.61
+  },
+  {
+   "word": "We",
+   "start": 110.33,
+   "end": 110.49
+  },
+  {
+   "word": "choose",
+   "start": 110.49,
+   "end": 110.89
+  },
+  {
+   "word": "to",
+   "start": 110.89,
+   "end": 111.13
+  },
+  {
+   "word": "go",
+   "start": 111.13,
+   "end": 111.25
+  },
+  {
+   "word": "to",
+   "start": 111.25,
+   "end": 111.39
+  },
+  {
+   "word": "the",
+   "start": 111.39,
+   "end": 111.57
+  },
+  {
+   "word": "moon.",
+   "start": 111.57,
+   "end": 111.85
+  },
+  {
+   "word": "We",
+   "start": 113.15,
+   "end": 113.19
+  },
+  {
+   "word": "choose",
+   "start": 113.19,
+   "end": 113.57
+  },
+  {
+   "word": "to",
+   "start": 113.57,
+   "end": 113.79
+  },
+  {
+   "word": "go",
+   "start": 113.79,
+   "end": 113.93
+  },
+  {
+   "word": "to",
+   "start": 113.93,
+   "end": 114.05
+  },
+  {
+   "word": "the",
+   "start": 114.05,
+   "end": 114.17
+  },
+  {
+   "word": "moon.",
+   "start": 114.17,
+   "end": 115.41
+  },
+  {
+   "word": "We",
+   "start": 120.59,
+   "end": 121.27
+  },
+  {
+   "word": "choose",
+   "start": 121.27,
+   "end": 121.75
+  },
+  {
+   "word": "to",
+   "start": 121.75,
+   "end": 122.03
+  },
+  {
+   "word": "go",
+   "start": 122.03,
+   "end": 122.21
+  },
+  {
+   "word": "to",
+   "start": 122.21,
+   "end": 122.37
+  },
+  {
+   "word": "the",
+   "start": 122.37,
+   "end": 122.53
+  },
+  {
+   "word": "moon",
+   "start": 122.53,
+   "end": 122.87
+  },
+  {
+   "word": "in",
+   "start": 122.87,
+   "end": 123.09
+  },
+  {
+   "word": "this",
+   "start": 123.09,
+   "end": 123.33
+  },
+  {
+   "word": "decade",
+   "start": 123.33,
+   "end": 123.75
+  },
+  {
+   "word": "and",
+   "start": 123.75,
+   "end": 124.05
+  },
+  {
+   "word": "do",
+   "start": 124.05,
+   "end": 124.19
+  },
+  {
+   "word": "the",
+   "start": 124.19,
+   "end": 124.41
+  },
+  {
+   "word": "other",
+   "start": 124.41,
+   "end": 124.59
+  },
+  {
+   "word": "things",
+   "start": 124.59,
+   "end": 125.05
+  },
+  {
+   "word": "not",
+   "start": 125.05,
+   "end": 125.73
+  },
+  {
+   "word": "because",
+   "start": 125.73,
+   "end": 126.23
+  },
+  {
+   "word": "they",
+   "start": 126.23,
+   "end": 126.53
+  },
+  {
+   "word": "are",
+   "start": 126.53,
+   "end": 126.71
+  },
+  {
+   "word": "easy",
+   "start": 126.71,
+   "end": 127.11
+  },
+  {
+   "word": "but",
+   "start": 127.11,
+   "end": 127.51
+  },
+  {
+   "word": "because",
+   "start": 127.51,
+   "end": 127.99
+  },
+  {
+   "word": "they",
+   "start": 127.99,
+   "end": 128.21
+  },
+  {
+   "word": "are",
+   "start": 128.21,
+   "end": 128.35
+  },
+  {
+   "word": "hard",
+   "start": 128.35,
+   "end": 128.79
+  },
+  {
+   "word": "because",
+   "start": 128.79,
+   "end": 129.87
+  },
+  {
+   "word": "that",
+   "start": 129.87,
+   "end": 130.31
+  },
+  {
+   "word": "goal",
+   "start": 130.31,
+   "end": 130.69
+  },
+  {
+   "word": "will",
+   "start": 130.69,
+   "end": 131.73
+  },
+  {
+   "word": "serve",
+   "start": 131.73,
+   "end": 132.09
+  },
+  {
+   "word": "to",
+   "start": 132.09,
+   "end": 132.41
+  },
+  {
+   "word": "organize",
+   "start": 132.41,
+   "end": 132.91
+  },
+  {
+   "word": "and",
+   "start": 132.91,
+   "end": 133.31
+  },
+  {
+   "word": "measure",
+   "start": 133.31,
+   "end": 133.61
+  },
+  {
+   "word": "the",
+   "start": 133.61,
+   "end": 133.83
+  },
+  {
+   "word": "best",
+   "start": 133.83,
+   "end": 134.21
+  },
+  {
+   "word": "of",
+   "start": 134.21,
+   "end": 135.01
+  },
+  {
+   "word": "our",
+   "start": 135.01,
+   "end": 135.21
+  },
+  {
+   "word": "energies",
+   "start": 135.21,
+   "end": 135.55
+  },
+  {
+   "word": "and",
+   "start": 135.55,
+   "end": 135.81
+  },
+  {
+   "word": "skills",
+   "start": 135.81,
+   "end": 136.31
+  },
+  {
+   "word": "because",
+   "start": 136.31,
+   "end": 137.33
+  },
+  {
+   "word": "that",
+   "start": 137.33,
+   "end": 137.71
+  },
+  {
+   "word": "challenge",
+   "start": 137.71,
+   "end": 138.21
+  },
+  {
+   "word": "is",
+   "start": 138.21,
+   "end": 138.47
+  },
+  {
+   "word": "one",
+   "start": 138.47,
+   "end": 138.81
+  },
+  {
+   "word": "that",
+   "start": 138.81,
+   "end": 139.03
+  },
+  {
+   "word": "we're",
+   "start": 139.03,
+   "end": 139.31
+  },
+  {
+   "word": "willing",
+   "start": 139.31,
+   "end": 139.51
+  },
+  {
+   "word": "to",
+   "start": 139.51,
+   "end": 139.75
+  },
+  {
+   "word": "accept,",
+   "start": 139.75,
+   "end": 140.29
+  },
+  {
+   "word": "one",
+   "start": 141.07,
+   "end": 141.23
+  },
+  {
+   "word": "we",
+   "start": 141.23,
+   "end": 141.45
+  },
+  {
+   "word": "are",
+   "start": 141.45,
+   "end": 141.69
+  },
+  {
+   "word": "unwilling",
+   "start": 141.69,
+   "end": 142.03
+  },
+  {
+   "word": "to",
+   "start": 142.03,
+   "end": 142.35
+  },
+  {
+   "word": "postpone",
+   "start": 142.35,
+   "end": 142.87
+  },
+  {
+   "word": "and",
+   "start": 142.87,
+   "end": 143.89
+  },
+  {
+   "word": "one",
+   "start": 143.89,
+   "end": 144.15
+  },
+  {
+   "word": "we",
+   "start": 144.15,
+   "end": 144.39
+  },
+  {
+   "word": "intend",
+   "start": 144.39,
+   "end": 144.73
+  },
+  {
+   "word": "to",
+   "start": 144.73,
+   "end": 144.95
+  },
+  {
+   "word": "win",
+   "start": 144.95,
+   "end": 145.19
+  },
+  {
+   "word": "and",
+   "start": 145.19,
+   "end": 145.85
+  },
+  {
+   "word": "the",
+   "start": 145.85,
+   "end": 145.99
+  },
+  {
+   "word": "others",
+   "start": 145.99,
+   "end": 146.19
+  },
+  {
+   "word": "too.",
+   "start": 146.19,
+   "end": 146.77
+  },
+  {
+   "word": "It",
+   "start": 151.55,
+   "end": 152.11
+  },
+  {
+   "word": "is",
+   "start": 152.11,
+   "end": 152.39
+  },
+  {
+   "word": "for",
+   "start": 152.39,
+   "end": 152.57
+  },
+  {
+   "word": "these",
+   "start": 152.57,
+   "end": 152.79
+  },
+  {
+   "word": "reasons",
+   "start": 152.79,
+   "end": 153.23
+  },
+  {
+   "word": "that",
+   "start": 153.23,
+   "end": 154.19
+  },
+  {
+   "word": "I",
+   "start": 154.19,
+   "end": 154.39
+  },
+  {
+   "word": "regard",
+   "start": 154.39,
+   "end": 154.73
+  },
+  {
+   "word": "the",
+   "start": 154.73,
+   "end": 154.95
+  },
+  {
+   "word": "decision",
+   "start": 154.95,
+   "end": 155.33
+  },
+  {
+   "word": "last",
+   "start": 155.33,
+   "end": 155.67
+  },
+  {
+   "word": "year",
+   "start": 155.67,
+   "end": 156.05
+  },
+  {
+   "word": "to",
+   "start": 156.05,
+   "end": 157.05
+  },
+  {
+   "word": "shift",
+   "start": 157.05,
+   "end": 157.41
+  },
+  {
+   "word": "our",
+   "start": 157.41,
+   "end": 157.67
+  },
+  {
+   "word": "efforts",
+   "start": 157.67,
+   "end": 157.95
+  },
+  {
+   "word": "in",
+   "start": 157.95,
+   "end": 158.19
+  },
+  {
+   "word": "space",
+   "start": 158.19,
+   "end": 158.59
+  },
+  {
+   "word": "from",
+   "start": 158.59,
+   "end": 159.59
+  },
+  {
+   "word": "low",
+   "start": 159.59,
+   "end": 159.87
+  },
+  {
+   "word": "to",
+   "start": 159.87,
+   "end": 160.05
+  },
+  {
+   "word": "high",
+   "start": 160.05,
+   "end": 160.29
+  },
+  {
+   "word": "gear",
+   "start": 160.29,
+   "end": 160.67
+  },
+  {
+   "word": "as",
+   "start": 160.67,
+   "end": 161.49
+  },
+  {
+   "word": "among",
+   "start": 161.49,
+   "end": 161.75
+  },
+  {
+   "word": "the",
+   "start": 161.75,
+   "end": 161.93
+  },
+  {
+   "word": "most",
+   "start": 161.93,
+   "end": 162.21
+  },
+  {
+   "word": "important",
+   "start": 162.21,
+   "end": 162.63
+  },
+  {
+   "word": "decisions",
+   "start": 162.63,
+   "end": 163.13
+  },
+  {
+   "word": "that",
+   "start": 163.13,
+   "end": 163.37
+  },
+  {
+   "word": "will",
+   "start": 163.37,
+   "end": 163.57
+  },
+  {
+   "word": "be",
+   "start": 163.57,
+   "end": 163.69
+  },
+  {
+   "word": "made",
+   "start": 163.69,
+   "end": 164.09
+  },
+  {
+   "word": "during",
+   "start": 164.09,
+   "end": 164.97
+  },
+  {
+   "word": "my",
+   "start": 164.97,
+   "end": 165.21
+  },
+  {
+   "word": "incumbency",
+   "start": 165.21,
+   "end": 165.77
+  },
+  {
+   "word": "in",
+   "start": 165.77,
+   "end": 165.93
+  },
+  {
+   "word": "the",
+   "start": 165.93,
+   "end": 166.09
+  },
+  {
+   "word": "office",
+   "start": 166.09,
+   "end": 166.27
+  },
+  {
+   "word": "of",
+   "start": 166.27,
+   "end": 166.47
+  },
+  {
+   "word": "the",
+   "start": 166.47,
+   "end": 166.65
+  },
+  {
+   "word": "presidency.",
+   "start": 166.65,
+   "end": 167.01
+  },
+  {
+   "word": "In",
+   "start": 167.99,
+   "end": 168.13
+  },
+  {
+   "word": "the",
+   "start": 168.13,
+   "end": 168.29
+  },
+  {
+   "word": "last",
+   "start": 168.29,
+   "end": 168.59
+  },
+  {
+   "word": "24",
+   "start": 168.59,
+   "end": 169.05
+  },
+  {
+   "word": "hours",
+   "start": 169.05,
+   "end": 169.45
+  },
+  {
+   "word": "we",
+   "start": 169.45,
+   "end": 170.45
+  },
+  {
+   "word": "have",
+   "start": 170.45,
+   "end": 170.63
+  },
+  {
+   "word": "seen",
+   "start": 170.63,
+   "end": 170.93
+  },
+  {
+   "word": "facilities",
+   "start": 170.93,
+   "end": 171.57
+  },
+  {
+   "word": "now",
+   "start": 171.57,
+   "end": 172.01
+  },
+  {
+   "word": "being",
+   "start": 172.01,
+   "end": 172.31
+  },
+  {
+   "word": "created",
+   "start": 172.31,
+   "end": 172.73
+  },
+  {
+   "word": "for",
+   "start": 172.73,
+   "end": 173.63
+  },
+  {
+   "word": "the",
+   "start": 173.63,
+   "end": 173.79
+  },
+  {
+   "word": "greatest",
+   "start": 173.79,
+   "end": 174.13
+  },
+  {
+   "word": "and",
+   "start": 174.13,
+   "end": 174.61
+  },
+  {
+   "word": "most",
+   "start": 174.61,
+   "end": 174.91
+  },
+  {
+   "word": "complex",
+   "start": 174.91,
+   "end": 175.51
+  },
+  {
+   "word": "exploration",
+   "start": 175.51,
+   "end": 176.31
+  },
+  {
+   "word": "in",
+   "start": 176.31,
+   "end": 176.85
+  },
+  {
+   "word": "man's",
+   "start": 176.85,
+   "end": 177.19
+  },
+  {
+   "word": "history.",
+   "start": 177.19,
+   "end": 177.49
+  },
+  {
+   "word": "We",
+   "start": 178.65,
+   "end": 178.67
+  },
+  {
+   "word": "have",
+   "start": 178.67,
+   "end": 178.83
+  },
+  {
+   "word": "felt",
+   "start": 178.83,
+   "end": 179.03
+  },
+  {
+   "word": "the",
+   "start": 179.03,
+   "end": 179.25
+  },
+  {
+   "word": "ground",
+   "start": 179.25,
+   "end": 179.59
+  },
+  {
+   "word": "shake",
+   "start": 179.59,
+   "end": 180.23
+  },
+  {
+   "word": "and",
+   "start": 180.23,
+   "end": 181.27
+  },
+  {
+   "word": "the",
+   "start": 181.27,
+   "end": 181.41
+  },
+  {
+   "word": "air",
+   "start": 181.41,
+   "end": 181.63
+  },
+  {
+   "word": "shattered",
+   "start": 181.63,
+   "end": 182.03
+  },
+  {
+   "word": "by",
+   "start": 182.03,
+   "end": 182.27
+  },
+  {
+   "word": "the",
+   "start": 182.27,
+   "end": 182.45
+  },
+  {
+   "word": "testing",
+   "start": 182.45,
+   "end": 182.81
+  },
+  {
+   "word": "of",
+   "start": 182.81,
+   "end": 182.99
+  },
+  {
+   "word": "a",
+   "start": 182.99,
+   "end": 183.19
+  },
+  {
+   "word": "Saturn",
+   "start": 183.19,
+   "end": 183.51
+  },
+  {
+   "word": "C",
+   "start": 183.51,
+   "end": 184.45
+  },
+  {
+   "word": "-1",
+   "start": 184.45,
+   "end": 184.79
+  },
+  {
+   "word": "booster",
+   "start": 184.79,
+   "end": 185.19
+  },
+  {
+   "word": "rocket",
+   "start": 185.19,
+   "end": 185.61
+  },
+  {
+   "word": "many",
+   "start": 185.61,
+   "end": 186.73
+  },
+  {
+   "word": "times",
+   "start": 186.73,
+   "end": 187.21
+  },
+  {
+   "word": "as",
+   "start": 187.21,
+   "end": 187.43
+  },
+  {
+   "word": "powerful",
+   "start": 187.43,
+   "end": 187.91
+  },
+  {
+   "word": "as",
+   "start": 187.91,
+   "end": 188.85
+  },
+  {
+   "word": "the",
+   "start": 188.85,
+   "end": 189.05
+  },
+  {
+   "word": "Atlas",
+   "start": 189.05,
+   "end": 189.35
+  },
+  {
+   "word": "which",
+   "start": 189.35,
+   "end": 189.63
+  },
+  {
+   "word": "launched",
+   "start": 189.63,
+   "end": 190.15
+  },
+  {
+   "word": "John",
+   "start": 190.15,
+   "end": 190.67
+  },
+  {
+   "word": "Glanner",
+   "start": 190.67,
+   "end": 191.67
+  },
+  {
+   "word": "generating",
+   "start": 191.67,
+   "end": 192.49
+  },
+  {
+   "word": "power",
+   "start": 192.49,
+   "end": 192.97
+  },
+  {
+   "word": "equivalents",
+   "start": 192.97,
+   "end": 193.51
+  },
+  {
+   "word": "to",
+   "start": 193.51,
+   "end": 193.79
+  },
+  {
+   "word": "10",
+   "start": 193.79,
+   "end": 194.11
+  },
+  {
+   "word": ",000",
+   "start": 194.11,
+   "end": 194.61
+  },
+  {
+   "word": "automobiles",
+   "start": 194.61,
+   "end": 195.21
+  },
+  {
+   "word": "with",
+   "start": 195.21,
+   "end": 195.59
+  },
+  {
+   "word": "their",
+   "start": 195.59,
+   "end": 195.89
+  },
+  {
+   "word": "accelerator",
+   "start": 195.89,
+   "end": 196.81
+  },
+  {
+   "word": "on",
+   "start": 196.81,
+   "end": 197.09
+  },
+  {
+   "word": "the",
+   "start": 197.09,
+   "end": 197.21
+  },
+  {
+   "word": "floor.",
+   "start": 197.21,
+   "end": 197.51
+  },
+  {
+   "word": "We",
+   "start": 198.21,
+   "end": 198.69
+  },
+  {
+   "word": "have",
+   "start": 198.69,
+   "end": 198.89
+  },
+  {
+   "word": "seen",
+   "start": 198.89,
+   "end": 199.15
+  },
+  {
+   "word": "the",
+   "start": 199.15,
+   "end": 199.35
+  },
+  {
+   "word": "site",
+   "start": 199.35,
+   "end": 199.69
+  },
+  {
+   "word": "where",
+   "start": 199.69,
+   "end": 200.67
+  },
+  {
+   "word": "five",
+   "start": 200.67,
+   "end": 201.23
+  },
+  {
+   "word": "F",
+   "start": 201.23,
+   "end": 201.65
+  },
+  {
+   "word": "-1",
+   "start": 201.65,
+   "end": 201.95
+  },
+  {
+   "word": "rocket",
+   "start": 201.95,
+   "end": 202.31
+  },
+  {
+   "word": "engines,",
+   "start": 202.31,
+   "end": 202.77
+  },
+  {
+   "word": "each",
+   "start": 203.65,
+   "end": 203.93
+  },
+  {
+   "word": "one",
+   "start": 203.93,
+   "end": 204.33
+  },
+  {
+   "word": "as",
+   "start": 204.33,
+   "end": 204.53
+  },
+  {
+   "word": "powerful",
+   "start": 204.53,
+   "end": 205.09
+  },
+  {
+   "word": "as",
+   "start": 205.09,
+   "end": 206.05
+  },
+  {
+   "word": "all",
+   "start": 206.05,
+   "end": 206.43
+  },
+  {
+   "word": "eight",
+   "start": 206.43,
+   "end": 206.79
+  },
+  {
+   "word": "engines",
+   "start": 206.79,
+   "end": 207.21
+  },
+  {
+   "word": "of",
+   "start": 207.21,
+   "end": 207.41
+  },
+  {
+   "word": "the",
+   "start": 207.41,
+   "end": 207.59
+  },
+  {
+   "word": "Saturn",
+   "start": 207.59,
+   "end": 207.91
+  },
+  {
+   "word": "combined,",
+   "start": 207.91,
+   "end": 208.53
+  },
+  {
+   "word": "will",
+   "start": 209.17,
+   "end": 209.57
+  },
+  {
+   "word": "be",
+   "start": 209.57,
+   "end": 209.75
+  },
+  {
+   "word": "clustered",
+   "start": 209.75,
+   "end": 210.21
+  },
+  {
+   "word": "together",
+   "start": 210.21,
+   "end": 210.71
+  },
+  {
+   "word": "to",
+   "start": 210.71,
+   "end": 211.67
+  },
+  {
+   "word": "make",
+   "start": 211.67,
+   "end": 211.87
+  },
+  {
+   "word": "the",
+   "start": 211.87,
+   "end": 212.13
+  },
+  {
+   "word": "advanced",
+   "start": 212.13,
+   "end": 212.73
+  },
+  {
+   "word": "Saturn",
+   "start": 212.73,
+   "end": 213.47
+  },
+  {
+   "word": "missile",
+   "start": 213.47,
+   "end": 213.79
+  },
+  {
+   "word": "assembled",
+   "start": 213.79,
+   "end": 215.09
+  },
+  {
+   "word": "in",
+   "start": 215.09,
+   "end": 215.31
+  },
+  {
+   "word": "a",
+   "start": 215.31,
+   "end": 215.43
+  },
+  {
+   "word": "new",
+   "start": 215.43,
+   "end": 215.59
+  },
+  {
+   "word": "building",
+   "start": 215.59,
+   "end": 215.97
+  },
+  {
+   "word": "to",
+   "start": 215.97,
+   "end": 216.89
+  },
+  {
+   "word": "be",
+   "start": 216.89,
+   "end": 217.05
+  },
+  {
+   "word": "built",
+   "start": 217.05,
+   "end": 217.33
+  },
+  {
+   "word": "at",
+   "start": 217.33,
+   "end": 217.71
+  },
+  {
+   "word": "Canaveral",
+   "start": 217.71,
+   "end": 218.23
+  },
+  {
+   "word": "as",
+   "start": 218.23,
+   "end": 219.15
+  },
+  {
+   "word": "tall",
+   "start": 219.15,
+   "end": 219.57
+  },
+  {
+   "word": "as",
+   "start": 219.57,
+   "end": 219.77
+  },
+  {
+   "word": "a",
+   "start": 219.77,
+   "end": 220.03
+  },
+  {
+   "word": "48",
+   "start": 220.03,
+   "end": 220.67
+  },
+  {
+   "word": "-story",
+   "start": 220.67,
+   "end": 221.29
+  },
+  {
+   "word": "structure,",
+   "start": 221.29,
+   "end": 221.85
+  },
+  {
+   "word": "as",
+   "start": 222.55,
+   "end": 222.73
+  },
+  {
+   "word": "wide",
+   "start": 222.73,
+   "end": 223.23
+  },
+  {
+   "word": "as",
+   "start": 223.23,
+   "end": 223.53
+  },
+  {
+   "word": "a",
+   "start": 223.53,
+   "end": 223.75
+  },
+  {
+   "word": "city",
+   "start": 223.75,
+   "end": 223.93
+  },
+  {
+   "word": "block,",
+   "start": 223.93,
+   "end": 224.31
+  },
+  {
+   "word": "and",
+   "start": 224.31,
+   "end": 225.15
+  },
+  {
+   "word": "as",
+   "start": 225.15,
+   "end": 225.39
+  },
+  {
+   "word": "long",
+   "start": 225.39,
+   "end": 225.81
+  },
+  {
+   "word": "as",
+   "start": 225.81,
+   "end": 226.09
+  },
+  {
+   "word": "two",
+   "start": 226.09,
+   "end": 226.33
+  },
+  {
+   "word": "lengths",
+   "start": 226.33,
+   "end": 226.73
+  },
+  {
+   "word": "of",
+   "start": 226.73,
+   "end": 227.09
+  },
+  {
+   "word": "this",
+   "start": 227.41,
+   "end": 227.59
+  },
+  {
+   "word": "field.",
+   "start": 227.59,
+   "end": 228.01
+  },
+  {
+   "word": "Within",
+   "start": 228.99,
+   "end": 229.27
+  },
+  {
+   "word": "these",
+   "start": 229.27,
+   "end": 229.61
+  },
+  {
+   "word": "last",
+   "start": 229.61,
+   "end": 229.97
+  },
+  {
+   "word": "19",
+   "start": 229.97,
+   "end": 230.41
+  },
+  {
+   "word": "months",
+   "start": 230.41,
+   "end": 230.81
+  },
+  {
+   "word": "at",
+   "start": 230.81,
+   "end": 231.61
+  },
+  {
+   "word": "least",
+   "start": 231.61,
+   "end": 231.85
+  },
+  {
+   "word": "45",
+   "start": 231.85,
+   "end": 232.37
+  },
+  {
+   "word": "satellites",
+   "start": 232.37,
+   "end": 233.11
+  },
+  {
+   "word": "have",
+   "start": 233.11,
+   "end": 233.83
+  },
+  {
+   "word": "circled",
+   "start": 233.83,
+   "end": 234.13
+  },
+  {
+   "word": "the",
+   "start": 234.13,
+   "end": 234.35
+  },
+  {
+   "word": "earth.",
+   "start": 234.35,
+   "end": 234.63
+  },
+  {
+   "word": "Some",
+   "start": 235.51,
+   "end": 235.67
+  },
+  {
+   "word": "40",
+   "start": 235.67,
+   "end": 236.03
+  },
+  {
+   "word": "of",
+   "start": 236.03,
+   "end": 236.21
+  },
+  {
+   "word": "them",
+   "start": 236.21,
+   "end": 236.35
+  },
+  {
+   "word": "were",
+   "start": 236.35,
+   "end": 236.53
+  },
+  {
+   "word": "made",
+   "start": 236.53,
+   "end": 236.87
+  },
+  {
+   "word": "in",
+   "start": 236.87,
+   "end": 237.03
+  },
+  {
+   "word": "the",
+   "start": 237.03,
+   "end": 237.15
+  },
+  {
+   "word": "United",
+   "start": 237.15,
+   "end": 237.37
+  },
+  {
+   "word": "States",
+   "start": 237.37,
+   "end": 237.87
+  },
+  {
+   "word": "of",
+   "start": 237.87,
+   "end": 238.17
+  },
+  {
+   "word": "America",
+   "start": 238.17,
+   "end": 238.57
+  },
+  {
+   "word": "and",
+   "start": 238.57,
+   "end": 239.53
+  },
+  {
+   "word": "they",
+   "start": 239.53,
+   "end": 239.69
+  },
+  {
+   "word": "were",
+   "start": 239.69,
+   "end": 239.87
+  },
+  {
+   "word": "far",
+   "start": 239.87,
+   "end": 240.17
+  },
+  {
+   "word": "more",
+   "start": 240.17,
+   "end": 240.45
+  },
+  {
+   "word": "sophisticated",
+   "start": 240.45,
+   "end": 241.11
+  },
+  {
+   "word": "and",
+   "start": 241.11,
+   "end": 242.11
+  },
+  {
+   "word": "supplied",
+   "start": 242.11,
+   "end": 242.59
+  },
+  {
+   "word": "far",
+   "start": 242.59,
+   "end": 243.01
+  },
+  {
+   "word": "more",
+   "start": 243.01,
+   "end": 243.19
+  },
+  {
+   "word": "knowledge",
+   "start": 243.19,
+   "end": 243.59
+  },
+  {
+   "word": "to",
+   "start": 243.59,
+   "end": 243.93
+  },
+  {
+   "word": "the",
+   "start": 243.93,
+   "end": 244.05
+  },
+  {
+   "word": "people",
+   "start": 244.05,
+   "end": 244.27
+  },
+  {
+   "word": "of",
+   "start": 244.27,
+   "end": 244.43
+  },
+  {
+   "word": "the",
+   "start": 244.43,
+   "end": 244.57
+  },
+  {
+   "word": "world",
+   "start": 244.57,
+   "end": 244.87
+  },
+  {
+   "word": "than",
+   "start": 244.87,
+   "end": 245.63
+  },
+  {
+   "word": "those",
+   "start": 245.63,
+   "end": 245.95
+  },
+  {
+   "word": "of",
+   "start": 245.95,
+   "end": 246.09
+  },
+  {
+   "word": "the",
+   "start": 246.09,
+   "end": 246.23
+  },
+  {
+   "word": "Soviet",
+   "start": 246.23,
+   "end": 246.51
+  },
+  {
+   "word": "Union.",
+   "start": 246.51,
+   "end": 246.95
+  },
+  {
+   "word": "The",
+   "start": 248.13,
+   "end": 248.13
+  },
+  {
+   "word": "Mariner",
+   "start": 248.13,
+   "end": 248.51
+  },
+  {
+   "word": "spacecraft,",
+   "start": 248.51,
+   "end": 249.31
+  },
+  {
+   "word": "the",
+   "start": 254.57,
+   "end": 255.21
+  },
+  {
+   "word": "Mariner",
+   "start": 255.21,
+   "end": 255.71
+  },
+  {
+   "word": "spacecraft",
+   "start": 255.71,
+   "end": 256.49
+  },
+  {
+   "word": "now",
+   "start": 256.49,
+   "end": 257.03
+  },
+  {
+   "word": "on",
+   "start": 257.03,
+   "end": 257.23
+  },
+  {
+   "word": "its",
+   "start": 257.23,
+   "end": 257.39
+  },
+  {
+   "word": "way",
+   "start": 257.39,
+   "end": 257.61
+  },
+  {
+   "word": "to",
+   "start": 257.61,
+   "end": 257.77
+  },
+  {
+   "word": "Venus",
+   "start": 257.77,
+   "end": 258.07
+  },
+  {
+   "word": "is",
+   "start": 258.07,
+   "end": 259.07
+  },
+  {
+   "word": "the",
+   "start": 259.07,
+   "end": 259.23
+  },
+  {
+   "word": "most",
+   "start": 259.23,
+   "end": 259.49
+  },
+  {
+   "word": "intricate",
+   "start": 259.49,
+   "end": 260.07
+  },
+  {
+   "word": "instrument",
+   "start": 260.07,
+   "end": 260.69
+  },
+  {
+   "word": "in",
+   "start": 260.69,
+   "end": 261.25
+  },
+  {
+   "word": "the",
+   "start": 261.25,
+   "end": 261.43
+  },
+  {
+   "word": "history",
+   "start": 261.43,
+   "end": 261.75
+  },
+  {
+   "word": "of",
+   "start": 261.75,
+   "end": 261.99
+  },
+  {
+   "word": "space",
+   "start": 261.99,
+   "end": 262.25
+  },
+  {
+   "word": "science.",
+   "start": 262.25,
+   "end": 262.73
+  },
+  {
+   "word": "The",
+   "start": 263.21,
+   "end": 263.75
+  },
+  {
+   "word": "accuracy",
+   "start": 263.75,
+   "end": 264.07
+  },
+  {
+   "word": "of",
+   "start": 264.07,
+   "end": 264.45
+  },
+  {
+   "word": "that",
+   "start": 264.45,
+   "end": 264.67
+  },
+  {
+   "word": "shot",
+   "start": 264.67,
+   "end": 265.05
+  },
+  {
+   "word": "is",
+   "start": 265.05,
+   "end": 265.95
+  },
+  {
+   "word": "comparable",
+   "start": 265.95,
+   "end": 266.39
+  },
+  {
+   "word": "to",
+   "start": 266.39,
+   "end": 266.69
+  },
+  {
+   "word": "firing",
+   "start": 266.69,
+   "end": 267.13
+  },
+  {
+   "word": "a",
+   "start": 267.13,
+   "end": 267.37
+  },
+  {
+   "word": "missile",
+   "start": 267.37,
+   "end": 267.67
+  },
+  {
+   "word": "from",
+   "start": 267.67,
+   "end": 268.03
+  },
+  {
+   "word": "Cape",
+   "start": 268.03,
+   "end": 268.25
+  },
+  {
+   "word": "Canaveral",
+   "start": 268.25,
+   "end": 268.77
+  },
+  {
+   "word": "and",
+   "start": 268.77,
+   "end": 269.49
+  },
+  {
+   "word": "dropping",
+   "start": 269.49,
+   "end": 269.91
+  },
+  {
+   "word": "it",
+   "start": 269.91,
+   "end": 270.11
+  },
+  {
+   "word": "in",
+   "start": 270.11,
+   "end": 270.37
+  },
+  {
+   "word": "this",
+   "start": 270.37,
+   "end": 270.55
+  },
+  {
+   "word": "stadium",
+   "start": 270.55,
+   "end": 270.97
+  },
+  {
+   "word": "between",
+   "start": 270.97,
+   "end": 271.37
+  },
+  {
+   "word": "the",
+   "start": 271.37,
+   "end": 271.57
+  },
+  {
+   "word": "40",
+   "start": 271.57,
+   "end": 271.85
+  },
+  {
+   "word": "-yard",
+   "start": 271.85,
+   "end": 272.01
+  },
+  {
+   "word": "lines.",
+   "start": 272.01,
+   "end": 272.55
+  },
+  {
+   "word": "Transit",
+   "start": 274.07,
+   "end": 274.09
+  },
+  {
+   "word": "satellites",
+   "start": 274.09,
+   "end": 274.61
+  },
+  {
+   "word": "are",
+   "start": 274.61,
+   "end": 274.93
+  },
+  {
+   "word": "helping",
+   "start": 274.93,
+   "end": 275.21
+  },
+  {
+   "word": "our",
+   "start": 275.21,
+   "end": 275.45
+  },
+  {
+   "word": "ships",
+   "start": 275.45,
+   "end": 275.69
+  },
+  {
+   "word": "at",
+   "start": 275.69,
+   "end": 275.91
+  },
+  {
+   "word": "sea",
+   "start": 275.91,
+   "end": 276.25
+  },
+  {
+   "word": "to",
+   "start": 276.25,
+   "end": 277.03
+  },
+  {
+   "word": "steer",
+   "start": 277.03,
+   "end": 277.35
+  },
+  {
+   "word": "a",
+   "start": 277.35,
+   "end": 277.55
+  },
+  {
+   "word": "safer",
+   "start": 277.55,
+   "end": 277.81
+  },
+  {
+   "word": "course.",
+   "start": 277.81,
+   "end": 278.25
+  },
+  {
+   "word": "Tyreth",
+   "start": 279.33,
+   "end": 279.61
+  },
+  {
+   "word": "satellites",
+   "start": 279.61,
+   "end": 280.13
+  },
+  {
+   "word": "have",
+   "start": 280.13,
+   "end": 280.41
+  },
+  {
+   "word": "given",
+   "start": 280.41,
+   "end": 280.57
+  },
+  {
+   "word": "us",
+   "start": 280.57,
+   "end": 280.87
+  },
+  {
+   "word": "unprecedented",
+   "start": 280.87,
+   "end": 281.39
+  },
+  {
+   "word": "warnings",
+   "start": 281.39,
+   "end": 281.93
+  },
+  {
+   "word": "of",
+   "start": 281.93,
+   "end": 282.51
+  },
+  {
+   "word": "hurricanes",
+   "start": 282.51,
+   "end": 282.83
+  },
+  {
+   "word": "and",
+   "start": 282.83,
+   "end": 283.55
+  },
+  {
+   "word": "storms",
+   "start": 283.55,
+   "end": 284.13
+  },
+  {
+   "word": "and",
+   "start": 284.13,
+   "end": 284.83
+  },
+  {
+   "word": "will",
+   "start": 284.83,
+   "end": 284.95
+  },
+  {
+   "word": "do",
+   "start": 284.95,
+   "end": 285.07
+  },
+  {
+   "word": "the",
+   "start": 285.07,
+   "end": 285.25
+  },
+  {
+   "word": "same",
+   "start": 285.25,
+   "end": 285.51
+  },
+  {
+   "word": "for",
+   "start": 285.51,
+   "end": 285.77
+  },
+  {
+   "word": "forest",
+   "start": 285.77,
+   "end": 286.09
+  },
+  {
+   "word": "fires",
+   "start": 286.09,
+   "end": 286.45
+  },
+  {
+   "word": "and",
+   "start": 286.45,
+   "end": 286.97
+  },
+  {
+   "word": "icebergs.",
+   "start": 286.97,
+   "end": 288.09
+  },
+  {
+   "word": "We",
+   "start": 288.09,
+   "end": 288.55
+  },
+  {
+   "word": "have",
+   "start": 288.55,
+   "end": 288.75
+  },
+  {
+   "word": "had",
+   "start": 288.75,
+   "end": 288.95
+  },
+  {
+   "word": "our",
+   "start": 288.95,
+   "end": 289.19
+  },
+  {
+   "word": "failures",
+   "start": 289.19,
+   "end": 289.59
+  },
+  {
+   "word": "but",
+   "start": 289.59,
+   "end": 290.37
+  },
+  {
+   "word": "so",
+   "start": 290.37,
+   "end": 290.61
+  },
+  {
+   "word": "have",
+   "start": 290.61,
+   "end": 290.75
+  },
+  {
+   "word": "others",
+   "start": 290.75,
+   "end": 291.05
+  },
+  {
+   "word": "even",
+   "start": 291.05,
+   "end": 291.67
+  },
+  {
+   "word": "if",
+   "start": 291.67,
+   "end": 291.89
+  },
+  {
+   "word": "they",
+   "start": 291.89,
+   "end": 292.07
+  },
+  {
+   "word": "do",
+   "start": 292.07,
+   "end": 292.23
+  },
+  {
+   "word": "not",
+   "start": 292.23,
+   "end": 292.45
+  },
+  {
+   "word": "admit",
+   "start": 292.45,
+   "end": 292.67
+  },
+  {
+   "word": "them",
+   "start": 292.67,
+   "end": 293.01
+  },
+  {
+   "word": "and",
+   "start": 293.01,
+   "end": 293.67
+  },
+  {
+   "word": "they",
+   "start": 293.67,
+   "end": 293.85
+  },
+  {
+   "word": "may",
+   "start": 293.85,
+   "end": 294.03
+  },
+  {
+   "word": "be",
+   "start": 294.03,
+   "end": 294.21
+  },
+  {
+   "word": "less",
+   "start": 294.21,
+   "end": 294.35
+  },
+  {
+   "word": "public.",
+   "start": 294.35,
+   "end": 294.77
+  },
+  {
+   "word": "To",
+   "start": 295.63,
+   "end": 295.71
+  },
+  {
+   "word": "be",
+   "start": 295.71,
+   "end": 295.89
+  },
+  {
+   "word": "sure,",
+   "start": 295.89,
+   "end": 296.17
+  },
+  {
+   "word": "to",
+   "start": 300.63,
+   "end": 301.19
+  },
+  {
+   "word": "be",
+   "start": 301.19,
+   "end": 301.39
+  },
+  {
+   "word": "sure",
+   "start": 301.39,
+   "end": 301.73
+  },
+  {
+   "word": "we",
+   "start": 301.73,
+   "end": 302.01
+  },
+  {
+   "word": "are",
+   "start": 302.01,
+   "end": 302.27
+  },
+  {
+   "word": "behind",
+   "start": 302.27,
+   "end": 302.85
+  },
+  {
+   "word": "and",
+   "start": 302.85,
+   "end": 303.77
+  },
+  {
+   "word": "will",
+   "start": 303.77,
+   "end": 303.95
+  },
+  {
+   "word": "be",
+   "start": 303.95,
+   "end": 304.19
+  },
+  {
+   "word": "behind",
+   "start": 304.19,
+   "end": 304.61
+  },
+  {
+   "word": "for",
+   "start": 304.61,
+   "end": 304.85
+  },
+  {
+   "word": "some",
+   "start": 304.85,
+   "end": 305.09
+  },
+  {
+   "word": "time",
+   "start": 305.09,
+   "end": 305.65
+  },
+  {
+   "word": "in",
+   "start": 305.65,
+   "end": 306.35
+  },
+  {
+   "word": "man",
+   "start": 306.35,
+   "end": 306.61
+  },
+  {
+   "word": "flight,",
+   "start": 306.61,
+   "end": 306.99
+  },
+  {
+   "word": "but",
+   "start": 307.61,
+   "end": 307.97
+  },
+  {
+   "word": "we",
+   "start": 307.97,
+   "end": 308.25
+  },
+  {
+   "word": "do",
+   "start": 308.25,
+   "end": 308.47
+  },
+  {
+   "word": "not",
+   "start": 308.47,
+   "end": 308.77
+  },
+  {
+   "word": "intend",
+   "start": 308.77,
+   "end": 309.19
+  },
+  {
+   "word": "to",
+   "start": 309.19,
+   "end": 309.47
+  },
+  {
+   "word": "stay",
+   "start": 309.47,
+   "end": 309.63
+  },
+  {
+   "word": "behind",
+   "start": 309.63,
+   "end": 310.17
+  },
+  {
+   "word": "and",
+   "start": 310.17,
+   "end": 310.43
+  },
+  {
+   "word": "in",
+   "start": 310.43,
+   "end": 310.59
+  },
+  {
+   "word": "this",
+   "start": 310.59,
+   "end": 310.77
+  },
+  {
+   "word": "decade",
+   "start": 310.77,
+   "end": 311.25
+  },
+  {
+   "word": "we",
+   "start": 311.25,
+   "end": 311.69
+  },
+  {
+   "word": "shall",
+   "start": 311.69,
+   "end": 311.97
+  },
+  {
+   "word": "make",
+   "start": 311.97,
+   "end": 312.21
+  },
+  {
+   "word": "up",
+   "start": 312.21,
+   "end": 312.51
+  },
+  {
+   "word": "and",
+   "start": 312.51,
+   "end": 313.09
+  },
+  {
+   "word": "move",
+   "start": 313.09,
+   "end": 313.29
+  },
+  {
+   "word": "ahead.",
+   "start": 313.29,
+   "end": 313.97
+  },
+  {
+   "word": "The",
+   "start": 321.45,
+   "end": 322.09
+  },
+  {
+   "word": "growth",
+   "start": 322.09,
+   "end": 322.43
+  },
+  {
+   "word": "of",
+   "start": 322.43,
+   "end": 322.67
+  },
+  {
+   "word": "our",
+   "start": 322.67,
+   "end": 322.85
+  },
+  {
+   "word": "science",
+   "start": 322.85,
+   "end": 323.31
+  },
+  {
+   "word": "and",
+   "start": 323.31,
+   "end": 323.59
+  },
+  {
+   "word": "education",
+   "start": 323.59,
+   "end": 324.11
+  },
+  {
+   "word": "will",
+   "start": 324.11,
+   "end": 325.19
+  },
+  {
+   "word": "be",
+   "start": 325.19,
+   "end": 325.41
+  },
+  {
+   "word": "enriched",
+   "start": 325.41,
+   "end": 325.79
+  },
+  {
+   "word": "by",
+   "start": 325.79,
+   "end": 326.05
+  },
+  {
+   "word": "new",
+   "start": 326.05,
+   "end": 326.23
+  },
+  {
+   "word": "knowledge",
+   "start": 326.23,
+   "end": 326.55
+  },
+  {
+   "word": "of",
+   "start": 326.55,
+   "end": 326.75
+  },
+  {
+   "word": "our",
+   "start": 326.75,
+   "end": 326.95
+  },
+  {
+   "word": "universe",
+   "start": 326.95,
+   "end": 327.29
+  },
+  {
+   "word": "and",
+   "start": 327.29,
+   "end": 327.69
+  },
+  {
+   "word": "environment,",
+   "start": 327.69,
+   "end": 328.15
+  },
+  {
+   "word": "by",
+   "start": 329.17,
+   "end": 329.25
+  },
+  {
+   "word": "new",
+   "start": 329.25,
+   "end": 329.49
+  },
+  {
+   "word": "techniques",
+   "start": 329.49,
+   "end": 329.95
+  },
+  {
+   "word": "of",
+   "start": 329.95,
+   "end": 330.25
+  },
+  {
+   "word": "learning",
+   "start": 330.25,
+   "end": 330.57
+  },
+  {
+   "word": "and",
+   "start": 330.57,
+   "end": 331.15
+  },
+  {
+   "word": "mapping",
+   "start": 331.15,
+   "end": 331.53
+  },
+  {
+   "word": "and",
+   "start": 331.53,
+   "end": 331.83
+  },
+  {
+   "word": "observation,",
+   "start": 331.83,
+   "end": 332.35
+  },
+  {
+   "word": "by",
+   "start": 333.19,
+   "end": 333.41
+  },
+  {
+   "word": "new",
+   "start": 333.41,
+   "end": 333.65
+  },
+  {
+   "word": "tools",
+   "start": 333.65,
+   "end": 334.11
+  },
+  {
+   "word": "and",
+   "start": 334.11,
+   "end": 334.33
+  },
+  {
+   "word": "computers",
+   "start": 334.33,
+   "end": 334.83
+  },
+  {
+   "word": "for",
+   "start": 334.83,
+   "end": 335.39
+  },
+  {
+   "word": "industry,",
+   "start": 335.39,
+   "end": 335.95
+  },
+  {
+   "word": "medicine,",
+   "start": 336.23,
+   "end": 336.51
+  },
+  {
+   "word": "the",
+   "start": 336.51,
+   "end": 337.09
+  },
+  {
+   "word": "whole",
+   "start": 337.09,
+   "end": 337.43
+  },
+  {
+   "word": "as",
+   "start": 337.43,
+   "end": 337.79
+  },
+  {
+   "word": "well",
+   "start": 337.79,
+   "end": 337.95
+  },
+  {
+   "word": "as",
+   "start": 337.95,
+   "end": 338.09
+  },
+  {
+   "word": "the",
+   "start": 338.09,
+   "end": 338.21
+  },
+  {
+   "word": "school.",
+   "start": 338.21,
+   "end": 338.59
+  },
+  {
+   "word": "Technical",
+   "start": 339.63,
+   "end": 339.95
+  },
+  {
+   "word": "institutions",
+   "start": 339.95,
+   "end": 340.59
+  },
+  {
+   "word": "such",
+   "start": 340.59,
+   "end": 340.93
+  },
+  {
+   "word": "as",
+   "start": 340.93,
+   "end": 341.17
+  },
+  {
+   "word": "Rice",
+   "start": 341.17,
+   "end": 341.41
+  },
+  {
+   "word": "will",
+   "start": 341.41,
+   "end": 342.41
+  },
+  {
+   "word": "reap",
+   "start": 342.41,
+   "end": 342.65
+  },
+  {
+   "word": "the",
+   "start": 342.65,
+   "end": 342.91
+  },
+  {
+   "word": "harvest",
+   "start": 342.91,
+   "end": 343.25
+  },
+  {
+   "word": "of",
+   "start": 343.25,
+   "end": 343.87
+  },
+  {
+   "word": "these",
+   "start": 343.87,
+   "end": 344.07
+  },
+  {
+   "word": "gains",
+   "start": 344.07,
+   "end": 344.45
+  },
+  {
+   "word": "and",
+   "start": 344.45,
+   "end": 345.71
+  },
+  {
+   "word": "finally",
+   "start": 345.71,
+   "end": 346.15
+  },
+  {
+   "word": "the",
+   "start": 346.15,
+   "end": 346.33
+  },
+  {
+   "word": "space",
+   "start": 346.33,
+   "end": 346.65
+  },
+  {
+   "word": "effort",
+   "start": 346.65,
+   "end": 346.89
+  },
+  {
+   "word": "itself",
+   "start": 346.89,
+   "end": 347.41
+  },
+  {
+   "word": "while",
+   "start": 347.41,
+   "end": 348.39
+  },
+  {
+   "word": "still",
+   "start": 348.39,
+   "end": 348.69
+  },
+  {
+   "word": "in",
+   "start": 348.69,
+   "end": 348.81
+  },
+  {
+   "word": "its",
+   "start": 348.81,
+   "end": 348.99
+  },
+  {
+   "word": "infancy",
+   "start": 348.99,
+   "end": 349.35
+  },
+  {
+   "word": "has",
+   "start": 349.35,
+   "end": 350.47
+  },
+  {
+   "word": "already",
+   "start": 350.47,
+   "end": 350.93
+  },
+  {
+   "word": "created",
+   "start": 350.93,
+   "end": 351.43
+  },
+  {
+   "word": "a",
+   "start": 351.43,
+   "end": 351.63
+  },
+  {
+   "word": "great",
+   "start": 351.63,
+   "end": 351.79
+  },
+  {
+   "word": "number",
+   "start": 351.79,
+   "end": 352.09
+  },
+  {
+   "word": "of",
+   "start": 352.09,
+   "end": 352.27
+  },
+  {
+   "word": "new",
+   "start": 352.27,
+   "end": 352.41
+  },
+  {
+   "word": "companies",
+   "start": 352.41,
+   "end": 352.85
+  },
+  {
+   "word": "and",
+   "start": 352.85,
+   "end": 353.81
+  },
+  {
+   "word": "tens",
+   "start": 353.81,
+   "end": 354.15
+  },
+  {
+   "word": "and",
+   "start": 354.15,
+   "end": 354.43
+  },
+  {
+   "word": "thousands",
+   "start": 354.43,
+   "end": 354.81
+  },
+  {
+   "word": "of",
+   "start": 354.81,
+   "end": 355.43
+  },
+  {
+   "word": "new",
+   "start": 355.43,
+   "end": 355.57
+  },
+  {
+   "word": "jobs.",
+   "start": 355.57,
+   "end": 356.05
+  },
+  {
+   "word": "Space",
+   "start": 357.21,
+   "end": 357.35
+  },
+  {
+   "word": "and",
+   "start": 357.35,
+   "end": 357.65
+  },
+  {
+   "word": "related",
+   "start": 357.65,
+   "end": 357.97
+  },
+  {
+   "word": "industries",
+   "start": 357.97,
+   "end": 358.49
+  },
+  {
+   "word": "are",
+   "start": 358.49,
+   "end": 359.45
+  },
+  {
+   "word": "generating",
+   "start": 359.45,
+   "end": 359.93
+  },
+  {
+   "word": "new",
+   "start": 359.93,
+   "end": 360.21
+  },
+  {
+   "word": "demands",
+   "start": 360.21,
+   "end": 360.71
+  },
+  {
+   "word": "in",
+   "start": 360.71,
+   "end": 361.23
+  },
+  {
+   "word": "investment",
+   "start": 361.23,
+   "end": 361.67
+  },
+  {
+   "word": "and",
+   "start": 361.67,
+   "end": 362.45
+  },
+  {
+   "word": "skilled",
+   "start": 362.45,
+   "end": 362.79
+  },
+  {
+   "word": "personnel",
+   "start": 362.79,
+   "end": 363.29
+  },
+  {
+   "word": "and",
+   "start": 363.29,
+   "end": 364.31
+  },
+  {
+   "word": "this",
+   "start": 364.31,
+   "end": 364.53
+  },
+  {
+   "word": "city",
+   "start": 364.53,
+   "end": 364.83
+  },
+  {
+   "word": "and",
+   "start": 364.83,
+   "end": 365.65
+  },
+  {
+   "word": "this",
+   "start": 365.65,
+   "end": 365.83
+  },
+  {
+   "word": "state",
+   "start": 365.83,
+   "end": 366.21
+  },
+  {
+   "word": "and",
+   "start": 366.21,
+   "end": 366.87
+  },
+  {
+   "word": "this",
+   "start": 366.87,
+   "end": 367.07
+  },
+  {
+   "word": "region",
+   "start": 367.07,
+   "end": 367.49
+  },
+  {
+   "word": "will",
+   "start": 367.49,
+   "end": 368.33
+  },
+  {
+   "word": "share",
+   "start": 368.33,
+   "end": 368.69
+  },
+  {
+   "word": "greatly",
+   "start": 368.69,
+   "end": 369.13
+  },
+  {
+   "word": "in",
+   "start": 369.13,
+   "end": 369.37
+  },
+  {
+   "word": "this",
+   "start": 369.37,
+   "end": 369.51
+  },
+  {
+   "word": "growth.",
+   "start": 369.51,
+   "end": 369.91
+  },
+  {
+   "word": "What",
+   "start": 370.93,
+   "end": 370.97
+  },
+  {
+   "word": "was",
+   "start": 370.97,
+   "end": 371.19
+  },
+  {
+   "word": "once",
+   "start": 371.19,
+   "end": 371.57
+  },
+  {
+   "word": "the",
+   "start": 371.57,
+   "end": 371.87
+  },
+  {
+   "word": "furthest",
+   "start": 371.87,
+   "end": 372.33
+  },
+  {
+   "word": "outpost",
+   "start": 372.33,
+   "end": 372.91
+  },
+  {
+   "word": "on",
+   "start": 372.91,
+   "end": 373.25
+  },
+  {
+   "word": "the",
+   "start": 373.25,
+   "end": 373.37
+  },
+  {
+   "word": "old",
+   "start": 373.37,
+   "end": 373.65
+  },
+  {
+   "word": "frontier",
+   "start": 373.65,
+   "end": 374.15
+  },
+  {
+   "word": "of",
+   "start": 374.15,
+   "end": 374.37
+  },
+  {
+   "word": "the",
+   "start": 374.37,
+   "end": 374.53
+  },
+  {
+   "word": "West",
+   "start": 374.53,
+   "end": 374.83
+  },
+  {
+   "word": "will",
+   "start": 374.83,
+   "end": 375.73
+  },
+  {
+   "word": "be",
+   "start": 375.73,
+   "end": 376.03
+  },
+  {
+   "word": "the",
+   "start": 376.03,
+   "end": 376.25
+  },
+  {
+   "word": "furthest",
+   "start": 376.25,
+   "end": 376.81
+  },
+  {
+   "word": "outpost",
+   "start": 376.81,
+   "end": 377.35
+  },
+  {
+   "word": "on",
+   "start": 377.35,
+   "end": 378.11
+  },
+  {
+   "word": "the",
+   "start": 378.11,
+   "end": 378.23
+  },
+  {
+   "word": "new",
+   "start": 378.23,
+   "end": 378.41
+  },
+  {
+   "word": "frontier",
+   "start": 378.41,
+   "end": 378.91
+  },
+  {
+   "word": "of",
+   "start": 378.91,
+   "end": 379.25
+  },
+  {
+   "word": "science",
+   "start": 379.25,
+   "end": 379.53
+  },
+  {
+   "word": "and",
+   "start": 379.53,
+   "end": 379.79
+  },
+  {
+   "word": "space.",
+   "start": 379.79,
+   "end": 380.19
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+{
+  "note": "Every entry needs a video that may lawfully be redistributed, and a word-level transcript beside it. Videos are fetched from the repository's demo-assets release rather than committed; transcripts are small and live here. Add an entry, upload the mp4 to the release, done.",
+  "projects": [
+    {
+      "id": "jfk-rice-moon",
+      "title": "We choose to go to the Moon",
+      "speaker": "John F. Kennedy",
+      "video": "jfk-rice-moon.mp4",
+      "transcript": "jfk-rice-moon.words.json",
+      "attribution": "Rice University via Internet Archive — CC Public Domain Mark 1.0",
+      "durationSeconds": 381
+    },
+    {
+      "id": "apollo-11-crew",
+      "title": "Apollo 11 crew interview",
+      "speaker": "Armstrong, Aldrin and Collins",
+      "video": "apollo-11-crew.mp4",
+      "transcript": "apollo-11-crew.words.json",
+      "attribution": "NASA via Internet Archive — public domain (US Government work)",
+      "durationSeconds": 360
+    }
+  ]
+}
