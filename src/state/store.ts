@@ -181,12 +181,20 @@ export function clipRanges(clip: Clip): Range[] {
     })
   }
 
-  raw.sort((a, b) => a.start - b.start)
+  // Deliberately not sorted: `segments` is in play order, and a clip whose
+  // pieces have been reordered means to play them out of transcript order.
   const merged: Range[] = []
   for (const range of raw) {
     const last = merged[merged.length - 1]
-    if (last && range.start <= last.end + 0.001) last.end = Math.max(last.end, range.end)
-    else merged.push({ ...range })
+    // Merge only where this piece carries on from the one before it. Padding can
+    // push neighbours into each other, and playing that would seek backwards
+    // mid-clip; but two pieces that touch after a reorder are touching by
+    // coincidence, and joining them would quietly undo the reorder.
+    if (last && range.start >= last.start && range.start <= last.end + 0.001) {
+      last.end = Math.max(last.end, range.end)
+    } else {
+      merged.push({ ...range })
+    }
   }
   return merged
 }
@@ -202,11 +210,18 @@ export function clipSentenceIndices(clip: Clip): number[] {
   return out
 }
 
-/** The span from first kept sentence to last, including what was dropped. */
+/**
+ * Where the clip sits in the recording, earliest to latest. Computed from the
+ * extremes rather than the first and last piece, because after a reorder the
+ * last piece can be the earliest moment.
+ */
 export function clipSpan(clip: Clip): Range {
   const ranges = clipRanges(clip)
   if (!ranges.length) return { start: 0, end: 0 }
-  return { start: ranges[0].start, end: ranges[ranges.length - 1].end }
+  return {
+    start: Math.min(...ranges.map((r) => r.start)),
+    end: Math.max(...ranges.map((r) => r.end)),
+  }
 }
 
 /** Playing time — the sum of the kept pieces, not the span they sit in. */
@@ -226,12 +241,22 @@ export function clipText(clip: Clip): string {
 export function clipDropped(clip: Clip): number {
   const kept = clipSentenceIndices(clip)
   if (kept.length < 2) return 0
-  const span = kept[kept.length - 1] - kept[0] + 1
+  // min/max rather than first/last: play order need not be transcript order.
+  const span = Math.max(...kept) - Math.min(...kept) + 1
   return span - kept.length
 }
 
-/** Ordered, in-bounds, non-overlapping; touching runs joined. */
-function normaliseSegments(segments: Segment[]): Segment[] | { error: string } {
+/**
+ * In-bounds, non-overlapping; touching runs joined and put in transcript order.
+ *
+ * `preserveOrder` skips the sort and the join, for the one case where the order
+ * is the point: a clip whose pieces have been deliberately rearranged. Tidying
+ * that back into transcript order would silently undo the edit.
+ */
+function normaliseSegments(
+  segments: Segment[],
+  preserveOrder = false
+): Segment[] | { error: string } {
   const list = sentences()
   const spans: { a: number; b: number }[] = []
   for (const seg of segments) {
@@ -240,6 +265,13 @@ function normaliseSegments(segments: Segment[]): Segment[] | { error: string } {
     spans.push({ a: r.start.index, b: r.end.index })
   }
   if (!spans.length) return { error: 'A clip needs at least one range of sentences.' }
+
+  if (preserveOrder) {
+    return spans.map((s) => ({
+      startSentenceId: list[s.a].id,
+      endSentenceId: list[s.b].id,
+    }))
+  }
 
   spans.sort((x, y) => x.a - y.a)
   const merged: { a: number; b: number }[] = []
@@ -319,6 +351,8 @@ export function updateClip(input: {
   note?: string
   pad?: number
   kind?: ClipKind
+  /** Keep `segments` in the order given rather than sorting into transcript order. */
+  preserveOrder?: boolean
   by: Actor
 }): Clip | { error: string; currentRevision?: number } {
   const existing = state.clips.find((c) => c.id === input.clipId)
@@ -341,7 +375,7 @@ export function updateClip(input: {
 
   let segments = existing.segments
   if (input.segments) {
-    const next = normaliseSegments(input.segments)
+    const next = normaliseSegments(input.segments, input.preserveOrder)
     if ('error' in next) return next
     segments = next
   }
@@ -399,6 +433,53 @@ export function addSentence(
   const kept = clipSentenceIndices(clip)
   if (kept.includes(target)) return { error: sentenceId + ' is already in ' + clipId + '.' }
   return updateClip({ clipId, segments: segmentsFromIndices([...kept, target]), by })
+}
+
+/**
+ * Moves one piece of a cut to another position in the play order.
+ *
+ * This is the edit a timeline is for, and the reason it is safe here: moving a
+ * piece creates no new boundary. Each segment keeps the sentence ids it always
+ * had, so the agent can still name every edge of the result — it is the same
+ * ranges in a different order, not a new range nobody can describe.
+ */
+export function moveSegment(
+  clipId: string,
+  from: number,
+  to: number,
+  by: Actor
+): Clip | { error: string } {
+  const clip = state.clips.find((c) => c.id === clipId)
+  if (!clip) return { error: 'No clip with id "' + clipId + '".' }
+  const count = clip.segments.length
+  if (from < 0 || from >= count) return { error: 'No piece ' + (from + 1) + ' in ' + clipId + '.' }
+  if (to < 0 || to >= count) return { error: 'Cannot move a piece to position ' + (to + 1) + '.' }
+  if (from === to) return clip
+
+  const next = [...clip.segments]
+  const [moved] = next.splice(from, 1)
+  next.splice(to, 0, moved)
+  return updateClip({ clipId, segments: next, preserveOrder: true, kind: 'cut', by })
+}
+
+/** Drops one piece from a cut entirely, gaps and all. */
+export function removeSegment(clipId: string, index: number, by: Actor): Clip | { error: string } {
+  const clip = state.clips.find((c) => c.id === clipId)
+  if (!clip) return { error: 'No clip with id "' + clipId + '".' }
+  if (index < 0 || index >= clip.segments.length) {
+    return { error: 'No piece ' + (index + 1) + ' in ' + clipId + '.' }
+  }
+  if (clip.segments.length === 1) {
+    return { error: 'That is the only piece left. Delete the clip instead.' }
+  }
+  const next = clip.segments.filter((_, i) => i !== index)
+  return updateClip({ clipId, segments: next, preserveOrder: true, by })
+}
+
+/** True once play order stops matching transcript order — the UI says so. */
+export function clipIsReordered(clip: Clip): boolean {
+  const starts = clip.segments.map((s) => indexOfSentenceId(s.startSentenceId))
+  return starts.some((v, i) => i > 0 && v < starts[i - 1])
 }
 
 export function deleteClip(clipId: string) {

@@ -236,12 +236,6 @@
 
 /* ---- activity ---- */
 
-.activityCard {
-  flex: none;
-  max-height: 34%;
-  min-height: 92px;
-}
-
 /* Side by side once the rail is a wide strip under the other two panes — but
    only while it is actually wide; below the single-column breakpoint it goes
    back to stacking. */

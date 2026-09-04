@@ -1,5 +1,5 @@
-import { getState, sentenceById, clipRanges } from './store'
-import type { Range } from '../types'
+import { getState, sentenceById, clipRanges } from './store.ts'
+import type { Range } from '../types.ts'
 
 /**
  * Imperative handle on the single <video>. Kept outside React because the

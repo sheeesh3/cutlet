@@ -1,0 +1,51 @@
+/* One call per block rather than one per row: the summaries are sentences, and
+   a sentence squeezed into a 92px-labelled row is what the pinned panel got
+   wrong. */
+.event {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.event:last-child {
+  border-bottom: none;
+}
+
+.eventHead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tool {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--agent);
+}
+
+.toolError {
+  color: var(--danger, #d08a7a);
+}
+
+.failed {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--danger, #d08a7a);
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+.at {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+
+.summary {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+}

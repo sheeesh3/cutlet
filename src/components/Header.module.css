@@ -123,3 +123,33 @@
 .footLink:hover {
   color: var(--text-dim);
 }
+
+/* Sits beside the tools pill because both are about the agent: one is what the
+   page offers, the other is what the agent did with it. */
+.activity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  flex: none;
+}
+
+.activity:hover {
+  color: var(--text);
+  border-color: var(--line-strong, var(--line));
+}
+
+.activityCount {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--agent);
+  background: rgba(127, 179, 200, 0.16);
+  border-radius: 999px;
+  padding: 1px 6px;
+}

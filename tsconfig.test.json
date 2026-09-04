@@ -2,7 +2,10 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
     "target": "es2023",
-    "lib": ["ES2023"],
+    /* The tests now reach code that legitimately touches the DOM — the tool
+       registry reads document.modelContext, the player drives a <video>. The
+       register test shims what it needs; the types have to be in scope. */
+    "lib": ["ES2023", "DOM"],
     "types": ["node"],
     "skipLibCheck": true,
 

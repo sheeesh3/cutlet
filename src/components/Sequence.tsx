@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import styles from './Sequence.module.css'
-import { useStore, clipRanges, clipDuration, sentenceById } from '../state/store'
+import {
+  useStore,
+  clipRanges,
+  clipDuration,
+  sentenceById,
+  moveSegment,
+  removeSegment,
+  clipIsReordered,
+  logTool,
+} from '../state/store'
 import { onTimeUpdate, seek, playRanges } from '../state/player'
 import { formatDuration } from '../transcript/sentences'
 import type { Clip, Range } from '../types'
@@ -15,11 +24,14 @@ import type { Clip, Range } from '../types'
  * `read_transcript scope:"clip"` — one shows the agent how the edit reads, this
  * shows the human how it runs.
  *
- * Read-only on purpose. Every boundary in ClipClub is a sentence id, because an
- * id means the same thing to both parties and a dragged pixel does not. Dragging
- * an edge here would mint a cut point with no id, and the agent would lose the
- * vocabulary it needs to revise it. So the blocks are for seeing and seeking;
- * the edit still happens in the transcript, where the ids are.
+ * You can move a piece earlier or later here, or drop it, but you cannot drag
+ * its edges — and the difference is the whole design. Reordering permutes
+ * segments that keep the sentence ids they always had, so every edge of the
+ * result is still nameable: the agent can read it back, revise it, and argue
+ * about it. Dragging an edge would mint a cut point at some pixel with no id
+ * attached, and that boundary would be invisible to the half of this interface
+ * that speaks in ids. Trimming therefore stays in the transcript, where the ids
+ * are; arranging happens here, where the shape is.
  */
 export function Sequence() {
   const clips = useStore((s) => s.clips)
@@ -36,6 +48,7 @@ export function Sequence() {
   if (!ranges.length || total <= 0) return null
 
   const playhead = cutTimeOf(time, ranges)
+  const reordered = clipIsReordered(clip)
 
   return (
     <div className={styles.wrap}>
@@ -53,6 +66,10 @@ export function Sequence() {
         {ranges.map((r, i) => {
           const width = ((r.end - r.start) / total) * 100
           const labels = edgeIds(clip, r)
+          const move = (to: number) => {
+            const result = moveSegment(clip.id, i, to, 'human')
+            if ('error' in result) logTool('move', result.error, false)
+          }
           return (
             <div
               key={i}
@@ -61,14 +78,49 @@ export function Sequence() {
                 clip.lastEditedBy === 'human' ? styles.human : styles.agent,
               ].join(' ')}
               style={{ flexBasis: `${width}%` }}
-              // Seeking rather than dragging: the block says where a piece is,
-              // and clicking it takes you there in the source.
+              // Seeking rather than dragging an edge: a dragged edge would be a
+              // cut point with no sentence id, and neither you nor the agent
+              // could name it afterwards. Whole pieces move instead.
               onClick={() => seek(r.start)}
               onDoubleClick={() => void playRanges(ranges.slice(i))}
               title={`${labels} · ${formatDuration(r.end - r.start)} — click to seek, double-click to play from here`}
             >
               <span className={styles.pieceIds}>{labels}</span>
               <span className={styles.pieceDur}>{formatDuration(r.end - r.start)}</span>
+
+              {ranges.length > 1 && (
+                <span className={styles.pieceTools} onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className={styles.pieceBtn}
+                    onClick={() => move(i - 1)}
+                    disabled={i === 0}
+                    title="Move this piece earlier in the cut"
+                    aria-label={`Move piece ${i + 1} earlier`}
+                  >
+                    ◀
+                  </button>
+                  <button
+                    className={styles.pieceBtn}
+                    onClick={() => move(i + 1)}
+                    disabled={i === ranges.length - 1}
+                    title="Move this piece later in the cut"
+                    aria-label={`Move piece ${i + 1} later`}
+                  >
+                    ▶
+                  </button>
+                  <button
+                    className={`${styles.pieceBtn} ${styles.pieceDrop}`}
+                    onClick={() => {
+                      const result = removeSegment(clip.id, i, 'human')
+                      if ('error' in result) logTool('remove', result.error, false)
+                    }}
+                    title="Drop this piece from the cut"
+                    aria-label={`Drop piece ${i + 1}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
             </div>
           )
         })}
@@ -81,7 +133,14 @@ export function Sequence() {
       {ranges.length > 1 && (
         <p className={styles.note}>
           {ranges.length - 1 === 1 ? 'One cut' : `${ranges.length - 1} cuts`}. Playback jumps the
-          gaps; the dropped lines are struck through in the transcript.
+          gaps. Hover a piece to move it earlier or later, or drop it.
+          {reordered && (
+            <>
+              {' '}
+              <strong className={styles.reordered}>Out of transcript order</strong> — this cut
+              plays its pieces in the order shown, not the order they were said.
+            </>
+          )}
         </p>
       )}
     </div>

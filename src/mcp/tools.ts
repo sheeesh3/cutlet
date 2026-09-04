@@ -1,5 +1,5 @@
-import type { ToolDescriptor } from './types'
-import { ok, fail } from './types'
+import type { ToolDescriptor } from './types.ts'
+import { ok, fail } from './types.ts'
 import {
   getState,
   sentences,
@@ -21,10 +21,10 @@ import {
   setAudition,
   setActiveClip,
   logTool,
-} from '../state/store'
-import { playClip, playRanges, seek, getVideo } from '../state/player'
-import { formatTimecode, formatDuration, indexOfSentenceId } from '../transcript/sentences'
-import type { Clip, Segment } from '../types'
+} from '../state/store.ts'
+import { playClip, playRanges, seek, getVideo } from '../state/player.ts'
+import { formatTimecode, formatDuration, indexOfSentenceId } from '../transcript/sentences.ts'
+import type { Clip, Segment } from '../types.ts'
 
 /** A window this size keeps a tool result readable without a second call. */
 const DEFAULT_WINDOW = 40
@@ -217,6 +217,7 @@ function readClipTranscript(rawClipId: unknown) {
   const lines: string[] = []
   const pieces: { startSentenceId: string; endSentenceId: string; sentences: unknown[] }[] = []
   const gaps: {
+    kind: 'cut' | 'join'
     afterSentenceId: string
     beforeSentenceId: string
     droppedSentences: number
@@ -232,10 +233,17 @@ function readClipTranscript(rawClipId: unknown) {
       const previous = clip.segments[i - 1]
       const p = resolveRange(previous.startSentenceId, previous.endSentenceId)
       if (!('error' in p)) {
+        // A piece that starts earlier than the one before it ended is not a gap
+        // with material cut out of it — it is a reorder, and nothing was
+        // dropped there. Calling it a gap invites a fix for a non-problem.
+        const backwards = r.start.index <= p.end.index
         const droppedIds: string[] = []
-        for (let j = p.end.index + 1; j < r.start.index; j++) droppedIds.push(list[j].id)
-        const seconds = round(Math.max(0, r.start.start - p.end.end))
+        if (!backwards) {
+          for (let j = p.end.index + 1; j < r.start.index; j++) droppedIds.push(list[j].id)
+        }
+        const seconds = backwards ? 0 : round(Math.max(0, r.start.start - p.end.end))
         gaps.push({
+          kind: backwards ? 'join' : 'cut',
           afterSentenceId: p.end.id,
           beforeSentenceId: r.start.id,
           droppedSentences: droppedIds.length,
@@ -243,9 +251,11 @@ function readClipTranscript(rawClipId: unknown) {
           seconds,
         })
         lines.push(
-          '— GAP — ' + droppedIds.length +
-            (droppedIds.length === 1 ? ' sentence dropped (' : ' sentences dropped (') +
-            formatDuration(seconds) + ')'
+          backwards
+            ? '— JOIN — the next piece comes from earlier in the recording; nothing was cut here'
+            : '— GAP — ' + droppedIds.length +
+              (droppedIds.length === 1 ? ' sentence dropped (' : ' sentences dropped (') +
+              formatDuration(seconds) + ')'
         )
       }
     }
@@ -269,7 +279,10 @@ function readClipTranscript(rawClipId: unknown) {
     formatDuration(clipDuration(clip)) + ', ' + kept +
     (kept === 1 ? ' sentence' : ' sentences') + ' kept, revision ' + clip.revision + '.' +
     (gaps.length
-      ? ' Each — GAP — is a cut; check the sentence after it still makes sense on its own.'
+      ? ' Each — GAP — is a cut; check the sentence after it still makes sense on its own.' +
+        (gaps.some((g) => g.kind === 'join')
+          ? ' A — JOIN — is a reorder, not a cut: the pieces play out of transcript order on purpose.'
+          : '')
       : ' No cuts yet — this is one unbroken run.')
 
   logTool('read_transcript', summary)
@@ -694,7 +707,9 @@ const updateClipTool: ToolDescriptor = {
       endSentenceId: { type: 'string', description: 'New single range, last sentence.' },
       segments: {
         type: 'array',
-        description: 'Replace every segment. Each is {startSentenceId, endSentenceId}, inclusive.',
+        description:
+          'Replace every segment. Each is {startSentenceId, endSentenceId}, inclusive. ' +
+          'They are sorted into transcript order unless you also pass preserveOrder.',
         items: {
           type: 'object',
           properties: {
@@ -711,6 +726,14 @@ const updateClipTool: ToolDescriptor = {
         description:
           'Seconds of breathing room added at each end of every segment, 0 to 2. Raise it if ' +
           'the cuts feel clipped; lower it if they feel slack.',
+      },
+      preserveOrder: {
+        type: 'boolean',
+        description:
+          'Play the segments in the order you listed them rather than in transcript ' +
+          'order. Use it to rearrange a cut — to open on the punchline and then give ' +
+          'the setup, say. Reordering is safe because it makes no new boundary: every ' +
+          'piece keeps the sentence ids it already had.',
       },
       preview: { type: 'boolean', description: 'Play the revised clip. Default true.' },
     },
@@ -730,6 +753,7 @@ const updateClipTool: ToolDescriptor = {
       title: typeof args.title === 'string' ? args.title : undefined,
       note: typeof args.note === 'string' ? args.note : undefined,
       pad: typeof args.pad === 'number' ? args.pad : undefined,
+      preserveOrder: args.preserveOrder === true,
       by: 'agent',
     })
     if ('error' in result) {

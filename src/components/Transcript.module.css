@@ -292,3 +292,84 @@
   border-color: var(--text-faint);
   background: var(--bg-hover);
 }
+
+/* Source / Clip. Sits where the panel title was, because which transcript you
+   are reading is more useful to know than the word "Transcript". */
+.views {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex: none;
+}
+
+.view {
+  padding: 3px 11px;
+  font-size: 11.5px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.view:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.viewOn {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+/* A cut, drawn as one. The rules either side make it read as a seam rather
+   than as another line of transcript. */
+.gapRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+}
+
+.gapRule {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.gapLabel {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex: none;
+}
+
+.gapRestore {
+  font-size: 10.5px;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  flex: none;
+}
+
+.gapRestore:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Adding a line the clip has never held is a quieter act than dropping one it
+   holds now — the control stays out of the way until the row is under the
+   pointer. */
+.addToggle {
+  opacity: 0;
+}
+
+.row:hover .addToggle,
+.addToggle:focus-visible {
+  opacity: 1;
+}

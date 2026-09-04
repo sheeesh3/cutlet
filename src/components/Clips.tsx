@@ -169,7 +169,6 @@ function NoAgentPanel() {
 export function ClipsRail() {
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
-  const events = useStore((s) => s.toolEvents)
   const exporting = useStore((s) => s.exporting)
   const working = useStore((s) => s.working)
   const hasProject = useStore((s) => !!s.project)
@@ -211,27 +210,6 @@ export function ClipsRail() {
         </div>
       </div>
 
-      <div className={`${styles.card} ${styles.activityCard}`}>
-        <div className={styles.head}>
-          <span className={styles.title}>Agent activity</span>
-          <span className={styles.count}>{events.length}</span>
-        </div>
-        <div className={styles.body}>
-          {!events.length && (
-            <p className={styles.empty}>
-              Tool calls from the agent appear here, so you can see what it did and why.
-            </p>
-          )}
-          {events.map((e) => (
-            <div key={e.id} className={styles.event}>
-              <span className={`${styles.eventTool} ${e.ok ? '' : styles.eventToolError}`}>
-                {e.tool}
-              </span>
-              <span className={styles.eventText}>{e.summary}</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }

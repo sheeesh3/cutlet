@@ -132,3 +132,52 @@
     display: none;
   }
 }
+
+/* Hidden until the piece is hovered or focused within: the timeline's job at
+   rest is to show the shape of the cut, not to offer six buttons. */
+.pieceTools {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.piece:hover .pieceTools,
+.piece:focus-within .pieceTools {
+  display: flex;
+}
+
+/* With the tools showing there is rarely room for the duration too. */
+.piece:hover .pieceDur {
+  display: none;
+}
+
+.pieceBtn {
+  border: none;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text-dim);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 9px;
+  line-height: 1;
+  padding: 3px 4px;
+}
+
+.pieceBtn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--text);
+}
+
+.pieceBtn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.pieceDrop:hover:not(:disabled) {
+  color: var(--danger, #d08a7a);
+}
+
+.reordered {
+  color: var(--human);
+  font-weight: 500;
+}

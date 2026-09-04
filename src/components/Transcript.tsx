@@ -10,6 +10,7 @@ import {
   selectedDuration,
   createClip,
   clipSentenceIndices,
+  clipDuration,
   removeSentence,
   addSentence,
   logTool,
@@ -54,6 +55,7 @@ export function Transcript() {
   const audition = useStore((s) => s.audition)
 
   const [query, setQuery] = useState('')
+  const [view, setView] = useState<'source' | 'clip'>('source')
   const [time, setTime] = useState(0)
   const listRef = useRef<HTMLDivElement | null>(null)
   const followRef = useRef(true)
@@ -98,7 +100,9 @@ export function Transcript() {
       if (clip.id === activeClipId) {
         activeEditedBy = clip.lastEditedBy
         if (kept.length) {
-          for (let i = kept[0]; i <= kept[kept.length - 1]; i++) {
+          // min/max, not first/last — a reordered cut plays its pieces out of
+          // transcript order, so the first one it plays need not be the earliest.
+          for (let i = Math.min(...kept); i <= Math.max(...kept); i++) {
             if (!inActive.has(i)) droppedFromActive.add(i)
           }
         }
@@ -134,6 +138,11 @@ export function Transcript() {
     }
     return set
   }, [marks, sentences])
+
+  const activeClip = clips.find((c) => c.id === activeClipId) ?? null
+  // Falling back to source rather than showing an empty pane: the clip view has
+  // nothing to show the moment its clip is deleted or deselected.
+  const clipView = view === 'clip' && !!activeClip
 
   const marked = useMemo(
     () => ({ segments: selectedSegments(), seconds: selectedDuration() }),
@@ -253,20 +262,80 @@ export function Transcript() {
     if ('error' in result) logTool('edit', result.error, false)
   }
 
+  /**
+   * The clip as it plays: kept sentences in play order, with each gap shown as
+   * the thing it is — a cut, with what was dropped named and restorable. This is
+   * the human's half of read_transcript scope:"clip".
+   */
+  const clipRows = useMemo(() => {
+    if (!activeClip) return []
+    const rows: ({ kind: 'line'; index: number } | { kind: 'gap'; dropped: number[] })[] = []
+    activeClip.segments.forEach((seg, n) => {
+      const a = sentences.findIndex((s) => s.id === seg.startSentenceId)
+      const b = sentences.findIndex((s) => s.id === seg.endSentenceId)
+      if (a < 0 || b < 0) return
+      if (n > 0) {
+        const previous = activeClip.segments[n - 1]
+        const pb = sentences.findIndex((s) => s.id === previous.endSentenceId)
+        const dropped: number[] = []
+        // Only a forward gap has dropped material in it. After a reorder the
+        // next piece can start earlier in the recording, and nothing was cut
+        // between them — the join is the edit.
+        if (pb >= 0 && a > pb) for (let j = pb + 1; j < a; j++) dropped.push(j)
+        rows.push({ kind: 'gap', dropped })
+      }
+      for (let j = a; j <= b; j++) rows.push({ kind: 'line', index: j })
+    })
+    return rows
+  }, [activeClip, sentences])
+
   return (
     <div className={styles.pane}>
       <div className={styles.head}>
-        <span className={styles.title}>Transcript</span>
+        {/* The same two transcripts the agent reads through read_transcript:
+            "source" is the recording as spoken, "clip" is the selected cut as it
+            plays. Giving the agent both and the human only one was an asymmetry
+            with nothing behind it. */}
+        <div className={styles.views} role="tablist" aria-label="Which transcript">
+          <button
+            role="tab"
+            aria-selected={!clipView}
+            className={`${styles.view} ${!clipView ? styles.viewOn : ''}`}
+            onClick={() => setView('source')}
+          >
+            Source
+          </button>
+          <button
+            role="tab"
+            aria-selected={clipView}
+            className={`${styles.view} ${clipView ? styles.viewOn : ''}`}
+            onClick={() => setView('clip')}
+            disabled={!activeClip}
+            title={
+              activeClip
+                ? 'The selected clip as it plays, gaps and all'
+                : 'Select a clip to read it as it plays'
+            }
+          >
+            Clip
+          </button>
+        </div>
         <span className={styles.count}>
-          {matches ? `${visible.length} of ${sentences.length}` : `${sentences.length} sentences`}
+          {clipView && activeClip
+            ? `${clipSentenceIndices(activeClip).length} kept · ${formatDuration(clipDuration(activeClip))}`
+            : matches
+              ? `${visible.length} of ${sentences.length}`
+              : `${sentences.length} sentences`}
         </span>
         <span className={styles.spacer} />
-        <input
-          className={styles.search}
-          placeholder="Find a line"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+        {!clipView && (
+          <input
+            className={styles.search}
+            placeholder="Find a line"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        )}
       </div>
 
       <div
@@ -283,13 +352,74 @@ export function Transcript() {
       >
         {!sentences.length && <div className={styles.empty}>No transcript loaded.</div>}
 
-        {visible.map((s) => {
+        {clipView &&
+          activeClip &&
+          clipRows.map((row, n) =>
+            row.kind === 'gap' ? (
+              <div key={`gap-${n}`} className={styles.gapRow}>
+                <span className={styles.gapRule} />
+                <span className={styles.gapLabel}>
+                  {row.dropped.length
+                    ? `${row.dropped.length} ${row.dropped.length === 1 ? 'line' : 'lines'} cut`
+                    : 'join'}
+                </span>
+                {row.dropped.length > 0 && (
+                  <button
+                    className={styles.gapRestore}
+                    onClick={() => toggleSentenceInActive(sentences[row.dropped[0]].id, false)}
+                    title={sentences[row.dropped[0]]?.text}
+                  >
+                    put back
+                  </button>
+                )}
+                <span className={styles.gapRule} />
+              </div>
+            ) : (
+              <div
+                key={sentences[row.index].id}
+                className={`${styles.row} ${styles.inActiveClipHuman} ${
+                  row.index === playingIndex ? styles.playing : ''
+                }`}
+                data-index={row.index}
+                data-id={sentences[row.index].id}
+                onClick={() => seek(sentences[row.index].start)}
+                onDoubleClick={() =>
+                  playSentenceRange(sentences[row.index].id, sentences[row.index].id)
+                }
+              >
+                <span className={styles.tc}>{formatTimecode(sentences[row.index].start)}</span>
+                <span className={styles.text}>
+                  {row.index === playingIndex && <span className={styles.playingDot} />}
+                  {sentences[row.index].text}
+                </span>
+                <button
+                  className={styles.keepToggle}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleSentenceInActive(sentences[row.index].id, true)
+                  }}
+                  title="Drop this line from the clip"
+                  aria-label={`Drop ${sentences[row.index].id}`}
+                >
+                  −
+                </button>
+              </div>
+            )
+          )}
+
+        {!clipView &&
+          visible.map((s) => {
           const i = s.index
           const inLive = selectedRange && i >= selectedRange.a && i <= selectedRange.b
           const selected = inLive || markedSet.has(i)
           const auditioning = auditionRange && i >= auditionRange.a && i <= auditionRange.b
           const dropped = droppedFromActive.has(i)
-          const editable = !!activeClipId && (inActive.has(i) || dropped)
+          const inCut = inActive.has(i)
+          // Every line is editable once a clip is selected, not just the ones
+          // inside its span. Before, a sentence the clip had never reached had
+          // no control at all, so there was no way to extend a cut forward —
+          // the only visible edits were ones that shrank it.
+          const editable = !!activeClipId
           const cls = [
             styles.row,
             inClip.has(i) && styles.inClip,
@@ -326,15 +456,15 @@ export function Transcript() {
               </span>
               {editable && (
                 <button
-                  className={styles.keepToggle}
+                  className={`${styles.keepToggle} ${inCut ? '' : styles.addToggle}`}
                   onClick={(e) => {
                     e.stopPropagation()
-                    toggleSentenceInActive(s.id, !dropped)
+                    toggleSentenceInActive(s.id, inCut)
                   }}
-                  title={dropped ? 'Put this line back in the clip' : 'Drop this line from the clip'}
-                  aria-label={dropped ? 'Restore ' + s.id : 'Drop ' + s.id}
+                  title={inCut ? 'Drop this line from the clip' : 'Add this line to the clip'}
+                  aria-label={(inCut ? 'Drop ' : 'Add ') + s.id}
                 >
-                  {dropped ? '+' : '−'}
+                  {inCut ? '−' : '+'}
                 </button>
               )}
             </div>
