@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import type { Actor, Clip, ClipKind, Project, Range, Segment, Sentence } from '../types'
-import { indexOfSentenceId } from '../transcript/sentences'
+import type { Actor, Clip, ClipKind, Project, Range, Segment, Sentence } from '../types.ts'
+import { indexOfSentenceId } from '../transcript/sentences.ts'
 
 export interface ToolEvent {
   id: number
@@ -24,6 +24,13 @@ export interface EditorState {
   /** The human's anchor: the sentence they said has to survive. Theirs alone. */
   selection: Selection | null
   /**
+   * Ranges banked by cmd-clicking, so a human can assemble a clip out of moments
+   * that are nowhere near each other — the same collection-of-ranges shape the
+   * agent can already produce. `selection` is the range currently being worked
+   * on; `marks` are the ones already put aside.
+   */
+  marks: Segment[]
+  /**
    * A range the agent is auditioning. Deliberately separate from `selection` —
    * an agent trying out a range must not be able to overwrite the mark the
    * human made, because that mark is the brief.
@@ -45,6 +52,7 @@ const initial: EditorState = {
   clips: [],
   activeClipId: null,
   selection: null,
+  marks: [],
   audition: null,
   revision: 0,
   toolEvents: [],
@@ -404,10 +412,89 @@ export function setActiveClip(clipId: string | null) {
   set({ activeClipId: clipId })
 }
 
-export function setSelection(selection: Selection | null) {
-  // A human setting an anchor clears whatever the agent was auditioning; the
-  // two are alternative answers to "what are we looking at".
-  set({ selection, audition: null })
+/**
+ * A human setting an anchor clears whatever the agent was auditioning; the two
+ * are alternative answers to "what are we looking at". Marks default to empty
+ * because a plain click means "start again" — shift- and cmd-click pass the
+ * banked ranges back in to keep them.
+ */
+export function setSelection(selection: Selection | null, marks: Segment[] = []) {
+  set({ selection, audition: null, marks })
+}
+
+/**
+ * Shift-click and shift-arrow: move the live range's far edge, leaving banked
+ * marks alone.
+ *
+ * This reads `state` rather than taking the marks as an argument, which the
+ * caller would have to source from a React render — and a second click landing
+ * before that render would hand back a stale list and silently empty the bank.
+ */
+export function extendSelection(endSentenceId: string) {
+  const current = state.selection
+  if (!current) {
+    setSelection({ startSentenceId: endSentenceId, endSentenceId })
+    return
+  }
+  set({
+    selection: { startSentenceId: current.startSentenceId, endSentenceId },
+    audition: null,
+  })
+}
+
+/**
+ * Cmd-click: put the range being worked on aside and start another somewhere
+ * else. What comes back is a clip made of moments that never touched.
+ */
+export function markAndStartNew(sentenceId: string) {
+  const current = state.selection
+  const banked = current
+    ? [
+        ...state.marks,
+        { startSentenceId: current.startSentenceId, endSentenceId: current.endSentenceId },
+      ]
+    : state.marks
+  setSelection({ startSentenceId: sentenceId, endSentenceId: sentenceId }, banked)
+}
+
+/** Every sentence index the human has marked, banked ranges and current alike. */
+export function selectedIndices(): number[] {
+  const out: number[] = []
+  const add = (seg: Segment) => {
+    const r = resolveRange(seg.startSentenceId, seg.endSentenceId)
+    if ('error' in r) return
+    for (let i = r.start.index; i <= r.end.index; i++) out.push(i)
+  }
+  for (const m of state.marks) add(m)
+  if (state.selection) {
+    add({
+      startSentenceId: state.selection.startSentenceId,
+      endSentenceId: state.selection.endSentenceId,
+    })
+  }
+  return [...new Set(out)].sort((a, b) => a - b)
+}
+
+/** The marked ranges as clip segments — contiguous runs joined. */
+export function selectedSegments(): Segment[] {
+  return segmentsFromIndices(selectedIndices())
+}
+
+/** The marked ranges as playable second-ranges, so a collection can be auditioned. */
+export function selectedRanges(): Range[] {
+  const list = sentences()
+  const out: Range[] = []
+  for (const seg of selectedSegments()) {
+    const r = resolveRange(seg.startSentenceId, seg.endSentenceId)
+    if ('error' in r) continue
+    out.push({ start: list[r.start.index].start, end: list[r.end.index].end })
+  }
+  return out
+}
+
+/** Playing time of everything marked, so the UI can say what a clip would cost. */
+export function selectedDuration(): number {
+  return selectedRanges().reduce((total, r) => total + Math.max(0, r.end - r.start), 0)
 }
 
 export function setAudition(audition: Selection | null) {

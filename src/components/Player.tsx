@@ -10,6 +10,7 @@ import {
   getVideo,
 } from '../state/player'
 import { formatTimecode, formatDuration } from '../transcript/sentences'
+import { Sequence } from './Sequence'
 
 export function Player() {
   const project = useStore((s) => s.project)
@@ -161,6 +162,10 @@ export function Player() {
 
         <div className={styles.playhead} style={{ left: `${pct(time)}%` }} />
       </div>
+
+      {/* The strip above is the recording; this is the cut, with its gaps
+          closed. Two timelines for the two things you are holding at once. */}
+      <Sequence />
     </div>
   )
 }

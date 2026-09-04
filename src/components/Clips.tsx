@@ -394,6 +394,13 @@ function ClipCard({
                 <code>“cut this to 40 seconds”</code>
                 <code>“cut this, keep the part about …”</code>
               </>
+            ) : clip.segments.length > 1 ? (
+              // Once a clip has gaps, the useful ask changes: the agent can now
+              // read the cut back as it plays and hear its own joins.
+              <>
+                <code>“read this back and check the joins”</code>
+                <code>“put the last line back”</code>
+              </>
             ) : (
               <>
                 <code>“tighten this”</code>

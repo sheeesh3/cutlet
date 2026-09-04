@@ -28,8 +28,43 @@ several pieces with gaps, and playback jumps the gaps.
 through, with a control to put it back. Every kept one has a control to drop it.
 A gap slider adds breathing room at each cut.
 
+**Or assemble it yourself** → click a sentence, ⌘-click another anywhere else,
+and **Make a clip**. Ranges that never touched become one cut; ranges that end up
+adjacent merge into one. It is the same collection-of-ranges shape the agent
+produces, built by hand — and `get_editor_state` reports it, so the agent can
+work from what you marked.
+
 **Export** → each piece is encoded separately then joined, plus an `.srt` rebased
 across the whole cut.
+
+## Two transcripts, two timelines
+
+A cut is a list of segments. That tells you what survived; it does not tell you
+how the joins sound, and a cut lives or dies on its joins. So both parties get
+the edit twice — once as the recording, once as the thing that plays.
+
+|  | The source | The sequence |
+|---|---|---|
+| **The agent reads** | `read_transcript` — every sentence as spoken | `read_transcript scope: "clip"` — kept sentences only, each gap marked with what was dropped and how long it ran |
+| **You see** | the strip under the player: speech, clips, playhead, all against the full recording | the sequence timeline: pieces end to end with the gaps closed, in the time it actually plays for |
+
+The second one is what catches the classic failure. Cut a moment about space and
+keep the line after it, and the agent reads back:
+
+```
+— GAP — 2 sentences dropped (12s)
+s0007 [1:24] Its conquest deserves the best of all mankind…
+```
+
+*Its* conquest. The antecedent left with the gap. From a segment list that looks
+fine; read back as it plays, it is obviously broken.
+
+**The sequence timeline is read-only, on purpose.** Every boundary here is a
+sentence id, because an id means the same thing to both parties and a dragged
+pixel does not. Dragging an edge would mint a cut point with no id, and the agent
+would lose the vocabulary it needs to revise it. Click a piece to seek,
+double-click to play from there; the edit itself happens in the transcript, where
+the ids are.
 
 ## Anchor and expand
 
@@ -63,7 +98,9 @@ The page and the conversation are one interface, split by what each is good at.
 | Open a video and transcript | **Find clips** — how many, where, and why each works |
 | Play, pause, scrub, seek | **Cut a clip to length** — which lines survive |
 | Click a sentence to anchor it | Retitle it, or rewrite the reason |
-| **Click a clip to select it** | Revise it after you have edited it |
+| **⌘-click to mark another range** | Revise it after you have edited it |
+| **Make a clip** from what you marked | Check its own joins and fix them |
+| **Click a clip to select it** | |
 | Drop or restore a line, `−` / `+` | |
 | Nudge the in and out edges | |
 | Set the gap, delete, export | |
@@ -127,7 +164,7 @@ not discovered.
 | Tool | | What it is for |
 |---|---|---|
 | `get_editor_state` | read | Video, anchor, audition, every clip with its segments and revision. |
-| `read_transcript` | read | Sentences in full, or `detail: "skim"` for the whole recording at once. |
+| `read_transcript` | read | The recording, in full or `detail: "skim"`; or `scope: "clip"` for a cut as it plays, gaps marked. |
 | `search_transcript` | read | Find a moment in a long recording, with context around each hit. |
 | `get_guidelines` | read | The editorial rules: topics vs cuts, what makes a cut land. |
 | `create_clip` | write | One range for a topic, or a segment list for a cut. |
@@ -146,9 +183,10 @@ see that `s0014` was left out.
 ## Keyboard
 
 The transcript is a listbox with one tab stop. Arrows move the anchor a sentence
-at a time, shift-arrow extends it, Home and End jump to the ends, Enter plays
-what is anchored. Space plays and pauses, left and right scrub (hold shift for
-ten seconds), Escape drops the anchor.
+at a time, shift-arrow extends it, ⌘-click banks a range and starts another,
+Home and End jump to the ends, Enter plays what is anchored. Space plays and
+pauses, left and right scrub (hold shift for ten seconds), Escape drops the
+anchor.
 
 ## Scope, honestly
 

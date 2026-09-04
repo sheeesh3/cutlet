@@ -3,18 +3,26 @@ import styles from './Transcript.module.css'
 import {
   useStore,
   setSelection,
+  markAndStartNew,
+  extendSelection,
+  selectedSegments,
+  selectedRanges,
+  selectedDuration,
   createClip,
-  getState,
   clipSentenceIndices,
   removeSentence,
   addSentence,
   logTool,
 } from '../state/store'
-import { onTimeUpdate, seek, playSentenceRange } from '../state/player'
-import { formatTimecode } from '../transcript/sentences'
+import { onTimeUpdate, seek, playSentenceRange, playRanges } from '../state/player'
+import { formatTimecode, formatDuration } from '../transcript/sentences'
 import type { Actor, Sentence } from '../types'
 
 const NO_SENTENCES: Sentence[] = []
+
+/** Name the modifier the way the user's own keyboard does. */
+const CMD_KEY =
+  typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'
 
 /**
  * Scrolls a row into view, honouring the reduced-motion preference by jumping
@@ -42,6 +50,7 @@ export function Transcript() {
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
   const selection = useStore((s) => s.selection)
+  const marks = useStore((s) => s.marks)
   const audition = useStore((s) => s.audition)
 
   const [query, setQuery] = useState('')
@@ -114,6 +123,24 @@ export function Transcript() {
     return { a: Math.min(a, b), b: Math.max(a, b) }
   }, [selection, sentences])
 
+  /** Banked ranges, drawn like the live selection but without its edge handles. */
+  const markedSet = useMemo(() => {
+    const set = new Set<number>()
+    for (const m of marks) {
+      const a = sentences.findIndex((s) => s.id === m.startSentenceId)
+      const b = sentences.findIndex((s) => s.id === m.endSentenceId)
+      if (a < 0 || b < 0) continue
+      for (let i = Math.min(a, b); i <= Math.max(a, b); i++) set.add(i)
+    }
+    return set
+  }, [marks, sentences])
+
+  const marked = useMemo(
+    () => ({ segments: selectedSegments(), seconds: selectedDuration() }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selection, marks, sentences]
+  )
+
   const normalisedQuery = query.trim().toLowerCase()
   const terms = useMemo(
     () => normalisedQuery.split(/\s+/).filter(Boolean),
@@ -151,8 +178,18 @@ export function Transcript() {
 
   const onRowClick = (s: Sentence, e: React.MouseEvent) => {
     followRef.current = false
-    if (e.shiftKey && selection) {
-      setSelection({ startSentenceId: selection.startSentenceId, endSentenceId: s.id })
+    // Cmd/ctrl banks the range in hand and starts another one elsewhere, so a
+    // clip can be assembled out of moments that never touched.
+    // Both branches read live state inside the store rather than the `selection`
+    // this render closed over, so a second click arriving before React has
+    // re-rendered still sees what the first one did.
+    if (e.metaKey || e.ctrlKey) {
+      markAndStartNew(s.id)
+      seek(s.start)
+      return
+    }
+    if (e.shiftKey) {
+      extendSelection(s.id)
       return
     }
     setSelection({ startSentenceId: s.id, endSentenceId: s.id })
@@ -174,8 +211,8 @@ export function Transcript() {
       followRef.current = false
       const next = visible[Math.min(visible.length - 1, Math.max(0, cursor + delta))]
       if (!next) return
-      if (e.shiftKey && selection) {
-        setSelection({ startSentenceId: selection.startSentenceId, endSentenceId: next.id })
+      if (e.shiftKey) {
+        extendSelection(next.id)
       } else {
         setSelection({ startSentenceId: next.id, endSentenceId: next.id })
         seek(next.start)
@@ -194,12 +231,13 @@ export function Transcript() {
   }
 
   const makeClipFromSelection = () => {
-    const sel = getState().selection
-    if (!sel) return
-    createClip({
-      segments: [{ startSentenceId: sel.startSentenceId, endSentenceId: sel.endSentenceId }],
-      by: 'human',
-    })
+    const segments = selectedSegments()
+    if (!segments.length) return
+    // More than one run means the human assembled it out of separate moments,
+    // which is a cut by construction — the gaps between them are the edit.
+    const result = createClip({ segments, kind: segments.length > 1 ? 'cut' : 'topic', by: 'human' })
+    if ('error' in result) logTool('create_clip', result.error, false)
+    else setSelection(null)
   }
 
   /**
@@ -247,7 +285,8 @@ export function Transcript() {
 
         {visible.map((s) => {
           const i = s.index
-          const selected = selectedRange && i >= selectedRange.a && i <= selectedRange.b
+          const inLive = selectedRange && i >= selectedRange.a && i <= selectedRange.b
+          const selected = inLive || markedSet.has(i)
           const auditioning = auditionRange && i >= auditionRange.a && i <= auditionRange.b
           const dropped = droppedFromActive.has(i)
           const editable = !!activeClipId && (inActive.has(i) || dropped)
@@ -261,6 +300,7 @@ export function Transcript() {
             dropped && styles.dropped,
             auditioning && styles.audition,
             selected && styles.selected,
+            !inLive && markedSet.has(i) && styles.marked,
             i === playingIndex && styles.playing,
           ]
             .filter(Boolean)
@@ -304,16 +344,27 @@ export function Transcript() {
 
       {selection && (
         <div className={styles.anchorBar}>
-          <span className={styles.anchorLabel}>Anchored on</span>
+          <span className={styles.anchorLabel}>
+            {marked.segments.length > 1 ? 'Marked' : 'Anchored on'}
+          </span>
+          {/* Read off the merged segments, not the live range — cmd-clicking a
+              sentence next to an existing mark makes one longer range, and the
+              bar has to say the range that would actually be made. */}
           <span className={styles.anchorIds}>
-            {selection.startSentenceId}
-            {selection.endSentenceId !== selection.startSentenceId && `–${selection.endSentenceId}`}
+            {marked.segments.length > 1
+              ? `${marked.segments.length} ranges · ${formatDuration(marked.seconds)}`
+              : marked.segments.length === 1
+                ? marked.segments[0].startSentenceId +
+                  (marked.segments[0].endSentenceId !== marked.segments[0].startSentenceId
+                    ? `–${marked.segments[0].endSentenceId}`
+                    : '')
+                : selection.startSentenceId}
           </span>
           <span className={styles.spacer} />
-          <button
-            className={styles.btn}
-            onClick={() => playSentenceRange(selection.startSentenceId, selection.endSentenceId)}
-          >
+          {/* The gesture is not discoverable, so the bar says it out loud the
+              moment there is a selection to extend. */}
+          <span className={styles.hint}>{CMD_KEY}-click to add another</span>
+          <button className={styles.btn} onClick={() => playRanges(selectedRanges())}>
             Play
           </button>
           <button className={styles.btn} onClick={() => setSelection(null)}>

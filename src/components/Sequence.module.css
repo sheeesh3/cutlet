@@ -1,0 +1,134 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: none;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex: none;
+}
+
+.name {
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  flex: none;
+}
+
+/* The pieces sit end to end with the gaps closed — that is the whole point of
+   this timeline as against the source strip above it. The seam between two
+   blocks is a cut. */
+.track {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  padding: 3px;
+  overflow: hidden;
+}
+
+.piece {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  transition: filter 120ms ease;
+}
+
+.piece:hover {
+  filter: brightness(1.12);
+}
+
+.agent {
+  background: rgba(127, 179, 200, 0.22);
+  border: 1px solid var(--agent);
+}
+
+.human {
+  background: var(--human-wash);
+  border: 1px solid var(--human);
+}
+
+.pieceIds {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pieceDur {
+  color: var(--text-dim);
+  flex: none;
+}
+
+/* Below a certain width there is no room for both, and the duration is the
+   one you can get from the header. */
+.piece:not(:hover) .pieceDur {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .piece .pieceDur {
+    display: inline;
+  }
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Explains the timeline the first time you meet it. In a short window the
+   timeline itself is worth more than the sentence describing it. */
+.note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+
+@media (max-height: 700px) {
+  .note {
+    display: none;
+  }
+}

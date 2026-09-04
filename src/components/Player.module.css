@@ -4,6 +4,12 @@
   min-height: 0;
   height: 100%;
   gap: 12px;
+  /* The sequence timeline appears only once a clip exists, so this column can
+     grow after first paint. In a short window that pushed it past the grid row
+     and it painted over the panes below; scrolling is the one outcome that
+     cannot overlap. */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .stage {

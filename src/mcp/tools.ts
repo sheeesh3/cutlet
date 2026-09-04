@@ -12,6 +12,8 @@ import {
   clipText,
   clipSentenceIndices,
   segmentsFromIndices,
+  selectedSegments,
+  selectedDuration,
   createClip,
   updateClip,
   removeSentence,
@@ -147,6 +149,9 @@ const getEditorState: ToolDescriptor = {
             })(),
           }
         : null,
+      // What the human marked, as clip segments. When there is more than one
+      // they have assembled a collection by hand, and that is a brief.
+      markedSegments: selectedSegments(),
       audition: s.audition,
       activeClipId: s.activeClipId,
       clips: s.clips.map(clipView),
@@ -168,10 +173,19 @@ const getEditorState: ToolDescriptor = {
             formatDuration(clipDuration(active)) + ', revision ' + active.revision +
             ') — this is what the user means by "this clip" or "it".'
           : ' No clip is selected.') +
-        (s.selection
-          ? ' The user has anchored ' + s.selection.startSentenceId + '-' +
-            s.selection.endSentenceId + ' — that sentence has to survive whatever you propose.'
-          : '')
+        (() => {
+          const marked = selectedSegments()
+          if (marked.length > 1) {
+            return ' The user has marked ' + marked.length + ' separate ranges (' +
+              marked.map((m) => m.startSentenceId + '-' + m.endSentenceId).join(', ') +
+              ', ' + formatDuration(selectedDuration()) +
+              ') — they chose those moments deliberately. Build from them, and keep all of them.'
+          }
+          return s.selection
+            ? ' The user has anchored ' + s.selection.startSentenceId + '-' +
+              s.selection.endSentenceId + ' — that sentence has to survive whatever you propose.'
+            : ''
+        })()
       : 'No project loaded.'
     logTool('get_editor_state', summary)
     return ok(summary + '\n' + JSON.stringify(payload, null, 2), payload)
@@ -179,6 +193,98 @@ const getEditorState: ToolDescriptor = {
 }
 
 // -------------------------------------------------------- 2. read window
+
+/**
+ * The second transcript: a cut as it actually plays, rather than as it is
+ * stored. A segment list says what survived; it does not say how the joins
+ * sound, and a cut lives or dies on its joins. Marking each gap with what was
+ * dropped is what lets an agent notice that it cut away the antecedent of the
+ * sentence it kept.
+ */
+function readClipTranscript(rawClipId: unknown) {
+  const s = getState()
+  const clipId = typeof rawClipId === 'string' && rawClipId ? rawClipId : s.activeClipId
+  if (!clipId) {
+    return fail(
+      'No clip is selected, so there is no cut to read. Pass clipId, or ask the ' +
+        'user to click a clip. To read the recording itself use scope "source".'
+    )
+  }
+  const clip = s.clips.find((c) => c.id === clipId)
+  if (!clip) return fail('No clip with id "' + clipId + '".')
+
+  const list = sentences()
+  const lines: string[] = []
+  const pieces: { startSentenceId: string; endSentenceId: string; sentences: unknown[] }[] = []
+  const gaps: {
+    afterSentenceId: string
+    beforeSentenceId: string
+    droppedSentences: number
+    droppedSentenceIds: string[]
+    seconds: number
+  }[] = []
+
+  clip.segments.forEach((seg, i) => {
+    const r = resolveRange(seg.startSentenceId, seg.endSentenceId)
+    if ('error' in r) return
+
+    if (i > 0) {
+      const previous = clip.segments[i - 1]
+      const p = resolveRange(previous.startSentenceId, previous.endSentenceId)
+      if (!('error' in p)) {
+        const droppedIds: string[] = []
+        for (let j = p.end.index + 1; j < r.start.index; j++) droppedIds.push(list[j].id)
+        const seconds = round(Math.max(0, r.start.start - p.end.end))
+        gaps.push({
+          afterSentenceId: p.end.id,
+          beforeSentenceId: r.start.id,
+          droppedSentences: droppedIds.length,
+          droppedSentenceIds: droppedIds,
+          seconds,
+        })
+        lines.push(
+          '— GAP — ' + droppedIds.length +
+            (droppedIds.length === 1 ? ' sentence dropped (' : ' sentences dropped (') +
+            formatDuration(seconds) + ')'
+        )
+      }
+    }
+
+    const views = []
+    for (let j = r.start.index; j <= r.end.index; j++) {
+      views.push(sentenceView(j))
+      lines.push(list[j].id + ' [' + formatTimecode(list[j].start) + '] ' + list[j].text)
+    }
+    pieces.push({
+      startSentenceId: seg.startSentenceId,
+      endSentenceId: seg.endSentenceId,
+      sentences: views,
+    })
+  })
+
+  const kept = clipSentenceIndices(clip).length
+  const summary =
+    'Clip ' + clip.id + ' "' + clip.title + '" as it plays — ' + clip.kind + ', ' +
+    pieces.length + (pieces.length === 1 ? ' piece, ' : ' pieces, ') +
+    formatDuration(clipDuration(clip)) + ', ' + kept +
+    (kept === 1 ? ' sentence' : ' sentences') + ' kept, revision ' + clip.revision + '.' +
+    (gaps.length
+      ? ' Each — GAP — is a cut; check the sentence after it still makes sense on its own.'
+      : ' No cuts yet — this is one unbroken run.')
+
+  logTool('read_transcript', summary)
+  return ok(summary + '\n\n' + lines.join('\n'), {
+    scope: 'clip',
+    clipId: clip.id,
+    title: clip.title,
+    kind: clip.kind,
+    revision: clip.revision,
+    durationSeconds: round(clipDuration(clip)),
+    keptSentences: kept,
+    pieces,
+    gaps,
+  })
+}
 
 const readTranscript: ToolDescriptor = {
   name: 'read_transcript',
@@ -190,11 +296,31 @@ const readTranscript: ToolDescriptor = {
     'detail "skim": it returns every sentence shortened to a few words, so a whole ' +
     'recording arrives in one result and you can see its shape. Then read the ' +
     'stretches that look promising with detail "full" before you commit to any ' +
-    'boundary.',
+    'boundary.\n\n' +
+    'There are two transcripts here. scope "source" (default) is the whole ' +
+    'recording as spoken — that is where you find clips. scope "clip" is one cut ' +
+    'as it actually plays: only the sentences it kept, in play order, with each ' +
+    'gap marked where material was dropped. Read that before you judge or revise ' +
+    'a cut — the segment list tells you what survived, but only this tells you ' +
+    'how the joins sound.',
   annotations: { readOnlyHint: true, title: 'Read transcript' },
   inputSchema: {
     type: 'object',
     properties: {
+      scope: {
+        type: 'string',
+        enum: ['source', 'clip'],
+        description:
+          'source (default) reads the whole recording as spoken. clip reads one cut ' +
+          'as it plays — kept sentences only, gaps marked. Use clip to hear an edit ' +
+          'before revising it.',
+      },
+      clipId: {
+        type: 'string',
+        description:
+          'Which clip to read when scope is "clip". Defaults to the selected clip, ' +
+          'which is what the user means by "this".',
+      },
       detail: {
         type: 'string',
         enum: ['full', 'skim'],
@@ -229,6 +355,8 @@ const readTranscript: ToolDescriptor = {
     if (missing) return fail(missing)
     const list = sentences()
     const skim = args.detail === 'skim'
+
+    if (args.scope === 'clip') return readClipTranscript(args.clipId)
 
     const requested = typeof args.startSentenceId === 'string' ? args.startSentenceId : null
     let from = 0
@@ -418,6 +546,10 @@ How cuts work here
 - A sentence that opens on "but", "so", "they", "it" or "that" is nonsense once
   the thing it refers to has been cut. Either keep the sentence before it or
   choose a different one.
+- Read your own cut back. read_transcript with scope "clip" returns it as it
+  plays, gaps and all — that is the only way to hear a join. Do it after every
+  cut, and before revising one, because a cut that looks right as a list of
+  segments can still open a sentence on a "they" whose antecedent you dropped.
 
 Length
 
@@ -690,7 +822,10 @@ const cutClip: ToolDescriptor = {
     const summary =
       'Cut ' + updated.id + ' to ' + formatDuration(view.durationSeconds) +
       ' — ' + view.segmentCount + ' segment(s), ' + view.droppedSentences +
-      ' sentence(s) dropped (revision ' + updated.revision + ').'
+      ' sentence(s) dropped (revision ' + updated.revision + ').' +
+      (view.segmentCount > 1
+        ? ' Now read it back with read_transcript scope "clip" to hear the joins.'
+        : '')
     logTool('cut_clip', summary)
     return ok(summary + '\n' + view.text, view)
   },
