@@ -216,9 +216,13 @@ see that `s0014` was left out.
 
 The transcript is a listbox with one tab stop. Arrows move the anchor a sentence
 at a time, shift-arrow extends it, ⌘-click banks a range and starts another,
-Home and End jump to the ends, Enter plays what is anchored. Space plays and
-pauses, left and right scrub (hold shift for ten seconds), Escape drops the
-anchor.
+Home and End jump to the ends, Enter plays what is anchored. Space and K play
+and pause, J and L jump five seconds back and forward, left and right scrub
+(hold shift for ten seconds), Escape drops the anchor.
+
+The page has two themes. The warm dark one is the default, because the video
+should be the brightest thing on screen; the sun in the header switches to a
+light one, and the choice is remembered in the browser.
 
 ## Scope, honestly
 

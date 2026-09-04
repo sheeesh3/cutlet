@@ -1,37 +1,90 @@
 :root {
   /* Warm near-black. The video is the brightest thing on screen; everything
      else recedes. */
-  --bg: #141210;
+  --bg: #121110;
+  --bg-panel: #161412;
+  --bg-bar: #1a1816;
   --bg-raised: #1c1917;
   --bg-sunken: #0e0d0b;
   --bg-hover: #24211e;
-  --line: #2e2a26;
+  --line: #2b2723;
+  --line-soft: #1f1c19;
   --line-strong: #3d3833;
 
-  --text: #f0ebe4;
+  --text: #ece7e0;
+  --text-body: #d3ccc3;
   --text-dim: #a89f94;
   --text-faint: #746c63;
 
   /* One accent, used for the human's mark: selection, playhead, focus. */
   --accent: #e8a33d;
-  --accent-dim: #8a6425;
-  --accent-wash: rgba(232, 163, 61, 0.14);
+  --accent-hover: #f0b055;
   --accent-text: #1a1512;
+  /* The accent as ink rather than paint — the same colour on dark, a darker
+     cut of it on light, where amber on white would not read. */
+  --accent-ink: #e8a33d;
 
   /* The agent's colour is deliberately quieter than the human's. */
   --agent: #7fb3c8;
-  --agent-wash: rgba(127, 179, 200, 0.13);
+  --agent-ink: #7fb3c8;
 
   --danger: #d97362;
 
-  --radius: 8px;
-  --radius-sm: 5px;
+  /* Washes and rings derive from the two colours, so a theme only has to
+     change the colours. */
+  --accent-wash: color-mix(in srgb, var(--accent) 13%, transparent);
+  --accent-wash-strong: color-mix(in srgb, var(--accent) 22%, transparent);
+  --accent-ring: color-mix(in srgb, var(--accent) 45%, transparent);
+  --agent-wash: color-mix(in srgb, var(--agent) 12%, transparent);
+  --agent-wash-strong: color-mix(in srgb, var(--agent) 24%, transparent);
+  --agent-ring: color-mix(in srgb, var(--agent) 45%, transparent);
 
-  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter,
-    system-ui, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
-
+  /* The talking, drawn on the source lane. */
+  --speech: #3d3833;
+  /* A label sitting on the video — the video is dark whatever the theme. */
+  --overlay: rgba(12, 11, 10, 0.8);
+  --backdrop: rgba(8, 7, 6, 0.72);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
 
+  --radius: 6px;
+  --radius-sm: 4px;
+
+  --font: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
   color-scheme: dark;
+}
+
+/* Warm paper. Same structure, same two colours doing the same two jobs. */
+:root[data-theme='light'] {
+  --bg: #f3eee6;
+  --bg-panel: #f8f4ee;
+  --bg-bar: #fffdf9;
+  --bg-raised: #fffdf9;
+  --bg-sunken: #e9e3d9;
+  --bg-hover: #ebe5db;
+  --line: #e1dacd;
+  --line-soft: #ebe5db;
+  --line-strong: #cbc2b4;
+
+  --text: #1c1917;
+  --text-body: #3a3430;
+  --text-dim: #6f665d;
+  --text-faint: #a39a90;
+
+  --accent: #d9902a;
+  --accent-hover: #c98220;
+  --accent-text: #1c1917;
+  --accent-ink: #a8681a;
+
+  --agent: #3f7f99;
+  --agent-ink: #34708a;
+
+  --danger: #c2503d;
+
+  --speech: #cfc6b8;
+  --backdrop: rgba(60, 52, 44, 0.45);
+  --shadow: 0 1px 2px rgba(28, 25, 23, 0.06), 0 8px 24px rgba(28, 25, 23, 0.1);
+
+  color-scheme: light;
 }

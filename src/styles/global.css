@@ -15,7 +15,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -25,7 +25,12 @@ button {
   color: inherit;
   background: none;
   border: none;
+  padding: 0;
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
 }
 
 :focus-visible {
@@ -35,7 +40,7 @@ button {
 }
 
 ::selection {
-  background: var(--accent-wash);
+  background: var(--accent-wash-strong);
 }
 
 /* A quiet scrollbar so the panes read as one surface. */

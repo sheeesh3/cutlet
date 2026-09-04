@@ -1,23 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './Player.module.css'
-import { useStore, clipRanges, clipDuration, sentenceById } from '../state/store'
-import {
-  attachVideo,
-  onTimeUpdate,
-  onQueueChange,
-  toggle,
-  seek,
-  getVideo,
-} from '../state/player'
-import { formatTimecode, formatDuration } from '../transcript/sentences'
-import { Sequence } from './Sequence'
+import { useStore, clipRanges, clipDuration } from '../state/store'
+import { attachVideo, onTimeUpdate, onQueueChange, toggle, getVideo, cutTimeOf } from '../state/player'
+import { formatTimecode } from '../transcript/sentences'
 
 export function Player() {
   const project = useStore((s) => s.project)
   const clips = useStore((s) => s.clips)
   const activeClipId = useStore((s) => s.activeClipId)
-  const selection = useStore((s) => s.selection)
-  const audition = useStore((s) => s.audition)
 
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [time, setTime] = useState(0)
@@ -33,25 +23,10 @@ export function Player() {
   useEffect(() => onQueueChange((index, total) => setPiece({ index, total })), [])
 
   const duration = project?.duration ?? 0
-  const pct = (t: number) => (duration > 0 ? (t / duration) * 100 : 0)
-
   const activeClip = clips.find((c) => c.id === activeClipId) ?? null
-  const boundsOf = (range: { startSentenceId: string; endSentenceId: string } | null) => {
-    if (!range) return null
-    const a = sentenceById(range.startSentenceId)
-    const b = sentenceById(range.endSentenceId)
-    if (!a || !b) return null
-    return { start: a.start, end: b.end }
-  }
-  const selectionBounds = boundsOf(selection)
-  const auditionBounds = boundsOf(audition)
-
-  const scrubTo = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!duration) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
-    seek(ratio * duration)
-  }
+  const cutTime = activeClip ? cutTimeOf(time, clipRanges(activeClip)) : null
+  const inId = activeClip?.segments[0]?.startSentenceId
+  const outId = activeClip?.segments[activeClip.segments.length - 1]?.endSentenceId
 
   return (
     <div className={styles.wrap}>
@@ -72,16 +47,22 @@ export function Player() {
           <div className={styles.empty}>No video loaded</div>
         )}
 
+        {/* Where the playhead is in the cut's own time, when it is inside the
+            cut at all. Outside it, the clip is still named — you are looking
+            at material it threw away. */}
         {activeClip && (
-          <div className={styles.rangeBadge}>
-            <span className={styles.rangeDot} />
-            <span className={styles.rangeName}>{activeClip.title}</span>
-            <span>{formatDuration(clipDuration(activeClip))}</span>
+          <div className={styles.badge}>
+            <span className={styles.badgeDot} />
+            <span className={styles.badgeName}>{activeClip.title}</span>
             {piece.total > 1 && (
-              <span className={styles.piece}>
+              <span>
                 piece {piece.index + 1}/{piece.total}
               </span>
             )}
+            <span>
+              {cutTime !== null ? `${formatTimecode(cutTime)} / ` : ''}
+              {formatTimecode(clipDuration(activeClip))}
+            </span>
           </div>
         )}
       </div>
@@ -89,83 +70,47 @@ export function Player() {
       <div className={styles.transport}>
         <button className={styles.play} onClick={toggle} aria-label={paused ? 'Play' : 'Pause'}>
           {paused ? (
-            <svg width="12" height="13" viewBox="0 0 12 13" fill="currentColor">
+            <svg width="12" height="13" viewBox="0 0 12 13" fill="currentColor" aria-hidden="true">
               <path d="M2 1.5v10l9-5z" />
             </svg>
           ) : (
-            <svg width="11" height="12" viewBox="0 0 11 12" fill="currentColor">
+            <svg width="11" height="12" viewBox="0 0 11 12" fill="currentColor" aria-hidden="true">
               <rect x="1" y="1" width="3" height="10" rx="1" />
               <rect x="7" y="1" width="3" height="10" rx="1" />
             </svg>
           )}
         </button>
         <span className={styles.time}>
-          <span className={styles.timeNow}>{formatTimecode(time)}</span>
+          <span className={styles.timeNow}>{formatClock(time)}</span>
           {' / '}
-          {formatTimecode(duration)}
+          {formatClock(duration)}
         </span>
         <span className={styles.spacer} />
-        <span className={styles.hint}>Space to play · click a sentence to seek</span>
+        {/* The clip's edges, named the way the agent names them. */}
+        {activeClip && inId && outId && (
+          <span className={styles.inOut}>
+            In <code>{inId}</code> · Out <code>{outId}</code>
+          </span>
+        )}
+        <span className={styles.keys} aria-hidden="true">
+          <kbd title="Back five seconds">J</kbd>
+          <kbd title="Play or pause">K</kbd>
+          <kbd title="Forward five seconds">L</kbd>
+          <span className={styles.keyGap} />
+          <kbd title="Play or pause">Space</kbd>
+        </span>
       </div>
-
-      <div className={styles.strip} onClick={scrubTo} role="presentation">
-        {/* One block per sentence, so the strip shows where the talking is
-            rather than a flat rule that says nothing. */}
-        {(project?.sentences ?? []).map((s) => (
-          <div
-            key={s.id}
-            className={styles.speech}
-            style={{ left: `${pct(s.start)}%`, width: `${Math.max(0.15, pct(s.end - s.start))}%` }}
-          />
-        ))}
-
-        {/* One band per kept piece, so the gaps a cut leaves are visible on the
-            strip rather than implied by a single span. */}
-        {clips.flatMap((clip) =>
-          clipRanges(clip).map((r, i) => (
-            <div
-              key={clip.id + ':' + i}
-              className={[
-                styles.clipBand,
-                clip.id === activeClipId &&
-                  (clip.lastEditedBy === 'human'
-                    ? styles.clipBandActiveHuman
-                    : styles.clipBandActiveAgent),
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              style={{ left: `${pct(r.start)}%`, width: `${Math.max(0.4, pct(r.end - r.start))}%` }}
-              title={`${clip.id} · ${clip.title}`}
-            />
-          ))
-        )}
-
-        {auditionBounds && (
-          <div
-            className={styles.auditionBand}
-            style={{
-              left: `${pct(auditionBounds.start)}%`,
-              width: `${Math.max(0.3, pct(auditionBounds.end - auditionBounds.start))}%`,
-            }}
-          />
-        )}
-
-        {selectionBounds && (
-          <div
-            className={styles.selectionBand}
-            style={{
-              left: `${pct(selectionBounds.start)}%`,
-              width: `${Math.max(0.3, pct(selectionBounds.end - selectionBounds.start))}%`,
-            }}
-          />
-        )}
-
-        <div className={styles.playhead} style={{ left: `${pct(time)}%` }} />
-      </div>
-
-      {/* The strip above is the recording; this is the cut, with its gaps
-          closed. Two timelines for the two things you are holding at once. */}
-      <Sequence />
     </div>
   )
+}
+
+/** mm:ss.t — tenths, because a sentence boundary is finer than a second. */
+function formatClock(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) seconds = 0
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  const t = Math.floor((seconds % 1) * 10)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${h > 0 ? h + ':' : ''}${pad(m)}:${pad(s)}.${t}`
 }

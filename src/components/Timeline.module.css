@@ -1,0 +1,269 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  padding: 10px 16px 10px 0;
+}
+
+/* ---- ruler ---- */
+
+.ruler {
+  position: relative;
+  height: 22px;
+  margin-left: 72px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 4px;
+  background: var(--line-strong);
+}
+
+.tickMajor {
+  height: 8px;
+}
+
+.tickLabel {
+  position: absolute;
+  top: 0;
+  transform: translateX(4px);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- lanes ---- */
+
+.lane {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  height: 60px;
+  flex: none;
+}
+
+.gutter {
+  padding: 6px 0 0 16px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.gutterMeta {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  position: relative;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.trackEmpty {
+  cursor: default;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 11.5px;
+  color: var(--text-faint);
+  border-style: dashed;
+}
+
+/* ---- source lane ---- */
+
+.speech {
+  position: absolute;
+  top: 50%;
+  height: 3px;
+  margin-top: -1.5px;
+  background: var(--speech);
+  border-radius: 2px;
+  /* Sentences butt up against each other; a hairline gap keeps them countable. */
+  box-shadow: inset -1px 0 0 var(--bg-sunken);
+}
+
+.band {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  border-radius: 3px;
+  background: var(--agent-wash);
+  border: 1px solid var(--agent-ring);
+}
+
+/* The band on screen carries the colour of whoever last touched that clip. */
+.bandActiveAgent {
+  background: var(--agent-wash-strong);
+  border-color: var(--agent);
+}
+
+.bandActiveHuman {
+  background: var(--accent-wash-strong);
+  border-color: var(--accent);
+}
+
+.selectionBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent-wash);
+  border-left: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
+}
+
+.auditionBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--agent-wash);
+  border-left: 1px dashed var(--agent);
+  border-right: 1px dashed var(--agent);
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--accent);
+  pointer-events: none;
+  box-shadow: 0 0 8px var(--accent-ring);
+  z-index: 2;
+}
+
+/* ---- sequence lane ---- */
+
+/* The pieces sit end to end with the gaps closed — that is the whole point of
+   this lane as against the source lane above it. The seam between two blocks
+   is a cut. */
+.seqTrack {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  cursor: default;
+}
+
+.piece {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 11px;
+  transition: filter 120ms ease;
+}
+
+.piece:hover {
+  filter: brightness(1.1);
+}
+
+.pieceAgent {
+  background: var(--agent-wash-strong);
+  border: 1px solid var(--agent);
+}
+
+.pieceHuman {
+  background: var(--accent-wash-strong);
+  border: 1px solid var(--accent);
+}
+
+.pieceIds {
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pieceDur {
+  color: var(--text-dim);
+  flex: none;
+}
+
+.pieceSpacer {
+  flex: 1;
+}
+
+.pieceTools {
+  display: flex;
+  gap: 3px;
+  flex: none;
+}
+
+.pieceBtn {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  color: var(--text-dim);
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  line-height: 1;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pieceBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text) 18%, transparent);
+  color: var(--text);
+}
+
+.pieceBtn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.pieceBtn:disabled {
+  opacity: 0.28;
+}
+
+.pieceDrop:hover:not(:disabled) {
+  color: var(--danger);
+}
+
+/* Explains the lane the first time you meet it. In a short window the lane
+   itself is worth more than the sentence describing it. */
+.note {
+  margin-left: 72px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reordered {
+  color: var(--accent-ink);
+  font-weight: 500;
+}
+
+@media (max-height: 760px) {
+  .note {
+    display: none;
+  }
+}

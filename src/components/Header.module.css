@@ -2,21 +2,15 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 16px;
-  height: 52px;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--bg-bar);
   border-bottom: 1px solid var(--line);
-  background: var(--bg-raised);
   flex: none;
 }
 
-.brand {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
 .name {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -25,42 +19,142 @@
   color: var(--accent);
 }
 
-.project {
+/* Replaces the static project name once there is more than one recording. */
+.pick {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.library {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 28px;
+  padding: 0 28px 0 10px;
+  font: inherit;
   font-size: 12.5px;
-  color: var(--text-dim);
-  padding-left: 12px;
-  border-left: 1px solid var(--line);
+  color: var(--text-body);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  max-width: 380px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 40ch;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.library:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.chev {
+  position: absolute;
+  right: 9px;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.project {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12.5px;
+  color: var(--text-body);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 44ch;
 }
 
 .spacer {
   flex: 1;
 }
 
-.pill {
-  display: flex;
+.icon,
+.activity {
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition:
+    color 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease,
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.icon:hover,
+.activity:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--bg-hover);
+}
+
+.icon:active,
+.activity:active {
+  transform: scale(0.96);
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+/* Sits beside the tools pill because both are about the agent: one is what the
+   page offers, the other is what the agent did with it. */
+.activity {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 7px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  flex: none;
+}
+
+.activityCount {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--agent-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
   font-size: 11.5px;
   color: var(--text-dim);
-  cursor: pointer;
-  transition: border-color 0.12s ease;
+  flex: none;
+  transition: border-color 120ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .pill:hover {
   border-color: var(--text-faint);
 }
 
+.pill:active {
+  transform: scale(0.97);
+}
+
 .pillLive {
-  border-color: rgba(127, 179, 200, 0.4);
+  border-color: var(--agent-ring);
   background: var(--agent-wash);
-  color: var(--agent);
+  color: var(--agent-ink);
 }
 
 .statusDot {
@@ -73,99 +167,40 @@
 
 .statusDotLive {
   background: var(--agent);
-  box-shadow: 0 0 0 3px rgba(127, 179, 200, 0.18);
+  box-shadow: 0 0 0 3px var(--agent-wash-strong);
 }
 
-.btn {
-  padding: 5px 11px;
-  font-size: 12.5px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line-strong);
-  color: var(--text-dim);
-  transition: all 0.1s ease;
-}
+/* ---- status bar ---- */
 
-.btn:hover {
-  color: var(--text);
-  border-color: var(--text-faint);
-  background: var(--bg-hover);
-}
-
-.hidden {
-  display: none;
-}
-
-/* ---- privacy / about strip ---- */
-
-.footnote {
+.status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 16px;
-  font-size: 11.5px;
+  gap: 16px;
+  height: 24px;
+  padding: 0 14px;
+  font-family: var(--mono);
+  font-size: 10.5px;
   color: var(--text-faint);
+  background: var(--bg-bar);
   border-top: 1px solid var(--line);
-  background: var(--bg-raised);
   flex: none;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.footnote strong {
-  color: var(--text-dim);
-  font-weight: 500;
-}
-
-.footLink {
-  color: var(--text-faint);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.footLink:hover {
-  color: var(--text-dim);
-}
-
-/* Sits beside the tools pill because both are about the agent: one is what the
-   page offers, the other is what the agent did with it. */
-.activity {
+.statusItem {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
-  font-size: 12px;
-  color: var(--text-dim);
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  cursor: pointer;
-  flex: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.activity:hover {
-  color: var(--text);
-  border-color: var(--line-strong, var(--line));
-}
-
-.activityCount {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--agent);
-  background: rgba(127, 179, 200, 0.16);
-  border-radius: 999px;
-  padding: 1px 6px;
-}
-
-/* Replaces the static project name once there is more than one recording. */
-.library {
-  padding: 5px 9px;
-  font-size: 12.5px;
-  background: var(--bg-sunken);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  color: var(--text-dim);
-  cursor: pointer;
-  max-width: 320px;
-}
-
-.library:hover {
-  color: var(--text);
+/* The precise half of the claim goes first when the bar runs out of room —
+   the headline is what has to survive. */
+@media (max-width: 1100px) {
+  .statusDetail {
+    display: none;
+  }
 }

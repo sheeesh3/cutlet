@@ -1,30 +1,16 @@
 .pane {
   display: flex;
   flex-direction: column;
-  min-height: 0;
   height: 100%;
-  gap: 12px;
-}
-
-.card {
-  background: var(--bg-raised);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
   min-height: 0;
-  overflow: hidden;
-}
-
-.clipsCard {
-  flex: 1;
 }
 
 .head {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 13px;
+  height: 32px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--line);
   flex: none;
 }
@@ -36,7 +22,8 @@
 }
 
 .count {
-  font-size: 11.5px;
+  font-family: var(--mono);
+  font-size: 11px;
   color: var(--text-faint);
   font-variant-numeric: tabular-nums;
 }
@@ -49,71 +36,138 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 8px;
 }
 
-.empty {
-  padding: 22px 14px;
+.listEmpty {
+  padding: 14px 12px;
+  font-size: 12px;
   color: var(--text-faint);
-  font-size: 12.5px;
-  line-height: 1.6;
 }
 
-.clip {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 10px 11px;
-  margin-bottom: 8px;
-  background: var(--bg-sunken);
+/* ---- the list ---- */
+
+.row {
+  display: grid;
+  grid-template-columns: 3px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+  height: 56px;
+  padding: 0 12px 0 10px;
+  border-bottom: 1px solid var(--line-soft);
   cursor: pointer;
-  transition: border-color 0.12s ease, background 0.12s ease;
+  transition: background 120ms ease;
 }
 
-.clip:hover {
-  border-color: var(--line-strong);
+.row:hover {
+  background: var(--bg-hover);
 }
 
-.clipActive {
-  border-color: var(--accent);
+.rowActive,
+.rowActive:hover {
   background: var(--accent-wash);
 }
 
-.clipTop {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
-  margin-bottom: 3px;
+.rowBar {
+  height: 28px;
+  border-radius: 2px;
+  background: var(--line-strong);
 }
 
-.clipTitle {
+.bar_agent {
+  background: var(--agent);
+}
+
+.bar_human {
+  background: var(--accent);
+}
+
+.bar_auto {
+  background: var(--line-strong);
+}
+
+.rowMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rowTitle {
   font-size: 13px;
   font-weight: 500;
   color: var(--text);
-  flex: 1;
-  min-width: 0;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.badge {
+.rowMeta {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- provenance ---- */
+
+.who {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex: none;
+}
+
+.who_agent {
+  color: var(--agent-ink);
+}
+
+.who_human {
+  color: var(--accent-ink);
+}
+
+/* The page's own pass. Deliberately the quietest of the three — it is the one
+   whose judgement you should trust least. */
+.who_auto {
+  color: var(--text-faint);
+}
+
+.kindTag {
   font-size: 9.5px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 2px 5px;
+  color: var(--text-faint);
+  border: 1px solid var(--line);
   border-radius: 3px;
-  flex: none;
+  padding: 1px 5px;
+}
+
+/* ---- the inspector ---- */
+
+.inspectorBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 12px 12px;
+}
+
+.hint {
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailTitle {
+  font-size: 13.5px;
   font-weight: 600;
-}
-
-.badgeAgent {
-  background: var(--agent-wash);
-  color: var(--agent);
-}
-
-.badgeHuman {
-  background: var(--accent-wash);
-  color: var(--accent);
+  color: var(--text);
+  line-height: 1.35;
 }
 
 .meta {
@@ -122,28 +176,60 @@
   color: var(--text-faint);
   display: flex;
   gap: 8px;
-  margin-bottom: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.strong {
+  color: var(--text);
+}
+
+/* ---- the cut, drawn against its own span ---- */
+
+.segmentBar {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.segmentPiece {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+.segmentPieceAgent {
+  background: var(--agent);
 }
 
 .note {
   font-size: 12px;
   color: var(--text-dim);
   line-height: 1.5;
-  margin-bottom: 7px;
-  font-style: italic;
+  margin-bottom: 6px;
 }
 
 .excerpt {
-  font-size: 12px;
-  color: var(--text-dim);
+  font-size: 11.5px;
+  color: var(--text-faint);
   line-height: 1.5;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ---- edges and gap ---- */
 
 .edges {
   display: flex;
@@ -156,34 +242,32 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 2px;
+  padding: 2px 2px 2px 8px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
 }
 
 .edgeLabel {
   font-size: 10px;
   color: var(--text-faint);
-  padding: 0 4px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  margin-right: 4px;
 }
 
 .nudge {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 3px;
   display: grid;
   place-items: center;
   color: var(--text-dim);
   font-size: 12px;
   line-height: 1;
-  transition: background 120ms ease, color 120ms ease,
+  transition:
+    background 120ms ease,
+    color 120ms ease,
     transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.nudge:active:not(:disabled) {
-  transform: scale(0.9);
 }
 
 .nudge:hover:not(:disabled) {
@@ -191,188 +275,21 @@
   color: var(--text);
 }
 
+.nudge:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
 .nudge:disabled {
   opacity: 0.25;
-  cursor: default;
 }
-
-.action {
-  padding: 3px 8px;
-  font-size: 11.5px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  color: var(--text-dim);
-}
-
-.action:hover:not(:disabled) {
-  color: var(--text);
-  border-color: var(--text-faint);
-  background: var(--bg-hover);
-}
-
-.action:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.danger:hover {
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
-.progress {
-  margin-top: 8px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--line);
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.2s ease;
-}
-
-.progressLabel {
-  font-size: 10.5px;
-  color: var(--text-faint);
-  margin-top: 4px;
-}
-
-/* ---- activity ---- */
-
-/* Side by side once the rail is a wide strip under the other two panes — but
-   only while it is actually wide; below the single-column breakpoint it goes
-   back to stacking. */
-@media (max-width: 1180px) and (min-width: 801px) {
-  .pane {
-    flex-direction: row;
-  }
-  .clipsCard {
-    flex: 1.3;
-  }
-  .activityCard {
-    flex: 1;
-    max-height: none;
-  }
-}
-
-.event {
-  display: flex;
-  gap: 8px;
-  padding: 5px 4px;
-  border-bottom: 1px solid var(--line);
-  font-size: 11.5px;
-  line-height: 1.45;
-}
-
-.event:last-child {
-  border-bottom: none;
-}
-
-.eventTool {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--agent);
-  flex: none;
-  padding-top: 1px;
-  min-width: 92px;
-}
-
-.eventToolError {
-  color: var(--danger);
-}
-
-.eventText {
-  color: var(--text-dim);
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-/* ---- find button ---- */
-
-.findBtn {
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-  transition: background 0.12s ease, opacity 0.12s ease;
-}
-
-.findBtn:hover:not(:disabled) {
-  background: #f0b055;
-}
-
-.findBtn:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-/* ---- provenance badges ---- */
-
-.badge_agent {
-  background: var(--agent-wash);
-  color: var(--agent);
-}
-
-.badge_human {
-  background: var(--accent-wash);
-  color: var(--accent);
-}
-
-/* The page's own pass. Deliberately the quietest of the three — it is the one
-   whose judgement you should trust least. */
-.badge_auto {
-  background: transparent;
-  color: var(--text-faint);
-  border: 1px solid var(--line-strong);
-}
-
-.kindTag {
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 9.5px;
-  color: var(--text-faint);
-}
-
-.strong {
-  color: var(--text);
-}
-
-/* ---- the cut, drawn against its own span ---- */
-
-.segmentBar {
-  position: relative;
-  height: 5px;
-  border-radius: 3px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  margin: 2px 0 8px;
-  overflow: hidden;
-}
-
-.segmentPiece {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: var(--accent);
-  border-radius: 2px;
-  opacity: 0.8;
-}
-
-/* ---- gap control ---- */
 
 .padGroup {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 2px 5px 2px 2px;
+  gap: 6px;
+  padding: 2px 8px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
 }
 
 .padSlider {
@@ -386,86 +303,6 @@
   color: var(--text-faint);
   min-width: 32px;
   font-variant-numeric: tabular-nums;
-}
-
-/* ---- actions row ---- */
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 8px;
-}
-
-.actionPrimary {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.actionPrimary:hover:not(:disabled) {
-  background: var(--accent-wash);
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-/* ---- the empty state, which is the instruction ---- */
-
-.ask {
-  padding: 14px 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.askLead {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-dim);
-}
-
-.askList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.askList li {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--text);
-  padding: 8px 11px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-sunken);
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--accent);
-}
-
-.askFoot {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--text-faint);
-}
-
-.askFoot strong {
-  color: var(--text-dim);
-  font-weight: 500;
-}
-
-/* The fallback button is deliberately quiet: it is the lesser path. */
-.findBtn {
-  background: transparent;
-  color: var(--text-dim);
-  border-color: var(--line-strong);
-  font-weight: 400;
-}
-
-.findBtn:hover:not(:disabled) {
-  background: var(--bg-hover);
-  color: var(--text);
 }
 
 /* ---- what to say about the selected clip ---- */
@@ -497,13 +334,112 @@
 .sayPhrases code {
   font-family: inherit;
   font-size: 11.5px;
-  color: var(--agent);
+  color: var(--agent-ink);
   background: var(--agent-wash);
   border-radius: 3px;
   padding: 2px 6px;
 }
 
-/* ---- the empty state as a sequence, since that is what it is ---- */
+/* ---- actions ---- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.action {
+  height: 26px;
+  padding: 0 9px;
+  font-size: 11.5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease,
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.action:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-faint);
+  background: var(--bg-hover);
+}
+
+.action:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.action:disabled {
+  opacity: 0.4;
+}
+
+.actionPrimary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.actionPrimary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--accent-text);
+}
+
+.danger:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: transparent;
+}
+
+.progress {
+  margin-top: 8px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.progressLabel {
+  font-size: 10.5px;
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+/* ---- the empty state, which is the instruction ---- */
+
+.ask {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 2px 0;
+}
+
+.askLead {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.askFoot {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-faint);
+}
 
 .askSteps {
   margin: 0;
@@ -512,7 +448,7 @@
   counter-reset: step;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 10px;
 }
 
 .askSteps li {
@@ -521,7 +457,7 @@
   padding-left: 24px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .askSteps li::before {
@@ -542,19 +478,19 @@
 
 /* Spoken and clicked steps look different, because they are different. */
 .askSay {
-  font-size: 13px;
-  color: var(--agent);
+  font-size: 12.5px;
+  color: var(--agent-ink);
   line-height: 1.4;
 }
 
 .askDo {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--text);
   line-height: 1.4;
 }
 
 .askThen {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-faint);
   line-height: 1.5;
 }

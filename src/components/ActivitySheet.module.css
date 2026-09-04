@@ -19,18 +19,18 @@
 .tool {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--agent);
+  color: var(--agent-ink);
 }
 
 .toolError {
-  color: var(--danger, #d08a7a);
+  color: var(--danger);
 }
 
 .failed {
   font-size: 10px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--danger, #d08a7a);
+  color: var(--danger);
   border: 1px solid currentColor;
   border-radius: 3px;
   padding: 0 4px;

@@ -199,3 +199,17 @@ export function playSentenceRange(startId: string, endId: string): boolean {
 export function currentQueuePosition(): { index: number; total: number } {
   return { index: queueIndex, total: queue.length }
 }
+
+/**
+ * Where the playhead sits in the cut's own time, or null when the source
+ * playhead is somewhere this cut threw away — in which case showing nothing is
+ * more honest than pinning it to an edge.
+ */
+export function cutTimeOf(t: number, ranges: Range[]): number | null {
+  let elapsed = 0
+  for (const r of ranges) {
+    if (t >= r.start && t <= r.end) return elapsed + (t - r.start)
+    elapsed += r.end - r.start
+  }
+  return null
+}
