@@ -146,3 +146,21 @@ test('a sentence can be split twice, and the halves stay addressable', () => {
   assert.equal(new Set(ids).size, 3)
   for (const s of list) assert.equal(sentenceById(s.id)?.text, s.text)
 })
+
+test('a subtitle cue says why it cannot be split, not "between 1 and 0"', () => {
+  // One cue becomes one indivisible unit, so the sentence built from it has
+  // nothing inside to cut at. The arithmetic message was true and useless.
+  const w = [{ text: 'We choose to go to the moon.', start: 0, end: 3 }]
+  setProject({
+    name: 'srt',
+    videoUrl: 'blob:none',
+    videoLabel: 'srt',
+    sentences: buildSentences(w, { pauseSeconds: 999, minWords: 1 }),
+    words: w,
+    duration: 3,
+  })
+  const result = splitSentence('s0001', 1, 'human')
+  assert.ok('error' in result)
+  assert.match(result.error, /subtitle cue/)
+  assert.doesNotMatch(result.error, /between 1 and 0/)
+})

@@ -202,11 +202,23 @@ export function splitSentence(
   }
 
   const count = target.wordEnd - target.wordStart + 1
+  // A subtitle cue arrives as one indivisible unit, so a sentence built from
+  // one has nothing inside it to cut at. Saying "between 1 and 0" would be
+  // true and useless; the real answer is that the transcript is too coarse.
+  if (count < 2) {
+    return {
+      error:
+        sentenceId + ' came from a subtitle cue, which has no timings inside it, so ' +
+        'there is nowhere to split. Subtitle transcripts (SRT, VTT) can be cut only at ' +
+        'cue boundaries. Load a word-level transcript — Whisper or Deepgram or ' +
+        'ElevenLabs JSON — to split a line.',
+    }
+  }
   if (!Number.isInteger(atWord) || atWord < 1 || atWord >= count) {
     return {
       error:
-        'Split point must be between 1 and ' + (count - 1) + ' for ' + sentenceId +
-        ', which is ' + count + ' words long.',
+        'Split point must be a whole number between 1 and ' + (count - 1) + ' for ' +
+        sentenceId + ', which is ' + count + ' words long.',
     }
   }
 
