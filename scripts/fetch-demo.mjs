@@ -13,6 +13,7 @@
  * only way anyone uses it on their own footage.
  */
 import { mkdir, stat, writeFile } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -53,6 +54,22 @@ if (await alreadyHere()) {
 }
 
 await mkdir(dirname(target), { recursive: true })
+
+// A private repository's release assets are not reachable at the plain
+// releases/download URL, token or no token — that path needs the API's asset
+// endpoint. gh already knows how to ask, so try it before falling back to a
+// plain fetch, which is what works once the repo is public.
+try {
+  execFileSync('gh', ['release', 'download', 'demo-assets', '--pattern', '*.mp4',
+    '--dir', dirname(target), '--clobber'], { stdio: 'ignore' })
+  if (await alreadyHere()) {
+    console.log('[fetch-demo] downloaded public/demo/jfk-rice-moon.mp4 with gh')
+    process.exit(0)
+  }
+} catch {
+  // gh missing, not logged in, or no such release. The plain fetch below is
+  // the answer for anyone without it.
+}
 
 // A private repo's release assets need credentials; a public one's do not. Send
 // a token when the environment has one, which covers CI without requiring it.

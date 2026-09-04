@@ -28,6 +28,14 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      # While the repository is private, releases/download/... is not fetchable
+      # even with a token — that path needs the API asset endpoint, and gh knows
+      # how to ask for it. fetch-demo.mjs then finds the file already here and
+      # skips, so this step is the only thing that has to know.
+      - name: Fetch the demo video
+        run: gh release download demo-assets --pattern '*.mp4' --dir public/demo --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Project sites live under /<repo>/, and the app resolves its own assets
       # from this at runtime.
       - run: npm run build
