@@ -1,4 +1,4 @@
-import type { Sentence } from '../types'
+import type { Range, Sentence } from '../types'
 
 function srtTime(seconds: number): string {
   const s = Math.max(0, seconds)
@@ -7,20 +7,38 @@ function srtTime(seconds: number): string {
   const sec = Math.floor(s % 60)
   const ms = Math.round((s - Math.floor(s)) * 1000)
   const p = (n: number, w = 2) => String(n).padStart(w, '0')
-  return `${p(h)}:${p(m)}:${p(sec)},${p(ms, 3)}`
+  return p(h) + ':' + p(m) + ':' + p(sec) + ',' + p(ms, 3)
 }
 
 /**
- * Builds an .srt for the exported clip with every cue rebased so the file
- * starts at zero. A subtitle file that still carries the source's timecodes is
- * useless the moment the video is trimmed.
+ * Builds an .srt for an exported cut.
+ *
+ * A cut is several pieces of the source joined together, so a sentence's
+ * subtitle time is its offset inside its own piece plus the total length of
+ * every piece before it. Carrying the source's timecodes over, or rebasing only
+ * against the first piece, puts every cue after the first cut out of sync.
  */
-export function buildSrt(sentences: Sentence[], clipStart: number): string {
-  return sentences
-    .map((s, i) => {
-      const start = Math.max(0, s.start - clipStart)
-      const end = Math.max(start + 0.2, s.end - clipStart)
-      return `${i + 1}\n${srtTime(start)} --> ${srtTime(end)}\n${s.text}\n`
-    })
+export function buildSrt(sentences: Sentence[], ranges: Range[]): string {
+  const cues: { start: number; end: number; text: string }[] = []
+  let elapsed = 0
+
+  for (const range of ranges) {
+    const length = Math.max(0, range.end - range.start)
+    for (const s of sentences) {
+      // A sentence belongs to this piece if it overlaps it at all; clamp so a
+      // sentence clipped by a cut still gets a cue that stays inside the piece.
+      if (s.end <= range.start || s.start >= range.end) continue
+      const start = elapsed + Math.max(0, s.start - range.start)
+      const end = elapsed + Math.min(length, s.end - range.start)
+      if (end - start < 0.05) continue
+      cues.push({ start, end, text: s.text })
+    }
+    elapsed += length
+  }
+
+  cues.sort((a, b) => a.start - b.start)
+
+  return cues
+    .map((c, i) => i + 1 + '\n' + srtTime(c.start) + ' --> ' + srtTime(c.end) + '\n' + c.text + '\n')
     .join('\n')
 }

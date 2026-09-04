@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './Player.module.css'
-import { useStore, clipBounds, sentenceById } from '../state/store'
-import { attachVideo, onTimeUpdate, toggle, seek, getVideo } from '../state/player'
-import { formatTimecode } from '../transcript/sentences'
+import { useStore, clipRanges, clipDuration, sentenceById } from '../state/store'
+import {
+  attachVideo,
+  onTimeUpdate,
+  onQueueChange,
+  toggle,
+  seek,
+  getVideo,
+} from '../state/player'
+import { formatTimecode, formatDuration } from '../transcript/sentences'
 
 export function Player() {
   const project = useStore((s) => s.project)
@@ -14,6 +21,7 @@ export function Player() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [time, setTime] = useState(0)
   const [paused, setPaused] = useState(true)
+  const [piece, setPiece] = useState({ index: 0, total: 0 })
 
   useEffect(() => {
     attachVideo(videoRef.current)
@@ -21,6 +29,7 @@ export function Player() {
   }, [project?.videoUrl])
 
   useEffect(() => onTimeUpdate(setTime), [])
+  useEffect(() => onQueueChange((index, total) => setPiece({ index, total })), [])
 
   const duration = project?.duration ?? 0
   const pct = (t: number) => (duration > 0 ? (t / duration) * 100 : 0)
@@ -66,9 +75,12 @@ export function Player() {
           <div className={styles.rangeBadge}>
             <span className={styles.rangeDot} />
             <span className={styles.rangeName}>{activeClip.title}</span>
-            <span>
-              {activeClip.startSentenceId}–{activeClip.endSentenceId}
-            </span>
+            <span>{formatDuration(clipDuration(activeClip))}</span>
+            {piece.total > 1 && (
+              <span className={styles.piece}>
+                piece {piece.index + 1}/{piece.total}
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -106,11 +118,12 @@ export function Player() {
           />
         ))}
 
-        {clips.map((clip) => {
-          const b = clipBounds(clip)
-          return (
+        {/* One band per kept piece, so the gaps a cut leaves are visible on the
+            strip rather than implied by a single span. */}
+        {clips.flatMap((clip) =>
+          clipRanges(clip).map((r, i) => (
             <div
-              key={clip.id}
+              key={clip.id + ':' + i}
               className={[
                 styles.clipBand,
                 clip.id === activeClipId &&
@@ -120,11 +133,11 @@ export function Player() {
               ]
                 .filter(Boolean)
                 .join(' ')}
-              style={{ left: `${pct(b.start)}%`, width: `${Math.max(0.4, pct(b.end - b.start))}%` }}
+              style={{ left: `${pct(r.start)}%`, width: `${Math.max(0.4, pct(r.end - r.start))}%` }}
               title={`${clip.id} · ${clip.title}`}
             />
-          )
-        })}
+          ))
+        )}
 
         {auditionBounds && (
           <div

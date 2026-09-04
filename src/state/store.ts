@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { Actor, Clip, Project, Sentence } from '../types'
+import type { Actor, Clip, ClipKind, Project, Range, Segment, Sentence } from '../types'
 import { indexOfSentenceId } from '../transcript/sentences'
 
 export interface ToolEvent {
@@ -34,6 +34,8 @@ export interface EditorState {
   toolEvents: ToolEvent[]
   mcpConnected: boolean
   exporting: { clipId: string; stage: string; progress: number } | null
+  /** Set while the local heuristic pass is running, so buttons can show it. */
+  working: string | null
 }
 
 const initial: EditorState = {
@@ -48,6 +50,7 @@ const initial: EditorState = {
   toolEvents: [],
   mcpConnected: false,
   exporting: null,
+  working: null,
 }
 
 let state: EditorState = initial
@@ -111,6 +114,10 @@ export function setExporting(exporting: EditorState['exporting']) {
   set({ exporting })
 }
 
+export function setWorking(working: string | null) {
+  set({ working })
+}
+
 // -------------------------------------------------------------- sentences
 
 export function sentences(): Sentence[] {
@@ -132,52 +139,161 @@ export function resolveRange(
   if (!list.length) return { error: 'No transcript is loaded.' }
   const a = indexOfSentenceId(startSentenceId)
   const b = indexOfSentenceId(endSentenceId)
-  if (a < 0 || a >= list.length) return { error: `Unknown sentence id "${startSentenceId}".` }
-  if (b < 0 || b >= list.length) return { error: `Unknown sentence id "${endSentenceId}".` }
+  if (a < 0 || a >= list.length) return { error: unknownId(startSentenceId) }
+  if (b < 0 || b >= list.length) return { error: unknownId(endSentenceId) }
   const lo = Math.min(a, b)
   const hi = Math.max(a, b)
   return { start: list[lo], end: list[hi] }
 }
 
-export function clipBounds(clip: Clip): { start: number; end: number } {
-  const r = resolveRange(clip.startSentenceId, clip.endSentenceId)
-  if ('error' in r) return { start: 0, end: 0 }
-  return { start: r.start.start, end: r.end.end }
-}
-
-export function clipDuration(clip: Clip): number {
-  const { start, end } = clipBounds(clip)
-  return Math.max(0, end - start)
-}
-
-export function clipText(clip: Clip): string {
-  const r = resolveRange(clip.startSentenceId, clip.endSentenceId)
-  if ('error' in r) return ''
-  return sentences()
-    .slice(r.start.index, r.end.index + 1)
-    .map((s) => s.text)
-    .join(' ')
+function unknownId(id: string): string {
+  const list = sentences()
+  const range = list.length ? ' Ids run ' + list[0].id + '-' + list[list.length - 1].id + '.' : ''
+  return 'Unknown sentence id "' + id + '".' + range
 }
 
 // ------------------------------------------------------------------ clips
 
+/**
+ * Turns a clip's sentence ranges into playable second-ranges, with padding
+ * applied. Padding can push neighbouring segments into each other, so anything
+ * that now touches is merged — otherwise playback would seek backwards
+ * mid-clip and the export would repeat a moment.
+ */
+export function clipRanges(clip: Clip): Range[] {
+  const duration = state.project?.duration ?? Number.POSITIVE_INFINITY
+  const raw: Range[] = []
+
+  for (const seg of clip.segments) {
+    const r = resolveRange(seg.startSentenceId, seg.endSentenceId)
+    if ('error' in r) continue
+    raw.push({
+      start: Math.max(0, r.start.start - clip.pad),
+      end: Math.min(duration, r.end.end + clip.pad),
+    })
+  }
+
+  raw.sort((a, b) => a.start - b.start)
+  const merged: Range[] = []
+  for (const range of raw) {
+    const last = merged[merged.length - 1]
+    if (last && range.start <= last.end + 0.001) last.end = Math.max(last.end, range.end)
+    else merged.push({ ...range })
+  }
+  return merged
+}
+
+/** Sentence indices a clip keeps, in play order. */
+export function clipSentenceIndices(clip: Clip): number[] {
+  const out: number[] = []
+  for (const seg of clip.segments) {
+    const r = resolveRange(seg.startSentenceId, seg.endSentenceId)
+    if ('error' in r) continue
+    for (let i = r.start.index; i <= r.end.index; i++) out.push(i)
+  }
+  return out
+}
+
+/** The span from first kept sentence to last, including what was dropped. */
+export function clipSpan(clip: Clip): Range {
+  const ranges = clipRanges(clip)
+  if (!ranges.length) return { start: 0, end: 0 }
+  return { start: ranges[0].start, end: ranges[ranges.length - 1].end }
+}
+
+/** Playing time — the sum of the kept pieces, not the span they sit in. */
+export function clipDuration(clip: Clip): number {
+  return clipRanges(clip).reduce((total, r) => total + Math.max(0, r.end - r.start), 0)
+}
+
+export function clipText(clip: Clip): string {
+  const list = sentences()
+  return clipSentenceIndices(clip)
+    .map((i) => list[i]?.text ?? '')
+    .filter(Boolean)
+    .join(' ')
+}
+
+/** How many sentences the cut dropped out of its own span. */
+export function clipDropped(clip: Clip): number {
+  const kept = clipSentenceIndices(clip)
+  if (kept.length < 2) return 0
+  const span = kept[kept.length - 1] - kept[0] + 1
+  return span - kept.length
+}
+
+/** Ordered, in-bounds, non-overlapping; touching runs joined. */
+function normaliseSegments(segments: Segment[]): Segment[] | { error: string } {
+  const list = sentences()
+  const spans: { a: number; b: number }[] = []
+  for (const seg of segments) {
+    const r = resolveRange(seg.startSentenceId, seg.endSentenceId)
+    if ('error' in r) return r
+    spans.push({ a: r.start.index, b: r.end.index })
+  }
+  if (!spans.length) return { error: 'A clip needs at least one range of sentences.' }
+
+  spans.sort((x, y) => x.a - y.a)
+  const merged: { a: number; b: number }[] = []
+  for (const span of spans) {
+    const last = merged[merged.length - 1]
+    // Touching or overlapping runs become one. A gap of even a single dropped
+    // sentence is a real cut, and stays a gap.
+    if (last && span.a <= last.b + 1) last.b = Math.max(last.b, span.b)
+    else merged.push({ ...span })
+  }
+  return merged.map((m) => ({
+    startSentenceId: list[m.a].id,
+    endSentenceId: list[m.b].id,
+  }))
+}
+
+/** Collapses a set of sentence indices into contiguous runs. */
+export function segmentsFromIndices(indices: number[]): Segment[] {
+  const list = sentences()
+  const sorted = [...new Set(indices)].filter((i) => i >= 0 && i < list.length).sort((a, b) => a - b)
+  const out: Segment[] = []
+  let runStart = -1
+  let previous = -2
+  for (const i of sorted) {
+    if (i !== previous + 1) {
+      if (runStart >= 0) {
+        out.push({ startSentenceId: list[runStart].id, endSentenceId: list[previous].id })
+      }
+      runStart = i
+    }
+    previous = i
+  }
+  if (runStart >= 0) {
+    out.push({ startSentenceId: list[runStart].id, endSentenceId: list[previous].id })
+  }
+  return out
+}
+
 let clipCounter = 0
 
 export function createClip(input: {
-  startSentenceId: string
-  endSentenceId: string
+  segments: Segment[]
+  kind?: ClipKind
   title?: string
   note?: string
+  pad?: number
+  sourceClipId?: string
   by: Actor
 }): Clip | { error: string } {
-  const r = resolveRange(input.startSentenceId, input.endSentenceId)
-  if ('error' in r) return r
+  const segments = normaliseSegments(input.segments)
+  if ('error' in segments) return segments
+
+  const list = sentences()
+  const firstIndex = indexOfSentenceId(segments[0].startSentenceId)
   const clip: Clip = {
-    id: `c${++clipCounter}`,
-    title: input.title?.trim() || defaultTitle(r.start.text),
-    startSentenceId: r.start.id,
-    endSentenceId: r.end.id,
+    id: 'c' + ++clipCounter,
+    title: input.title?.trim() || defaultTitle(list[firstIndex]?.text ?? ''),
     note: input.note?.trim() || undefined,
+    kind: input.kind ?? (segments.length > 1 ? 'cut' : 'topic'),
+    segments,
+    pad: clamp(input.pad ?? 0, 0, 2),
+    sourceClipId: input.sourceClipId,
     revision: 1,
     createdBy: input.by,
     lastEditedBy: input.by,
@@ -190,45 +306,91 @@ export function createClip(input: {
 export function updateClip(input: {
   clipId: string
   expectedRevision?: number
-  startSentenceId?: string
-  endSentenceId?: string
+  segments?: Segment[]
   title?: string
   note?: string
+  pad?: number
+  kind?: ClipKind
   by: Actor
 }): Clip | { error: string; currentRevision?: number } {
   const existing = state.clips.find((c) => c.id === input.clipId)
-  if (!existing) return { error: `No clip with id "${input.clipId}".` }
+  if (!existing) return { error: 'No clip with id "' + input.clipId + '".' }
 
-  if (
-    typeof input.expectedRevision === 'number' &&
-    input.expectedRevision !== existing.revision
-  ) {
+  if (typeof input.expectedRevision === 'number' && input.expectedRevision !== existing.revision) {
     return {
       error:
-        `Clip ${existing.id} has moved on since you read it — you expected revision ` +
-        `${input.expectedRevision}, it is now ${existing.revision}. Someone edited it in ` +
-        `the UI. Call get_editor_state and decide again from the real range.`,
+        'Clip ' +
+        existing.id +
+        ' has moved on since you read it — you expected revision ' +
+        input.expectedRevision +
+        ', it is now ' +
+        existing.revision +
+        '. Someone edited it in the UI. Call get_editor_state and decide again ' +
+        'from the real cut.',
       currentRevision: existing.revision,
     }
   }
 
-  const r = resolveRange(
-    input.startSentenceId ?? existing.startSentenceId,
-    input.endSentenceId ?? existing.endSentenceId
-  )
-  if ('error' in r) return r
+  let segments = existing.segments
+  if (input.segments) {
+    const next = normaliseSegments(input.segments)
+    if ('error' in next) return next
+    segments = next
+  }
 
-  const next: Clip = {
+  const clip: Clip = {
     ...existing,
-    startSentenceId: r.start.id,
-    endSentenceId: r.end.id,
+    segments,
+    kind: input.kind ?? existing.kind,
     title: input.title?.trim() || existing.title,
     note: input.note === undefined ? existing.note : input.note.trim() || undefined,
+    pad: input.pad === undefined ? existing.pad : clamp(input.pad, 0, 2),
     revision: existing.revision + 1,
     lastEditedBy: input.by,
   }
-  mutate((s) => ({ clips: s.clips.map((c) => (c.id === next.id ? next : c)) }))
-  return next
+  mutate((s) => ({ clips: s.clips.map((c) => (c.id === clip.id ? clip : c)) }))
+  return clip
+}
+
+/**
+ * Drops one sentence from a clip. If it sits in the interior the segment splits
+ * in two — which is the whole reason a clip is a list of segments rather than a
+ * single range.
+ */
+export function removeSentence(
+  clipId: string,
+  sentenceId: string,
+  by: Actor
+): Clip | { error: string } {
+  const clip = state.clips.find((c) => c.id === clipId)
+  if (!clip) return { error: 'No clip with id "' + clipId + '".' }
+  const target = indexOfSentenceId(sentenceId)
+  const list = sentences()
+  if (target < 0 || target >= list.length) return { error: unknownId(sentenceId) }
+
+  const kept = clipSentenceIndices(clip)
+  if (!kept.includes(target)) return { error: sentenceId + ' is not in ' + clipId + '.' }
+  const next = kept.filter((i) => i !== target)
+  if (!next.length) return { error: 'That would empty the clip. Delete it instead.' }
+
+  return updateClip({ clipId, segments: segmentsFromIndices(next), by, kind: 'cut' })
+}
+
+/** Puts a sentence back into a clip, in transcript order. */
+export function addSentence(
+  clipId: string,
+  sentenceId: string,
+  by: Actor
+): Clip | { error: string } {
+  const clip = state.clips.find((c) => c.id === clipId)
+  if (!clip) return { error: 'No clip with id "' + clipId + '".' }
+  const target = indexOfSentenceId(sentenceId)
+  const list = sentences()
+  if (target < 0 || target >= list.length) return { error: unknownId(sentenceId) }
+
+  const kept = clipSentenceIndices(clip)
+  if (kept.includes(target)) return { error: sentenceId + ' is already in ' + clipId + '.' }
+  return updateClip({ clipId, segments: segmentsFromIndices([...kept, target]), by })
 }
 
 export function deleteClip(clipId: string) {
@@ -250,6 +412,10 @@ export function setSelection(selection: Selection | null) {
 
 export function setAudition(audition: Selection | null) {
   set({ audition })
+}
+
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, Number.isFinite(n) ? n : lo))
 }
 
 function defaultTitle(text: string): string {

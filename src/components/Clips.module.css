@@ -289,3 +289,121 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+/* ---- find button ---- */
+
+.findBtn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  transition: background 0.12s ease, opacity 0.12s ease;
+}
+
+.findBtn:hover:not(:disabled) {
+  background: #f0b055;
+}
+
+.findBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---- provenance badges ---- */
+
+.badge_agent {
+  background: var(--agent-wash);
+  color: var(--agent);
+}
+
+.badge_human {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+/* The page's own pass. Deliberately the quietest of the three — it is the one
+   whose judgement you should trust least. */
+.badge_auto {
+  background: transparent;
+  color: var(--text-faint);
+  border: 1px solid var(--line-strong);
+}
+
+.kindTag {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 9.5px;
+  color: var(--text-faint);
+}
+
+.strong {
+  color: var(--text);
+}
+
+/* ---- the cut, drawn against its own span ---- */
+
+.segmentBar {
+  position: relative;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  margin: 2px 0 8px;
+  overflow: hidden;
+}
+
+.segmentPiece {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+/* ---- gap control ---- */
+
+.padGroup {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 5px 2px 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.padSlider {
+  width: 54px;
+  accent-color: var(--accent);
+}
+
+.padValue {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  min-width: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- actions row ---- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.actionPrimary {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.actionPrimary:hover:not(:disabled) {
+  background: var(--accent-wash);
+  color: var(--accent);
+  border-color: var(--accent);
+}

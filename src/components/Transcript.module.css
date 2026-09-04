@@ -229,3 +229,42 @@
   color: var(--text-faint);
   font-size: 13px;
 }
+
+/* A sentence the active cut dropped. Shown in place and struck through rather
+   than hidden: an edit you cannot see is an edit you cannot review. */
+.dropped .text {
+  color: var(--text-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-strong);
+}
+
+.dropped .tc {
+  opacity: 0.55;
+}
+
+.keepToggle {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border-radius: 3px;
+  border: 1px solid var(--line-strong);
+  color: var(--text-faint);
+  font-size: 13px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+}
+
+.row:hover .keepToggle,
+.keepToggle:focus-visible {
+  opacity: 1;
+}
+
+.keepToggle:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+  background: var(--bg-hover);
+}

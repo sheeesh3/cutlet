@@ -1,9 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import styles from './Transcript.module.css'
-import { useStore, setSelection, createClip, getState } from '../state/store'
+import {
+  useStore,
+  setSelection,
+  createClip,
+  getState,
+  clipSentenceIndices,
+  removeSentence,
+  addSentence,
+  logTool,
+} from '../state/store'
 import { onTimeUpdate, seek, playSentenceRange } from '../state/player'
 import { formatTimecode } from '../transcript/sentences'
-import type { Sentence } from '../types'
+import type { Actor, Sentence } from '../types'
 
 const NO_SENTENCES: Sentence[] = []
 
@@ -56,22 +65,37 @@ export function Transcript() {
     return sentences.length - 1
   }, [sentences, time])
 
-  /** Membership lookups, computed once per render rather than per row. */
-  const { inClip, inActive, activeEditedBy } = useMemo(() => {
+  /**
+   * Membership lookups, computed once per render rather than per row.
+   *
+   * `droppedFromActive` is the interesting one: sentences that sit inside the
+   * active cut's span but were cut out of it. Showing them struck through, in
+   * place, is what makes an edit reviewable — you can see what went, not just
+   * what stayed.
+   */
+  const { inClip, inActive, droppedFromActive, activeEditedBy } = useMemo(() => {
     const inClip = new Set<number>()
     const inActive = new Set<number>()
-    let activeEditedBy: 'agent' | 'human' = 'agent'
+    const droppedFromActive = new Set<number>()
+    let activeEditedBy: Actor = 'agent'
+    if (!sentences.length) return { inClip, inActive, droppedFromActive, activeEditedBy }
+
     for (const clip of clips) {
-      const a = sentences.findIndex((s) => s.id === clip.startSentenceId)
-      const b = sentences.findIndex((s) => s.id === clip.endSentenceId)
-      if (a < 0 || b < 0) continue
-      for (let i = a; i <= b; i++) {
+      const kept = clipSentenceIndices(clip)
+      for (const i of kept) {
         inClip.add(i)
         if (clip.id === activeClipId) inActive.add(i)
       }
-      if (clip.id === activeClipId) activeEditedBy = clip.lastEditedBy
+      if (clip.id === activeClipId) {
+        activeEditedBy = clip.lastEditedBy
+        if (kept.length) {
+          for (let i = kept[0]; i <= kept[kept.length - 1]; i++) {
+            if (!inActive.has(i)) droppedFromActive.add(i)
+          }
+        }
+      }
     }
-    return { inClip, inActive, activeEditedBy }
+    return { inClip, inActive, droppedFromActive, activeEditedBy }
   }, [clips, activeClipId, sentences])
 
   const auditionRange = useMemo(() => {
@@ -173,10 +197,22 @@ export function Transcript() {
     const sel = getState().selection
     if (!sel) return
     createClip({
-      startSentenceId: sel.startSentenceId,
-      endSentenceId: sel.endSentenceId,
+      segments: [{ startSentenceId: sel.startSentenceId, endSentenceId: sel.endSentenceId }],
       by: 'human',
     })
+  }
+
+  /**
+   * With a cut open, clicking the keep/drop control on a sentence edits that cut
+   * in place. This is the fine adjustment the agent cannot do for you: it can
+   * propose a shape, but only you can hear that one line has to go.
+   */
+  const toggleSentenceInActive = (sentenceId: string, drop: boolean) => {
+    if (!activeClipId) return
+    const result = drop
+      ? removeSentence(activeClipId, sentenceId, 'human')
+      : addSentence(activeClipId, sentenceId, 'human')
+    if ('error' in result) logTool('edit', result.error, false)
   }
 
   return (
@@ -213,6 +249,8 @@ export function Transcript() {
           const i = s.index
           const selected = selectedRange && i >= selectedRange.a && i <= selectedRange.b
           const auditioning = auditionRange && i >= auditionRange.a && i <= auditionRange.b
+          const dropped = droppedFromActive.has(i)
+          const editable = !!activeClipId && (inActive.has(i) || dropped)
           const cls = [
             styles.row,
             inClip.has(i) && styles.inClip,
@@ -220,6 +258,7 @@ export function Transcript() {
               (activeEditedBy === 'human'
                 ? styles.inActiveClipHuman
                 : styles.inActiveClipAgent),
+            dropped && styles.dropped,
             auditioning && styles.audition,
             selected && styles.selected,
             i === playingIndex && styles.playing,
@@ -245,6 +284,19 @@ export function Transcript() {
                 {i === playingIndex && <span className={styles.playingDot} />}
                 {terms.length ? highlight(s.text, terms) : s.text}
               </span>
+              {editable && (
+                <button
+                  className={styles.keepToggle}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleSentenceInActive(s.id, !dropped)
+                  }}
+                  title={dropped ? 'Put this line back in the clip' : 'Drop this line from the clip'}
+                  aria-label={dropped ? 'Restore ' + s.id : 'Drop ' + s.id}
+                >
+                  {dropped ? '+' : '−'}
+                </button>
+              )}
             </div>
           )
         })}
