@@ -41,7 +41,7 @@ const target = join(demoDir, videos[0] ?? 'jfk-rice-moon.mp4')
 /** Overridable so a fork can point at its own copy without editing this file. */
 const url =
   process.env.DEMO_VIDEO_URL ??
-  'https://github.com/sheeesh3/clipclub/releases/download/demo-assets/jfk-rice-moon.mp4'
+  'https://github.com/sheeesh3/cutlet/releases/download/demo-assets/jfk-rice-moon.mp4'
 
 // Roughly 18MB. Checked only to notice a redirect-to-HTML or a truncated body,
 // not to pin an exact byte count.
