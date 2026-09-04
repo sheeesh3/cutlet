@@ -1,10 +1,10 @@
 # ClipClub
 
-**Select the moment. Let the agent build the story around it. Watch it together,
-then cut by pointing at words.**
+**Find the moments. Cut them down together. Then fix the cut by pointing at
+words.**
 
 A rough-cut video editor that an agent can drive, built on
-[WebMCP](https://github.com/webmachinelearning/webmcp). The page registers seven
+[WebMCP](https://github.com/webmachinelearning/webmcp). The page registers ten
 tools with the browser's agent; the agent reads and structures the transcript,
 you judge pacing in the footage, and you both edit the same visible cut.
 
@@ -12,52 +12,91 @@ It is not an "AI clip finder". The interesting part is the handoff.
 
 ---
 
-## The interaction: anchor and expand
+## The flow
+
+**Find** → a pass over the transcript proposes topics: stretches that hang
+together, often two or three minutes each. These are candidates, not
+deliverables.
+
+**Cut** → a topic gets reduced to 30–60 seconds by dropping sentences out of its
+middle. That is the edit: a clip becomes several pieces with gaps between them,
+and playback jumps the gaps.
+
+**Fix** → every dropped sentence stays visible in the transcript, struck
+through, with a control to put it back. Every kept one has a control to drop it.
+A gap slider adds breathing room at each cut.
+
+**Export** → each piece is encoded separately then joined, plus an `.srt` rebased
+across the whole cut.
+
+## Anchor and expand
 
 1. **You anchor.** Click the sentence that has to survive.
-2. **The agent expands.** It reads a window of the transcript around your anchor
-   and proposes a clip as a contiguous range of *sentence ids* — `s0009–s0013` —
-   never a floating timestamp.
-3. **You watch it.** The player runs exactly that range and stops at the end.
-4. **You move an edge.** One click on the clip's in/out control.
+2. **The agent expands.** It reads a window around your anchor and proposes a
+   clip as a range of *sentence ids* — `s0009–s0013` — never floating timestamps.
+3. **You watch it.** The player runs exactly those pieces and stops at the end.
+4. **You move an edge**, or drop a line.
 5. **The agent works from what is actually there.** Its next write carries the
    revision it last saw. Yours bumped it, so the write is refused, with the real
-   revision in the error. It reads the state and revises from your edit instead
-   of overwriting it.
+   revision in the error. It reads the state and revises from your edit.
 
-That last step is the whole point. A clip is shared state, and the human's edit
-is the brief.
+```
+cut_clip     c2  keep s0008,s0010,s0011,s0013  → revision 2, 3 pieces, 37s
+             ↓ human drops s0011 in the transcript → revision 5
+cut_clip     c2  expectedRevision 4             → REFUSED
+             "it is now 5. Someone edited it in the UI."
+get_editor_state                                → sees the real cut
+```
 
 **The anchor is yours.** When the agent auditions a range it has not committed
 to, that range is drawn separately — dashed, in the agent's blue — beside your
-anchor rather than on top of it. An agent trying something out cannot overwrite
-the sentence you said has to survive.
+anchor rather than on top of it.
 
-```
-create_clip  s0009–s0013                       → revision 1
-update_clip  s0009–s0011  expectedRevision 1   → revision 2
-             ↓ human drags the out point in the UI → revision 3
-update_clip  s0009–s0011  expectedRevision 2   → REFUSED
-             "you expected revision 2, it is now 3. Someone edited it in the UI.
-              Call get_editor_state and decide again from the real range."
-get_editor_state                               → sees s0009–s0012
-update_clip  s0009–s0013  expectedRevision 3   → revision 4
-```
+## Why the buttons do not call the agent
 
-## The seven tools
+WebMCP is one-directional. An agent can call into a page; a page has no way to
+call out to an agent. There is no `requestAgent`, no sampling, no elicitation —
+the explainer lists it as an open question, not a feature.
+
+So **Find clips** and **Cut to 30–60s** cannot summon one. They run the page's
+own lexical pass instead:
+
+- **Finding topics** splits where the vocabulary turns over, in the manner of
+  TextTiling — compare the words either side of each sentence boundary, cut where
+  the overlap dips. A long pause corroborates a weak seam; it never decides one
+  alone, because oratory pauses mid-thought.
+- **Cutting** scores sentences on how distinctive their vocabulary is within the
+  topic, then grows a selection from the strongest, favouring sentences adjacent
+  to something already kept and marking down any that open on "but", "so" or
+  "they" when the thing they refer to is being dropped.
+
+This is lexical, not semantic. It knows which words are unusual and where the
+speaker paused; it does not know what any of it means. That is the gap the agent
+fills, and the page says so — its own clips are badged `auto`, drawn the
+quietest of the three, and `get_guidelines` tells the agent they are the ones
+most worth its judgement.
+
+The upshot: the whole flow works in a browser with no agent at all, and the
+agent's contribution is visible as an improvement on something concrete rather
+than as the only thing that ever happens.
+
+## The ten tools
 
 Registered on the **top-level document** — tools declared inside an iframe are
 not discovered.
 
 | Tool | | What it is for |
 |---|---|---|
-| `get_editor_state` | read | The whole picture: video, selection, every clip with its range and revision, playhead. |
+| `get_editor_state` | read | Video, anchor, audition, every clip with its segments and revision. |
 | `read_transcript` | read | A bounded window of sentences. Not the whole transcript. |
 | `search_transcript` | read | Find a moment in a long recording, with context around each hit. |
-| `get_guidelines` | read | The editorial rules this editor works by. |
-| `create_clip` | write | A clip from a contiguous range of sentence ids. |
-| `update_clip` | write | Move an edge or retitle — takes `expectedRevision`. |
-| `preview_clip` | write | Play a range, or park the playhead on it. Marks it as an audition; never touches your anchor. |
+| `get_guidelines` | read | The editorial rules: topics vs cuts, what makes a cut land. |
+| `suggest_topics` | read | Run the lexical pass and return candidates to judge. |
+| `create_clip` | write | One range for a topic, or a segment list for a cut. |
+| `update_clip` | write | Replace segments, retitle, set the gap padding. Takes `expectedRevision`. |
+| `cut_clip` | write | Reduce to a target length. Pass `keepSentenceIds` to decide it yourself. |
+| `edit_clip_sentence` | write | Drop or restore one sentence. Splits a segment if it is interior. |
+| `preview_clip` | write | Play a clip including its gaps, or audition a range. |
 
 Read tools carry `annotations.readOnlyHint`.
 
@@ -75,13 +114,15 @@ ten seconds), Escape drops the anchor.
 
 ## Scope, honestly
 
-- **Contiguous ranges only.** There is no way to drop a sentence out of the
-  middle of a clip. If the middle is weak, the range is wrong.
-- **Preview is the source video**, played between two points. Nothing is
-  rendered to preview.
-- **Export re-encodes** rather than stream-copying. `-c copy` can only cut on a
-  keyframe, which would silently slide the in-point away from the sentence
-  boundary the whole app is built on.
+- **Preview is the source video**, played piece by piece. Nothing is rendered to
+  preview.
+- **Export re-encodes each piece**, then joins them by stream copy. `-c copy` on
+  the trim would only cut on a keyframe, sliding the in-point away from the
+  sentence boundary the whole app is built on; re-encoding the join instead would
+  cost a second generation for nothing.
+- **No agent-side delete.** If the agent makes a bad clip, you remove it.
+- **No transcription in the browser.** Bring a transcript; no API keys ship in
+  the client.
 
 ## Privacy, stated precisely
 
@@ -99,7 +140,7 @@ npm run dev
 ```
 
 Opens on **http://localhost:4920** (pinned; it fails rather than drifting to
-another port).
+another port). `npm run check` runs lint, build and tests.
 
 `npm run build` produces a static `dist/`. There is no server side.
 
@@ -124,14 +165,14 @@ which is why this deploys to plain static hosting.
 
 Open the page in a browser that exposes `document.modelContext`. The header pill
 reads **Agent tools live** when registration succeeded, and **Agent tools
-unavailable** otherwise — every control still works by hand either way.
+unavailable** otherwise — click it either way to see the tools the page offers.
 
-Then ask for something like:
+Press **Find clips**, then ask for something like:
 
-> Find where he asks why we climb the highest mountain, and build me a clip that
-> ends on "we intend to win".
+> The moon-speech topic is too long. Cut it to about forty seconds, keep the
+> "why does Rice play Texas" line, and end on "we intend to win".
 
-Watch the **Agent activity** panel: every tool call it makes is logged there.
+Watch the **Agent activity** panel: every tool call is logged there.
 
 ## The demo project
 
@@ -148,4 +189,6 @@ boundaries; subtitle cues work but are coarser.
 
 ## Stack
 
-Vite · React · TypeScript · CSS Modules · `@ffmpeg/ffmpeg`. Zero backend.
+Vite · React · TypeScript · CSS Modules · `@ffmpeg/ffmpeg`. Zero backend, no UI
+library, no state library, no test framework — Node runs the TypeScript tests
+directly.
